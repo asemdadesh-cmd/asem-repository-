@@ -1,0 +1,9 @@
+{
+  "name": "agency-review",
+  "description": "Elite web-agency review board — build and ship premium, production-ready websites. Runs a full multi-specialist review (design, UX, UI, branding, copy, marketing, CRO, SEO, accessibility, front-end, performance, security), a brutally honest critic pass, an innovation pass, and a final approval checklist, fixing every issue before presenting.",
+  "version": "1.0.0",
+  "author": {
+    "name": "NHT Estates",
+    "email": "info@nhtestates.co.uk"
+  }
+}

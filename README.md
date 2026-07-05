@@ -1,32 +1,55 @@
-# asem-repository-
+# asem-repository- — NHT Skills Marketplace
 
-## `agency-review` skill
+A Claude Code **plugin marketplace**. Install the plugin once and its skill
+becomes available in **every** project on your machine.
 
-A Claude Code skill that turns Claude into an elite web agency review board.
+## `agency-review` plugin
 
-**It triggers automatically whenever you ask Claude to make, build, design, or
-improve a website, landing page, or web page.** You can also invoke it
-explicitly with `/agency-review`.
+Turns Claude into an elite web agency review board. It triggers automatically
+whenever you ask Claude to make, build, design, or improve a website, landing
+page, or web page — or invoke it explicitly with `/agency-review`.
 
-When active, Claude builds the site and then runs a full internal review —
-Creative Director, UX, UI, Branding, Copywriting, Marketing, CRO, SEO,
-Accessibility (WCAG 2.2), Front-End Engineering, Performance, and Security —
-followed by a brutally honest critic pass, an innovation pass, and a final
-production-readiness checklist. Every issue is fixed before the result is
-presented.
+Claude builds the site, then runs a full internal review — Creative Director,
+UX, UI, Branding, Copywriting, Marketing, CRO, SEO, Accessibility (WCAG 2.2),
+Front-End Engineering, Performance, and Security — followed by a brutally honest
+critic pass, an innovation pass, and a final production-readiness checklist.
+Every issue is fixed before the result is presented.
 
-### Files
+## Install (available in all your projects)
+
+In Claude Code, run:
 
 ```
-.claude/skills/agency-review/
-├── SKILL.md                    # the review framework + role definitions
-└── reference/
-    ├── checklist.md            # final pass/fail approval checklist
-    └── rewrite-guide.md        # copywriting & conversion patterns
+/plugin marketplace add asemdadesh-cmd/asem-repository-
+/plugin install agency-review@nht-skills
 ```
 
-### Usage
+That's it — the skill now loads in every project. To update later, use
+`/plugin marketplace update nht-skills`.
 
-Just say what you want, e.g. *"make me a landing page for my estate agency."*
-Claude will load the skill, build the page, run the full agency review, and
-deliver a production-ready result.
+> Tip: if the marketplace lives on a feature branch rather than the default
+> branch, add it by URL/branch, e.g.
+> `/plugin marketplace add https://github.com/asemdadesh-cmd/asem-repository-`
+> once the branch is merged to the default branch.
+
+## Repository layout
+
+```
+.
+├── .claude-plugin/
+│   └── marketplace.json          # marketplace manifest (lists plugins)
+├── plugins/
+│   └── agency-review/
+│       ├── .claude-plugin/
+│       │   └── plugin.json        # plugin manifest
+│       └── skills/
+│           └── agency-review/
+│               ├── SKILL.md        # the review framework + roles
+│               └── reference/
+│                   ├── checklist.md
+│                   └── rewrite-guide.md
+├── PROJECT.md                     # living single source of truth
+├── TASKS.md                       # work checklist
+├── DECISIONS.md                   # technical decision log
+└── CLAUDE.md                      # repo instructions for Claude Code
+```

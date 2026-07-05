@@ -4,9 +4,22 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-07-04_
+_Last updated: 2026-07-05_
 
 ---
+
+### 2026-07-05 — Distribute as a plugin marketplace (global install)
+**Decision:** Repackage the skill from a project-scoped `.claude/skills/` folder
+into a Claude Code **plugin** (`plugins/agency-review/`) listed in a repo-root
+**marketplace** (`.claude-plugin/marketplace.json`). Install via
+`/plugin marketplace add` + `/plugin install agency-review@nht-skills`.
+**Why:** A project-scoped skill only loads inside this repo, so it was missing
+in the owner's other projects. A plugin installed from a marketplace is
+available globally in every project and updates with a single
+`/plugin marketplace update`. Alternative (hand-copying to `~/.claude/skills/`)
+was rejected as manual and easy to forget. Trade-off: the repo's **default
+branch** must contain the marketplace for the plain `owner/repo` add form to
+work, so the feature branch needs merging (tracked in TASKS.md).
 
 ### 2026-07-04 — Maintain three documentation files, not one
 **Decision:** Keep `PROJECT.md`, `TASKS.md`, and `DECISIONS.md` as separate

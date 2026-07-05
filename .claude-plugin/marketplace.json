@@ -1,0 +1,19 @@
+{
+  "name": "nht-skills",
+  "owner": {
+    "name": "NHT Estates",
+    "email": "info@nhtestates.co.uk"
+  },
+  "metadata": {
+    "description": "NHT Estates Claude Code skills marketplace.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "agency-review",
+      "source": "./plugins/agency-review",
+      "description": "Elite web-agency review board skill for building and shipping premium websites.",
+      "version": "1.0.0"
+    }
+  ]
+}

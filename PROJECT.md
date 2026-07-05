@@ -7,15 +7,16 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-07-04_
+_Last updated: 2026-07-05_
 
 ---
 
 ## Project Overview
 
-- **Purpose:** A Claude Code configuration repository. Its current deliverable
-  is the **`agency-review` skill** — a reusable skill that turns Claude into an
-  elite web-agency review board for building and shipping websites.
+- **Purpose:** A Claude Code **plugin marketplace**. Its current deliverable is
+  the **`agency-review` plugin/skill** — a reusable skill that turns Claude into
+  an elite web-agency review board for building and shipping websites. Packaged
+  as a plugin so it installs **globally** and works in every project.
 - **Business goals:** Let the owner produce premium, production-ready websites
   on demand without re-pasting a long review framework each time. Raise the
   quality bar (design, copy, UX, SEO, accessibility, performance, security) of
@@ -41,21 +42,28 @@ _Last updated: 2026-07-04_
 - **Folder structure:**
   ```
   .
-  ├── PROJECT.md                     # this file — living project docs
-  ├── TASKS.md                       # completed / in-progress / planned work
-  ├── DECISIONS.md                   # major technical decisions + rationale
-  ├── README.md                      # repo intro + agency-review usage
-  └── .claude/
-      └── skills/
-          └── agency-review/
-              ├── SKILL.md           # review framework + 13 specialist roles
-              └── reference/
-                  ├── checklist.md   # final pass/fail approval checklist
-                  └── rewrite-guide.md  # copywriting & conversion patterns
+  ├── .claude-plugin/
+  │   └── marketplace.json           # marketplace manifest (lists plugins)
+  ├── plugins/
+  │   └── agency-review/
+  │       ├── .claude-plugin/
+  │       │   └── plugin.json         # plugin manifest
+  │       └── skills/
+  │           └── agency-review/
+  │               ├── SKILL.md        # review framework + 13 specialist roles
+  │               └── reference/
+  │                   ├── checklist.md    # final pass/fail approval checklist
+  │                   └── rewrite-guide.md # copywriting & conversion patterns
+  ├── PROJECT.md                      # this file — living project docs
+  ├── TASKS.md                        # completed / in-progress / planned work
+  ├── DECISIONS.md                    # major technical decisions + rationale
+  ├── CLAUDE.md                       # repo instructions for Claude Code
+  └── README.md                       # repo intro + install instructions
   ```
 - **Design decisions (summary — full rationale in DECISIONS.md):**
-  - Skill lives at **project** scope (`.claude/skills/`) so it ships with the
-    repo; can be promoted to global `~/.claude/skills/` if desired.
+  - Distributed as a **plugin via a marketplace** so it installs globally and
+    works in every project (project-scoped `.claude/skills/` only worked inside
+    this repo).
   - The main `SKILL.md` is kept concise for reliable triggering; heavy detail
     is split into `reference/` files that load on demand.
 
@@ -115,10 +123,11 @@ _Last updated: 2026-07-04_
 - **Third-party services:** GitHub (hosting/version control); Claude Code (the
   agent that consumes the skill).
 - **Setup instructions:**
-  1. Clone the repo.
-  2. Open it with Claude Code.
-  3. The `agency-review` skill auto-loads; trigger it by asking to build/design
-     a website, or invoke `/agency-review` explicitly.
+  1. In Claude Code: `/plugin marketplace add asemdadesh-cmd/asem-repository-`
+  2. `/plugin install agency-review@nht-skills`
+  3. The skill is now available in **every** project; trigger it by asking to
+     build/design a website, or invoke `/agency-review` explicitly. Update later
+     with `/plugin marketplace update nht-skills`.
 
 ---
 
@@ -138,8 +147,10 @@ _Last updated: 2026-07-04_
 - **Bugs:** None known.
 - **Technical debt:** Documentation currently updated manually; no automated
   enforcement that it stays in sync with changes.
-- **Limitations:** The skill is scoped to this repository only; it does not
-  activate in other projects unless promoted to global scope.
+- **Limitations:** `/plugin marketplace add <owner>/<repo>` reads the repo's
+  **default branch**. While the marketplace lives on the feature branch
+  `claude/agency-review-framework-3a8hk8`, install by branch/URL or merge the
+  branch to the default branch first.
 
 ---
 
@@ -155,6 +166,10 @@ _Last updated: 2026-07-04_
 
 ## Changelog
 
+- **2026-07-05** — Repackaged the skill as a **plugin in a marketplace**
+  (`.claude-plugin/marketplace.json` + `plugins/agency-review/`) so it installs
+  globally and works in every project. Moved skill files from `.claude/skills/`
+  into the plugin. Updated README with `/plugin` install instructions.
 - **2026-07-04** — Added living documentation system: created PROJECT.md,
   TASKS.md, and DECISIONS.md (three-file structure per owner request).
 - **2026-07-04** — Created the `agency-review` skill (SKILL.md +

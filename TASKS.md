@@ -5,23 +5,25 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-07-04_
+_Last updated: 2026-07-05_
 
 ## ✅ Completed
-- [x] Create the `agency-review` skill (`.claude/skills/agency-review/SKILL.md`)
+- [x] Create the `agency-review` skill (SKILL.md + reference files)
 - [x] Add `reference/checklist.md` (final approval checklist)
 - [x] Add `reference/rewrite-guide.md` (copywriting & conversion patterns)
 - [x] Add README documenting the skill and usage
-- [x] Push skill to branch `claude/agency-review-framework-3a8hk8`
+- [x] Push to branch `claude/agency-review-framework-3a8hk8`
 - [x] Establish living documentation (PROJECT.md, TASKS.md, DECISIONS.md)
+- [x] Add `CLAUDE.md` rule to keep docs updated automatically
+- [x] Repackage as a **plugin + marketplace** so it installs globally
 
 ## 🔄 In Progress
-- [ ] Adopt the discipline of updating these docs on every meaningful change
+- [ ] Verify global install works end-to-end (`/plugin marketplace add` +
+      `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
-- [ ] Add a `CLAUDE.md` rule/hook to auto-update PROJECT/TASKS/DECISIONS
-- [ ] Decide whether to promote `agency-review` to global scope
-      (`~/.claude/skills/`)
+- [ ] Merge `claude/agency-review-framework-3a8hk8` to the default branch so
+      `/plugin marketplace add asemdadesh-cmd/asem-repository-` resolves it
 
 ## 💤 Backlog
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
