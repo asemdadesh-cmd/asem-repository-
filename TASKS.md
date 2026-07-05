@@ -16,14 +16,15 @@ _Last updated: 2026-07-05_
 - [x] Establish living documentation (PROJECT.md, TASKS.md, DECISIONS.md)
 - [x] Add `CLAUDE.md` rule to keep docs updated automatically
 - [x] Repackage as a **plugin + marketplace** so it installs globally
+- [x] Confirm the marketplace branch is already the repo default branch
+      (no PR/merge needed — verified via `git ls-remote --symref origin HEAD`)
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
-- [ ] Merge `claude/agency-review-framework-3a8hk8` to the default branch so
-      `/plugin marketplace add asemdadesh-cmd/asem-repository-` resolves it
+- [ ] (none currently)
 
 ## 💤 Backlog
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs

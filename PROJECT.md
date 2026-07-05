@@ -147,10 +147,12 @@ _Last updated: 2026-07-05_
 - **Bugs:** None known.
 - **Technical debt:** Documentation currently updated manually; no automated
   enforcement that it stays in sync with changes.
-- **Limitations:** `/plugin marketplace add <owner>/<repo>` reads the repo's
-  **default branch**. While the marketplace lives on the feature branch
-  `claude/agency-review-framework-3a8hk8`, install by branch/URL or merge the
-  branch to the default branch first.
+- **Limitations:** None currently. `claude/agency-review-framework-3a8hk8` is
+  the repository's **default branch** (the repo was empty when this branch was
+  first pushed, so GitHub set it as default automatically — confirmed via
+  `git ls-remote --symref origin HEAD`). The plain install command
+  (`/plugin marketplace add asemdadesh-cmd/asem-repository-`) works as-is; no
+  merge required.
 
 ---
 
@@ -166,6 +168,10 @@ _Last updated: 2026-07-05_
 
 ## Changelog
 
+- **2026-07-05** — Confirmed `claude/agency-review-framework-3a8hk8` is already
+  the repo's default branch (repo was empty on first push), so the plugin
+  marketplace is live with no merge needed. Removed the "needs merging"
+  limitation.
 - **2026-07-05** — Repackaged the skill as a **plugin in a marketplace**
   (`.claude-plugin/marketplace.json` + `plugins/agency-review/`) so it installs
   globally and works in every project. Moved skill files from `.claude/skills/`
