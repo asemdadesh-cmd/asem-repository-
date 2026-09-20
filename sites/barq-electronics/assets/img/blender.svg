@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-hidden="true" fill="none">
+  <defs>
+    <linearGradient id="b35" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3A4454"/><stop offset="1" stop-color="#171D28"/>
+    </linearGradient>
+    <linearGradient id="s35" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#1668E3"/><stop offset="0.55" stop-color="#4FB0FF"/><stop offset="1" stop-color="#67E8F9"/>
+    </linearGradient>
+    <linearGradient id="g35" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.03"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.14"/>
+    </linearGradient>
+  </defs>
+    <path d="M142 46h116l-14 168h-88z" fill="url(#s35)" opacity="0.55"/>
+    <path d="M142 46h116l-14 168h-88z" fill="url(#g35)"/>
+    <rect x="136" y="38" width="128" height="16" rx="8" fill="url(#b35)"/>
+    <path d="M154 214h92l10 22h-112z" fill="#171D28"/>
+    <path d="M132 236h136a16 16 0 0 1 16 16v66a22 22 0 0 1-22 22H138a22 22 0 0 1-22-22v-66a16 16 0 0 1 16-16z" fill="url(#b35)"/>
+    <path d="M132 236h136a16 16 0 0 1 16 16v66a22 22 0 0 1-22 22H138a22 22 0 0 1-22-22v-66a16 16 0 0 1 16-16z" fill="url(#g35)"/>
+    <circle cx="200" cy="286" r="26" fill="#0E131B"/>
+    <circle cx="200" cy="286" r="14" fill="url(#s35)"/>
+    <g stroke="#93A1B5" stroke-width="5" opacity="0.4" stroke-linecap="round"><path d="M172 120h56"/><path d="M176 156h48"/></g></svg>

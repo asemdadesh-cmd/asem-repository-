@@ -1,0 +1,142 @@
+/* ==========================================================================
+   Barq — Design tokens
+   Single source of truth for colour, type, space, motion and elevation.
+   Every text/background pair below is validated by `node tools/contrast.mjs`
+   against WCAG 2.2 (>=4.5:1 body text, >=3:1 UI components). If you change a
+   colour here, re-run that script.
+   Dark is the base theme; light is opt-in via [data-theme="light"], which the
+   inline head script sets before first paint (no flash, no FOUC).
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* — Surfaces & ink (dark) — */
+  --bg: #0A0D14;
+  --surface: #11161F;
+  --surface-2: #171E2A;
+  --surface-3: #1F2836;
+  --border: #26303F;
+  --border-strong: #66768F;
+  --text: #EEF2F8;
+  --text-muted: #A7B4C8;
+  --text-subtle: #8593A9;
+  --on-accent: #FFFFFF;
+
+  /* — Brand: "barq" = lightning — */
+  --accent: #4FB0FF;          /* accent text / links / focus ring */
+  --accent-strong: #1668E3;   /* solid CTA background */
+  --accent-hover: #1257BF;
+  --accent-soft: rgba(79, 176, 255, 0.12);
+  --accent-ring: rgba(79, 176, 255, 0.4);
+  --glow: #67E8F9;            /* cyan spark, decorative only */
+
+  /* — Status — */
+  --success: #3ED9A0;
+  --success-soft: rgba(62, 217, 160, 0.13);
+  --warn: #FFC04D;
+  --warn-soft: rgba(255, 192, 77, 0.13);
+  --danger: #FF7A7A;
+  --danger-soft: rgba(255, 122, 122, 0.13);
+
+  /* — Decorative gradients — */
+  --grad-brand: linear-gradient(135deg, #1668E3 0%, #4FB0FF 55%, #67E8F9 100%);
+  --grad-surface: linear-gradient(180deg, #171E2A 0%, #11161F 100%);
+  --mesh-1: radial-gradient(60% 55% at 18% 12%, rgba(22, 104, 227, 0.32) 0%, transparent 62%);
+  --mesh-2: radial-gradient(48% 48% at 85% 8%, rgba(103, 232, 249, 0.18) 0%, transparent 60%);
+  --mesh-3: radial-gradient(70% 60% at 50% 105%, rgba(79, 176, 255, 0.12) 0%, transparent 65%);
+
+  /* — Elevation — */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 16px -4px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 18px 44px -12px rgba(0, 0, 0, 0.72);
+  --shadow-glow: 0 0 0 1px rgba(79, 176, 255, 0.28), 0 14px 40px -14px rgba(22, 104, 227, 0.6);
+
+  /* — Type — */
+  --font-sans: 'Cairo', 'Segoe UI', 'Noto Sans Arabic', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-num: 'Cairo', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --step--2: 0.75rem;     /* 12px — meta, legal */
+  --step--1: 0.8125rem;   /* 13px — labels, badges */
+  --step-0: 0.9375rem;    /* 15px — UI default */
+  --step-1: 1.0625rem;    /* 17px — body copy */
+  --step-2: clamp(1.1875rem, 1.12rem + 0.3vw, 1.375rem);
+  --step-3: clamp(1.375rem, 1.24rem + 0.6vw, 1.75rem);
+  --step-4: clamp(1.625rem, 1.36rem + 1.15vw, 2.25rem);
+  --step-5: clamp(2rem, 1.5rem + 2.1vw, 3rem);
+  --step-6: clamp(2.375rem, 1.6rem + 3.3vw, 4rem);
+
+  --lh-tight: 1.15;
+  --lh-snug: 1.3;
+  --lh-body: 1.65;
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.06em;
+
+  /* — Space (4px rhythm) — */
+  --s-1: 0.25rem;  --s-2: 0.5rem;   --s-3: 0.75rem;  --s-4: 1rem;
+  --s-5: 1.25rem;  --s-6: 1.5rem;   --s-7: 2rem;     --s-8: 2.5rem;
+  --s-9: 3rem;     --s-10: 4rem;    --s-11: 5rem;    --s-12: 6.5rem;
+
+  /* — Shape — */
+  --r-xs: 6px;  --r-sm: 9px;  --r-md: 13px;
+  --r-lg: 18px; --r-xl: 26px; --r-pill: 999px;
+
+  /* — Layout — */
+  --container: 1220px;
+  --container-narrow: 760px;
+  --gutter: clamp(1rem, 0.55rem + 2.2vw, 2.5rem);
+  --header-h: 68px;
+
+  /* — Motion — */
+  --dur-fast: 120ms;
+  --dur: 220ms;
+  --dur-slow: 420ms;
+  --dur-reveal: 680ms;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.46, 0.64, 1);
+
+  --z-sticky: 20;
+  --z-header: 50;
+  --z-drawer: 80;
+  --z-toast: 90;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #FFFFFF;
+  --surface: #F5F8FC;
+  --surface-2: #EBF0F7;
+  --surface-3: #E1E8F2;
+  --border: #D8E1EC;
+  --border-strong: #75879F;
+  --text: #0C121D;
+  --text-muted: #48566B;
+  --text-subtle: #525F75;
+  --on-accent: #FFFFFF;
+
+  --accent: #0A5CCB;
+  --accent-strong: #1668E3;
+  --accent-hover: #0E4FAE;
+  --accent-soft: rgba(10, 92, 203, 0.09);
+  --accent-ring: rgba(10, 92, 203, 0.38);
+  --glow: #0E7490;
+
+  --success: #076347;
+  --success-soft: rgba(7, 99, 71, 0.1);
+  --warn: #7F5300;
+  --warn-soft: rgba(127, 83, 0, 0.11);
+  --danger: #B82727;
+  --danger-soft: rgba(184, 39, 39, 0.09);
+
+  --grad-surface: linear-gradient(180deg, #FFFFFF 0%, #F5F8FC 100%);
+  --mesh-1: radial-gradient(60% 55% at 18% 12%, rgba(22, 104, 227, 0.14) 0%, transparent 62%);
+  --mesh-2: radial-gradient(48% 48% at 85% 8%, rgba(14, 116, 144, 0.1) 0%, transparent 60%);
+  --mesh-3: radial-gradient(70% 60% at 50% 105%, rgba(22, 104, 227, 0.07) 0%, transparent 65%);
+
+  --shadow-sm: 0 1px 2px rgba(12, 18, 29, 0.07);
+  --shadow-md: 0 4px 16px -4px rgba(12, 18, 29, 0.12);
+  --shadow-lg: 0 18px 44px -12px rgba(12, 18, 29, 0.18);
+  --shadow-glow: 0 0 0 1px rgba(10, 92, 203, 0.2), 0 14px 40px -14px rgba(22, 104, 227, 0.3);
+}

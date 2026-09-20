@@ -1,0 +1,15 @@
+{
+  "name": "barq-electronics",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Barq Electronics — a bilingual (Arabic/English) e-commerce storefront for the Libyan market. Static HTML/CSS/vanilla ES modules, no runtime dependencies.",
+  "type": "module",
+  "scripts": {
+    "build": "node tools/gen-art.mjs && node tools/build.mjs && node tools/gen-seo.mjs && node tools/gen-csp.mjs",
+    "check": "node tools/contrast.mjs && node tools/validate-data.mjs && node tools/validate-i18n.mjs && node tools/audit-html.mjs",
+    "og": "node tools/gen-og.mjs",
+    "fonts": "./tools/fetch-fonts.sh",
+    "serve": "python3 -m http.server 8099 --bind 127.0.0.1"
+  },
+  "engines": { "node": ">=20" }
+}

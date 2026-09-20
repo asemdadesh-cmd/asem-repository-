@@ -1,0 +1,303 @@
+<!--{
+  "page": "shop",
+  "script": "page-shop.js",
+  "title": "المتجر — كل المنتجات | برق للإلكترونيات",
+  "description": "تصفّح هواتف وحواسيب وتلفزيونات وأجهزة منزلية أصلية. فلتر حسب الفئة والماركة والسعر، مع ضمان محلي وتوصيل لكل ليبيا.",
+  "breadcrumb": [
+    { "name": "الرئيسية", "href": "" },
+    { "name": "المتجر", "href": "shop.html" }
+  ]
+}-->
+
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="crumbs">
+          <li><a href="index.html" data-i18n="nav.home">الرئيسية</a></li>
+          <li><span aria-current="page" data-i18n="nav.shop">المتجر</span></li>
+        </ol>
+      </nav>
+
+      <div class="section-head">
+        <div class="section-head__text">
+          <h1 data-shop-title data-i18n="shop.title">كل المنتجات</h1>
+          <p data-i18n="shop.lede">فلتر حسب الفئة والماركة والسعر لتصل لما تحتاجه بسرعة.</p>
+        </div>
+      </div>
+
+      <div class="shop-layout">
+        <!-- Filters: a sticky sidebar on desktop, a drawer on small screens -->
+        <form class="filters" id="filter-form" data-filters aria-label="Product filters">
+          <div class="filter-group">
+            <h2 class="filter-group__title" data-i18n="shop.category">الفئة</h2>
+            <div class="filter-list" data-filter-cats>{{ filterCatsHtml }}
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h2 class="filter-group__title" data-i18n="shop.brand">الماركة</h2>
+            <div class="filter-list" data-filter-brands>{{ filterBrandsHtml }}
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h2 class="filter-group__title" data-i18n="shop.price">السعر</h2>
+            <div class="range">
+              <label class="sr-only" for="price-max" data-i18n="shop.max">إلى</label>
+              <input type="range" id="price-max" data-price-range min="0" max="17000" step="100" value="17000">
+              <div class="range__inputs">
+                <span class="field__hint" data-i18n="shop.min">من</span>
+                <input class="input num" type="number" inputmode="numeric" data-price-min value="0" min="0" max="17000"
+                       data-i18n-attr="aria-label:shop.min" aria-label="من">
+                <span class="field__hint">—</span>
+                <input class="input num" type="number" inputmode="numeric" data-price-max value="17000" min="0" max="17000"
+                       data-i18n-attr="aria-label:shop.max" aria-label="إلى">
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h2 class="filter-group__title" data-i18n="shop.availability">التوفر</h2>
+            <div class="filter-list">
+              <label class="filter-check">
+                <input type="checkbox" data-filter-stock>
+                <span data-i18n="shop.inStockOnly">المتوفر فقط</span>
+              </label>
+              <label class="filter-check">
+                <input type="checkbox" data-filter-sale>
+                <span data-i18n="shop.onSaleOnly">العروض فقط</span>
+              </label>
+            </div>
+          </div>
+
+          <button class="btn btn--ghost btn--block" type="button" data-clear-filters data-i18n="shop.clear">مسح الكل</button>
+        </form>
+
+        <div>
+          <div class="shop-toolbar">
+            <p class="shop-toolbar__count" data-result-count aria-live="polite">—</p>
+            <div class="shop-toolbar__spacer"></div>
+            <label class="sr-only" for="sort" data-i18n="shop.sort">ترتيب حسب</label>
+            <select class="select" id="sort" data-sort>
+              <option value="relevance" data-i18n="shop.sort.relevance">الأكثر ملاءمة</option>
+              <option value="priceAsc" data-i18n="shop.sort.priceAsc">السعر: من الأقل</option>
+              <option value="priceDesc" data-i18n="shop.sort.priceDesc">السعر: من الأعلى</option>
+              <option value="rating" data-i18n="shop.sort.rating">الأعلى تقييماً</option>
+              <option value="newest" data-i18n="shop.sort.newest">الأحدث</option>
+            </select>
+          </div>
+
+          <div class="active-filters" data-active-filters></div>
+          <!-- Skeletons hold the grid's space until page-shop.js renders; they are
+               replaced wholesale by the first innerHTML write. -->
+          <!-- Twelve skeletons match PAGE_SIZE in page-shop.js, so the first
+               render swaps them one-for-one with no layout shift. -->
+          <div class="product-grid" data-shop-grid>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          </div>
+          <div class="load-more" data-more-wrap hidden>
+            <button class="btn btn--ghost btn--lg" type="button" data-more>عرض المزيد</button>
+          </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
