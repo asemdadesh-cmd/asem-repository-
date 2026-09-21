@@ -4,9 +4,24 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-20_
+_Last updated: 2026-09-21_
 
 ---
+
+### 2026-09-21 — Three lenses, not eighteen personas
+**Decision:** Build the `council` plugin around three functional lenses
+(Skeptic, Builder, Risk) rather than a large cast of named historical figures,
+and keep the round protocol as the actual product.
+**Why:** Surveyed `0xNyk/council-of-high-intelligence`, which runs 18 personas.
+Its value is the *protocol* — blind independent analysis before anyone sees
+another position (kills anchoring), a forced disagreement round, labelled
+evidence, and a verdict that leads with what is unresolved. The historical
+personas are flavour: the same base model wearing 18 hats shares one prior, so
+persona count buys presentation, not reasoning diversity, at roughly 6x the
+tokens. Three is the minimum that yields genuine disagreement; two polarise
+into a binary. Trade-off: less coverage of exotic angles (ethics, design,
+economics) — mitigated by `--duo` pairings and by the fact that the frame in
+STEP 0 can name a domain-specific concern explicitly.
 
 ### 2026-09-20 — Barq: static HTML + vanilla ES modules, no framework
 **Decision:** Build the storefront as static HTML, CSS and vanilla ES modules

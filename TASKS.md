@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-09-20_
+_Last updated: 2026-09-21_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -18,6 +18,8 @@ _Last updated: 2026-09-20_
 - [x] Repackage as a **plugin + marketplace** so it installs globally
 - [x] Confirm the marketplace branch is already the repo default branch
       (no PR/merge needed — verified via `git ls-remote --symref origin HEAD`)
+- [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
+- [x] Register `council` in the marketplace manifest
 
 ### Barq Electronics — `sites/barq-electronics` (v1)
 - [x] Design token layer with dark + light themes, every pair contrast-validated
@@ -42,6 +44,7 @@ _Last updated: 2026-09-20_
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
+- [ ] Dogfood `council` on one real decision and tune the round word limits
 - [ ] Add CI running `npm run check` + `tools/gen-csp.mjs` for `sites/*`, so a
       stale CSP hash or a contrast regression fails the build
 - [ ] Give Barq a backend: order persistence, server-side re-pricing, stock

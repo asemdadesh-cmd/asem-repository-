@@ -7,16 +7,17 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-09-20_
+_Last updated: 2026-09-21_
 
 ---
 
 ## Project Overview
 
 - **Purpose:** Two things live here. (1) A Claude Code **plugin marketplace**
-  whose deliverable is the **`agency-review` plugin/skill** — a reusable skill
-  that turns Claude into an elite web-agency review board. (2) **Websites built
-  with that skill**, kept under `sites/`. The first is
+  with two plugins: **`agency-review`**, which turns Claude into an elite
+  web-agency review board, and **`council`**, a three-lens deliberation protocol
+  for costly or hard-to-reverse decisions. (2) **Websites built with the
+  agency-review skill**, kept under `sites/`. The first is
   **`sites/barq-electronics`** — a bilingual Libyan e-commerce storefront.
 - **Business goals:** Let the owner produce premium, production-ready websites
   on demand without re-pasting a long review framework each time. Raise the
@@ -25,17 +26,19 @@ _Last updated: 2026-09-20_
 - **Target users:** The repository owner (NHT Estates) and any collaborator who
   runs Claude Code in this repo. End beneficiaries are the clients whose
   websites/landing pages get built through the skill.
-- **Current status:** ✅ Active. The `agency-review` skill is live as a plugin.
-  The first site built through it — **Barq Electronics** — is complete at v1 on
-  branch `claude/laptop-com-cara-g873wz`.
+- **Current status:** ✅ Active. Both plugins (`agency-review`, `council`) are
+  live in the marketplace. The first site built through `agency-review` —
+  **Barq Electronics** — is complete at v1 on branch
+  `claude/laptop-com-cara-g873wz`.
 
 ---
 
 ## Architecture
 
 - **System architecture:** Two independent parts.
-  1. **The marketplace/skill** — configuration and knowledge consumed by the
+  1. **The marketplace/plugins** — configuration and knowledge consumed by the
      Claude Code agent; the "logic" is Markdown that Claude loads on demand.
+     Two plugins live under `plugins/`: `agency-review` and `council`.
   2. **`sites/`** — actual websites. Each is self-contained with its own
      README, tooling and deployment config.
 - **Technology stack:**
@@ -50,6 +53,12 @@ _Last updated: 2026-09-20_
   ├── .claude-plugin/
   │   └── marketplace.json           # marketplace manifest (lists plugins)
   ├── plugins/
+  │   ├── council/
+  │   │   ├── .claude-plugin/plugin.json
+  │   │   ├── agents/                     # council-skeptic / -builder / -risk
+  │   │   └── skills/council/
+  │   │       ├── SKILL.md                # the 3-round protocol
+  │   │       └── reference/lenses.md     # lens roles, labels, kill criteria
   │   └── agency-review/
   │       ├── .claude-plugin/
   │       │   └── plugin.json         # plugin manifest
@@ -86,6 +95,9 @@ _Last updated: 2026-09-20_
 - **Completed features**
   - `agency-review` skill with 13 specialist review roles, brutally-honest
     critic pass, innovation pass, and final approval checklist.
+  - `council` plugin — a three-lens (Skeptic / Builder / Risk) deliberation
+    protocol with blind independent analysis, a forced disagreement round, and
+    a verdict carrying dissent, kill criteria and one next action.
   - `reference/checklist.md` — production-readiness pass/fail list.
   - `reference/rewrite-guide.md` — copywriting & conversion patterns.
   - README documenting purpose and usage.
@@ -97,10 +109,11 @@ _Last updated: 2026-09-20_
     Arabic ⇄ English switch, dark/light themes, and a scroll-driven motion
     layer that fully honours `prefers-reduced-motion`.
 - **Features in progress**
-  - None — Barq v1 is complete and the skill is live.
+  - None — Barq v1 is complete and both plugins are live.
 - **Planned features**
   - CI that runs `npm run check` and regenerates the CSP, so a stale script
     hash or a contrast regression cannot reach production.
+  - Dogfood `council` on a real decision and tune its round word limits.
   - A backend for Barq (orders, server-side pricing, stock reservation).
 - **Backlog**
   - A dedicated `website-scaffold` skill for consistent starter structure.
@@ -110,7 +123,7 @@ _Last updated: 2026-09-20_
 
 ## Database
 
-- **None.** Neither the marketplace nor Barq uses a database. Barq's catalogue
+- **None.** Neither the plugins nor Barq use a database. Barq's catalogue
   lives in two JS modules that are the single source of truth for both the
   runtime and the build-time generators:
   - `sites/barq-electronics/assets/js/data/products.js` — 32 products,
@@ -229,6 +242,11 @@ _Last updated: 2026-09-20_
 
 ## Changelog
 
+- **2026-09-21** — Added the **`council` plugin**: a three-lens deliberation skill
+  (Skeptic / Builder / Risk) for costly or hard-to-reverse decisions. Runs
+  blind independent analysis, a forced disagreement round, and a verdict that
+  leads with unresolved questions and carries dissent, kill criteria, and one
+  next action. Registered in `.claude-plugin/marketplace.json`.
 - **2026-09-20** — Built **Barq Electronics (`sites/barq-electronics`)**, the
   first site produced through the `agency-review` skill: a bilingual
   (Arabic-first, RTL) Libyan e-commerce storefront. Static HTML/CSS/vanilla ES
