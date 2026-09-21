@@ -1,0 +1,58 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'sha256-3irM2lKVYdCWrDq8KDgCU6C//vcAREOGEZn6MY42ka0=' 'sha256-Dwcp+/aCDUuKX3pg/Vy9rUd78zNA5IDpPsgeFqCAZxE=' 'sha256-I/a0tCEC1LoEk9Bs6qq44JdnadFlBmwv7y8j6Ijd7aU=' 'sha256-KdMEp3hRgOE3CiBZQJnRgms+tAR5Fx/dtE3f4yRX1nI=' 'sha256-QIRgwf3u1mWrOuYQYk1IkVf8TTDfadcA+HADbLtvSz8=' 'sha256-dS8P9iyRpYJhRUGDZuSSLCuk3yhZ6CHoEqAadGpmefU=' 'sha256-giHQ6MvPmwdmsMifx3a25HYMkhrJW19opd6E4/Emsmo=' 'sha256-x9g+yBHLtj4Kjk6DGqyTF8Av+2IMV1yANFnUUm9c3/o=' 'sha256-yEm9blrQ1Mm01UmvcNgvoYottkup+VYCSCRjrfB9kto='; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; manifest-src 'self'; upgrade-insecure-requests"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*).html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+<!--{
+  "page": "checkout",
+  "script": "page-checkout.js",
+  "title": "إتمام الطلب | برق للإلكترونيات",
+  "description": "أكمل طلبك من برق للإلكترونيات في ثلاث خطوات: بيانات التوصيل، طريقة الدفع (نقداً عند الاستلام أو حوالة)، ومراجعة نهائية قبل التأكيد.",
+  "noindex": true
+}-->
+
+    <div class="container">
+      <div class="section-head">
+        <div class="section-head__text">
+          <h1 data-i18n="checkout.title">إتمام الطلب</h1>
+        </div>
+        <a class="btn btn--quiet" href="cart.html" data-i18n="checkout.editCart">تعديل السلة</a>
+      </div>
+
+      <ol class="steps" data-steps>
+        <li class="step" data-step="1" data-state="active">
+          <span class="step__bar"></span>
+          <span class="step__label"><span class="num">1</span> · <span data-i18n="checkout.step1">التوصيل</span></span>
+        </li>
+        <li class="step" data-step="2" data-state="">
+          <span class="step__bar"></span>
+          <span class="step__label"><span class="num">2</span> · <span data-i18n="checkout.step2">الدفع</span></span>
+        </li>
+        <li class="step" data-step="3" data-state="">
+          <span class="step__bar"></span>
+          <span class="step__label"><span class="num">3</span> · <span data-i18n="checkout.step3">المراجعة</span></span>
+        </li>
+      </ol>
+
+      <div data-checkout-root></div>
+    </div>

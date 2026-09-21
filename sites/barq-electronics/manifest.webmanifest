@@ -1,0 +1,30 @@
+{
+  "name": "برق للإلكترونيات — Barq Electronics",
+  "short_name": "برق",
+  "description": "متجر ليبي للإلكترونيات الأصلية بضمان محلي وتوصيل لكل المدن.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0A0D14",
+  "theme_color": "#0A0D14",
+  "categories": [
+    "shopping",
+    "business"
+  ],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/og-cover.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

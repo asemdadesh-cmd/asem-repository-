@@ -1,0 +1,345 @@
+<!--{
+  "page": "home",
+  "script": "page-home.js",
+  "title": "برق للإلكترونيات — أجهزة أصلية بضمان محلي وتوصيل لكل ليبيا",
+  "faqSchema": true,
+  "description": "متجر ليبي للإلكترونيات: هواتف، حواسيب، تلفزيونات، وأجهزة منزلية أصلية بضمان محلي. ادفع عند الاستلام بعد الفحص، وشحن مجاني فوق 1500 د.ل إلى 22 مدينة.",
+  "jsonld": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": "https://barq.ly/#organization",
+      "name": "Barq Electronics",
+      "alternateName": "برق للإلكترونيات",
+      "url": "https://barq.ly/",
+      "logo": "https://barq.ly/favicon.svg",
+      "email": "salam@barq.ly",
+      "telephone": "+218912345678",
+      "areaServed": { "@type": "Country", "name": "Libya" },
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Gargaresh Road",
+        "addressLocality": "Tripoli",
+        "addressCountry": "LY"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://barq.ly/#website",
+      "url": "https://barq.ly/",
+      "name": "Barq Electronics",
+      "inLanguage": ["ar", "en"],
+      "publisher": { "@id": "https://barq.ly/#organization" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": { "@type": "EntryPoint", "urlTemplate": "https://barq.ly/shop.html?q={search_term_string}" },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Barq Electronics — Tripoli",
+      "image": "https://barq.ly/assets/img/og-cover.png",
+      "telephone": "+218912345678",
+      "priceRange": "75 - 16000 LYD",
+      "currenciesAccepted": "LYD",
+      "paymentAccepted": "Cash on delivery, Bank transfer, Mobile wallet",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Gargaresh Road, near Al-Nejila junction",
+        "addressLocality": "Tripoli",
+        "addressCountry": "LY"
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+        "opens": "09:00",
+        "closes": "21:00"
+      }
+    }
+  ]
+}-->
+
+    <section class="hero">
+      <div class="container">
+        <div class="hero__grid">
+          <div>
+            <p class="eyebrow reveal" data-i18n="hero.eyebrow">إلكترونيات أصلية بضمان محلي</p>
+            <h1 class="hero__title reveal">
+              <span data-i18n="hero.title.a">أحدث الأجهزة،</span>
+              <em data-i18n="hero.title.b">توصيل لكل ليبيا</em>
+            </h1>
+            <p class="hero__lede reveal" data-i18n="hero.lede">من طرابلس إلى الكفرة. ادفع عند الاستلام بعد ما تفحص الجهاز بنفسك، وضمان محلي من 12 إلى 60 شهراً في معارضنا.</p>
+
+            <div class="hero__cta reveal">
+              <a class="btn btn--primary btn--lg" href="shop.html" data-i18n="hero.cta.primary">تصفّح المتجر</a>
+              <a class="btn btn--ghost btn--lg" href="shop.html?sale=1" data-i18n="hero.cta.secondary">شاهد العروض</a>
+            </div>
+
+            <ul class="hero__reassure reveal">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>
+                <span data-i18n="hero.reassure.1">فحص قبل الدفع</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>
+                <span data-i18n="hero.reassure.2">ضمان محلي داخل ليبيا</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>
+                <span data-i18n="hero.reassure.3">إرجاع خلال 14 يوم</span>
+              </li>
+            </ul>
+
+            <div class="stats reveal">
+              <div class="stat">
+                <p class="stat__num num" data-count="22">22</p>
+                <p class="stat__label" data-i18n="hero.stat.1">مدينة نوصل إليها</p>
+              </div>
+              <div class="stat">
+                <p class="stat__num num" data-count="12000" data-suffix="+">12,000+</p>
+                <p class="stat__label" data-i18n="hero.stat.2">عميل خلال 2025</p>
+              </div>
+              <div class="stat">
+                <p class="stat__num num" data-count="4.7" data-decimals="1">4.7</p>
+                <p class="stat__label" data-i18n="hero.stat.3">تقييم العملاء</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="showcase reveal reveal--scale" data-showcase>
+            <span class="badge badge--solid showcase__tag" data-i18n="badge.bestseller">الأكثر مبيعاً</span>
+            <div class="showcase__media">
+              <img src="assets/img/phone-onyx.svg" alt="نوفا X9 برو" width="400" height="400" fetchpriority="high" decoding="async">
+            </div>
+            <span class="pip pip--a">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></svg>
+              <span dir="ltr">120W</span>
+            </span>
+            <span class="pip pip--b">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.4 8.3-8 9.5C7.4 20.3 4 17 4 12V6z"/><path d="M9 12l2 2 4-4"/></svg>
+              <span dir="ltr">IP68</span>
+            </span>
+            <div class="showcase__foot" data-showcase-foot></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-labelledby="why-title">
+      <div class="container">
+        <h2 id="why-title" class="sr-only" data-i18n="sec.why.title">لماذا برق؟</h2>
+        <div class="trust-grid">
+          <div class="trust-item reveal">
+            <span class="trust-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M16 12.5h3"/></svg></span>
+            <div><h3 data-i18n="trust.1.t">ادفع عند الاستلام</h3><p data-i18n="trust.1.d">افحص الجهاز قدام المندوب قبل ما تدفع دينار واحد.</p></div>
+          </div>
+          <div class="trust-item reveal">
+            <span class="trust-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.4 8.3-8 9.5C7.4 20.3 4 17 4 12V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+            <div><h3 data-i18n="trust.2.t">ضمان محلي حقيقي</h3><p data-i18n="trust.2.d">صيانة في طرابلس وبنغازي ومصراتة — بدون شحن للخارج.</p></div>
+          </div>
+          <div class="trust-item reveal">
+            <span class="trust-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg></span>
+            <div><h3 data-i18n="trust.3.t">شحن مجاني فوق 1500</h3><p data-i18n="trust.3.d">إلى 22 مدينة، مع تتبع للشحنة على واتساب.</p></div>
+          </div>
+          <div class="trust-item reveal">
+            <span class="trust-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/></svg></span>
+            <div><h3 data-i18n="trust.4.t">إرجاع خلال 14 يوم</h3><p data-i18n="trust.4.d">ما عجبك؟ رجّعه بحالته الأصلية واسترد كامل المبلغ.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="cats-title">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <h2 id="cats-title" class="reveal" data-i18n="sec.categories.title">تسوّق حسب الفئة</h2>
+            <p class="reveal" data-i18n="sec.categories.lede">ست فئات، أكثر من 30 منتجاً مختاراً بعناية.</p>
+          </div>
+        </div>
+        <div class="cat-grid">{{ categoriesHtml }}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tight" aria-labelledby="featured-title">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <h2 id="featured-title" class="reveal" data-i18n="sec.featured.title">الأكثر مبيعاً هذا الشهر</h2>
+            <p class="reveal" data-i18n="sec.featured.lede">الأجهزة التي يشتريها الليبيون أكثر من غيرها.</p>
+          </div>
+          <a class="btn btn--ghost" href="shop.html" data-i18n="sec.viewAll">عرض الكل</a>
+        </div>
+        <div class="product-grid" data-featured-grid>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+          <div class="sk-card" aria-hidden="true">
+            <div class="sk-card__media skeleton"></div>
+            <div class="sk-card__body">
+              <span class="skeleton sk-line--sm"></span>
+              <span class="skeleton sk-line--title"></span>
+              <span class="skeleton sk-line--sm"></span>
+              <div class="sk-card__foot"><span class="skeleton"></span><span class="skeleton sk-actions"></span></div>
+              <span class="skeleton sk-line--sm"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="deal-title">
+      <div class="container">
+        <div class="deal reveal" data-deal>
+          <div>
+            <p class="eyebrow" data-i18n="badge.deal">عرض</p>
+            <h2 id="deal-title" data-deal-title>—</h2>
+            <p class="hero__lede" data-deal-lede>—</p>
+            <p class="field__hint" data-i18n="sec.deals.lede">ينتهي العرض بعد:</p>
+            <div class="countdown" data-countdown role="timer" aria-live="off"></div>
+            <div class="cluster">
+              <a class="btn btn--primary btn--lg" data-deal-link href="shop.html" data-i18n="product.buyNow">اشترِ الآن</a>
+              <span class="price num" data-deal-price></span>
+            </div>
+          </div>
+          <div class="deal__media">
+            <img data-deal-img src="assets/img/tv-oled.svg" alt="" width="400" height="400" loading="lazy" decoding="async">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tight" aria-labelledby="new-title">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <h2 id="new-title" class="reveal" data-i18n="sec.new.title">وصل حديثاً</h2>
+            <p class="reveal" data-i18n="sec.new.lede">أحدث ما استوردناه هذا الموسم.</p>
+          </div>
+          <div class="rail-nav">
+            <button class="icon-btn" data-rail="prev" data-i18n-attr="aria-label:a11y.prev" aria-label="السابق">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <button class="icon-btn" data-rail="next" data-i18n-attr="aria-label:a11y.next" aria-label="التالي">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="rail" data-new-rail tabindex="0" role="group" data-i18n-attr="aria-label:sec.new.title" aria-label="وصل حديثاً"></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="testi-title">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <h2 id="testi-title" class="reveal" data-i18n="sec.testimonials.title">ماذا يقول عملاؤنا</h2>
+            <p class="reveal" data-i18n="sec.testimonials.lede">تقييمات حقيقية من مشترين في مدن مختلفة.</p>
+          </div>
+        </div>
+        <div class="grid" data-testimonials>{{ testimonialsHtml }}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tight" id="faq" aria-labelledby="faq-title">
+      <div class="container container--narrow">
+        <div class="section-head">
+          <div class="section-head__text">
+            <h2 id="faq-title" class="reveal" data-i18n="sec.faq.title">أسئلة يسألها الجميع</h2>
+            <p class="reveal" data-i18n="sec.faq.lede">كل ما تحتاج معرفته قبل الطلب.</p>
+          </div>
+        </div>
+        {{ faqHtml }}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta-band reveal">
+          <h2 data-i18n="cta.title">وصلك خبر العروض قبل الكل</h2>
+          <p class="hero__lede" data-i18n="cta.lede">اشترك واحصل على خصم 5% على طلبك الأول، وتنبيه أول ما تنزل شحنة جديدة.</p>
+          <form class="cta-band__form" data-newsletter novalidate>
+            <div class="field">
+              <label class="sr-only" for="news-email" data-i18n="cta.email">البريد الإلكتروني</label>
+              <input class="input" type="email" id="news-email" name="email" required autocomplete="email"
+                     aria-describedby="news-error" data-i18n-attr="placeholder:cta.emailPlaceholder" placeholder="name@example.com">
+              <p class="field__error" id="news-error" role="alert" hidden></p>
+            </div>
+            <button class="btn btn--primary" type="submit" data-i18n="cta.submit">اشترك</button>
+          </form>
+          <p class="field__hint" data-i18n="cta.note">لا رسائل مزعجة. إلغاء الاشتراك في أي وقت.</p>
+        </div>
+      </div>
+    </section>

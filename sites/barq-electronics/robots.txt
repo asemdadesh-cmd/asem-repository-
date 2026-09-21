@@ -1,0 +1,10 @@
+# Barq Electronics
+User-agent: *
+Allow: /
+
+# Cart, checkout and compare are per-visitor state — nothing to index.
+Disallow: /cart.html
+Disallow: /checkout.html
+Disallow: /compare.html
+
+Sitemap: https://barq.ly/sitemap.xml

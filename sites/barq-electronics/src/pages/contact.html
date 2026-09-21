@@ -1,0 +1,136 @@
+<!--{
+  "page": "contact",
+  "script": "page-contact.js",
+  "faqSchema": true,
+  "title": "اتصل بنا — برق للإلكترونيات | واتساب وهاتف ومعارض",
+  "description": "تواصل مع برق للإلكترونيات: واتساب، هاتف، أو زيارة أحد معارضنا في طرابلس وبنغازي ومصراتة. تتبع طلبك والأسئلة الشائعة.",
+  "breadcrumb": [
+    { "name": "الرئيسية", "href": "" },
+    { "name": "اتصل بنا", "href": "contact.html" }
+  ],
+  "jsonld": [
+    {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "name": "اتصل بنا — برق للإلكترونيات",
+      "url": "https://barq.ly/contact.html"
+    }
+  ]
+}-->
+
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="crumbs">
+          <li><a href="index.html" data-i18n="nav.home">الرئيسية</a></li>
+          <li><span aria-current="page" data-i18n="nav.contact">اتصل بنا</span></li>
+        </ol>
+      </nav>
+
+      <div class="section-head">
+        <div class="section-head__text">
+          <h1 data-i18n="contact.title">اتصل بنا</h1>
+          <p data-i18n="contact.lede">سؤال عن منتج، أو طلب قائم، أو صيانة — اختر الطريقة الأسرع لك.</p>
+        </div>
+      </div>
+
+      <div class="contact-layout">
+        <div>
+          <div class="card card--pad reveal">
+            <h2 data-i18n="contact.form.title">أرسل لنا رسالة</h2>
+            <form class="form-grid contact-form" data-contact-form novalidate>
+              <div class="form-grid form-grid--2">
+                <div class="field">
+                  <label class="field__label" for="c-name"><span data-i18n="contact.name">الاسم الكامل</span> <span class="field__req" aria-hidden="true">*</span></label>
+                  <input class="input" type="text" id="c-name" name="name" required autocomplete="name" aria-describedby="c-name-err">
+                  <p class="field__error" id="c-name-err" role="alert" hidden></p>
+                </div>
+                <div class="field">
+                  <label class="field__label" for="c-email"><span data-i18n="contact.email">البريد الإلكتروني</span> <span class="field__req" aria-hidden="true">*</span></label>
+                  <input class="input" type="email" id="c-email" name="email" required autocomplete="email" aria-describedby="c-email-err">
+                  <p class="field__error" id="c-email-err" role="alert" hidden></p>
+                </div>
+              </div>
+              <div class="field">
+                <label class="field__label" for="c-subject" data-i18n="contact.subject">الموضوع</label>
+                <select class="select" id="c-subject" name="subject">
+                  <option value="sales" data-i18n="contact.subject.sales">استفسار عن منتج</option>
+                  <option value="order" data-i18n="contact.subject.order">طلب قائم</option>
+                  <option value="support" data-i18n="contact.subject.support">صيانة وضمان</option>
+                  <option value="other" data-i18n="contact.subject.other">موضوع آخر</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field__label" for="c-message"><span data-i18n="contact.message">رسالتك</span> <span class="field__req" aria-hidden="true">*</span></label>
+                <textarea class="textarea" id="c-message" name="message" required minlength="10" aria-describedby="c-message-err"></textarea>
+                <p class="field__error" id="c-message-err" role="alert" hidden></p>
+              </div>
+              <div class="cluster">
+                <button class="btn btn--primary btn--lg" type="submit" data-i18n="contact.send">إرسال الرسالة</button>
+                <p class="field__hint" data-i18n="contact.sentDemo">هذا نموذج تجريبي — لم تُرسل الرسالة فعلياً.</p>
+              </div>
+            </form>
+          </div>
+
+          <div class="card card--pad reveal" id="track">
+            <h2 data-i18n="contact.track.title">تتبع طلبك</h2>
+            <p class="field__hint" data-i18n="contact.track.lede">أدخل رقم الطلب الذي وصلك في الرسالة النصية.</p>
+            <form class="promo contact-track" data-track-form novalidate>
+              <div class="field">
+                <label class="sr-only" for="track-ref" data-i18n="contact.track.title">تتبع طلبك</label>
+                <input class="input num" type="text" id="track-ref" name="ref" dir="ltr"
+                       data-i18n-attr="placeholder:contact.track.placeholder" placeholder="BRQ-XXXXXX">
+              </div>
+              <button class="btn btn--primary" type="submit" data-i18n="contact.track.btn">تتبع</button>
+            </form>
+            <p class="track-result" data-track-result role="status" hidden></p>
+          </div>
+        </div>
+
+        <aside class="contact-side">
+          <div class="card card--pad reveal">
+            <h2 class="h-sm" data-i18n="contact.whatsapp">راسلنا على واتساب</h2>
+            <p class="field__hint" data-i18n="contact.hours">ساعات العمل</p>
+            <p data-ar="السبت – الخميس، 9:00 ص – 9:00 م" data-en="Sat – Thu, 9:00 – 21:00">السبت – الخميس، 9:00 ص – 9:00 م</p>
+            <div class="stack contact-actions">
+              <a class="btn btn--primary btn--block" href="https://wa.me/218912345678" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.1A8 8 0 1 1 8.6 19z"/></svg>
+                <span data-i18n="contact.whatsapp">راسلنا على واتساب</span>
+              </a>
+              <a class="btn btn--ghost btn--block num" href="tel:+218912345678" dir="ltr">+218 91 234 5678</a>
+              <a class="btn btn--quiet btn--block" href="mailto:salam@barq.ly">salam@barq.ly</a>
+            </div>
+          </div>
+
+          <div class="map-frame reveal" role="img" data-i18n-attr="aria-label:contact.map" aria-label="خريطة الموقع">
+            <span class="map-frame__pin">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+              <strong data-i18n="contact.mapNote">معرض طرابلس — طريق قرقارش</strong>
+            </span>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <section class="section" id="stores" aria-labelledby="stores-title">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-head__text">
+            <h2 id="stores-title" class="reveal" data-i18n="contact.stores">زُر أحد معارضنا</h2>
+          </div>
+        </div>
+        <div class="grid grid--stores">{{ storesHtml }}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tight" id="faq" aria-labelledby="faq-title">
+      <div class="container container--narrow">
+        <div class="section-head">
+          <div class="section-head__text">
+            <h2 id="faq-title" class="reveal" data-i18n="sec.faq.title">أسئلة يسألها الجميع</h2>
+            <p class="reveal" data-i18n="sec.faq.lede">كل ما تحتاج معرفته قبل الطلب.</p>
+          </div>
+        </div>
+        {{ faqHtml }}
+      </div>
+    </section>

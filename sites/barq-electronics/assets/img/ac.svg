@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-hidden="true" fill="none">
+  <defs>
+    <linearGradient id="b26" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E8EDF4"/><stop offset="1" stop-color="#B3BECC"/>
+    </linearGradient>
+    <linearGradient id="s26" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#1668E3"/><stop offset="0.55" stop-color="#4FB0FF"/><stop offset="1" stop-color="#67E8F9"/>
+    </linearGradient>
+    <linearGradient id="g26" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.03"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.14"/>
+    </linearGradient>
+  </defs>
+    <rect x="46" y="130" width="308" height="94" rx="20" fill="url(#b26)"/>
+    <rect x="46" y="130" width="308" height="94" rx="20" fill="url(#g26)"/>
+    <path d="M46 202h308v10a12 12 0 0 1-12 12H58a12 12 0 0 1-12-12z" fill="#0E131B" opacity="0.8"/>
+    <rect x="252" y="152" width="76" height="28" rx="8" fill="#0E131B"/>
+    <rect x="258" y="158" width="64" height="16" rx="4" fill="url(#s26)"/>
+    <g stroke="#4FB0FF" stroke-width="7" stroke-linecap="round" opacity="0.5"><path d="M118 258v40"/><path d="M168 258v58"/><path d="M218 258v40"/><path d="M268 258v58"/></g></svg>

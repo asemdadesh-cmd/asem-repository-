@@ -1,0 +1,47 @@
+<!--{
+  "page": "product",
+  "script": "page-product.js",
+  "title": "تفاصيل المنتج | برق للإلكترونيات",
+  "description": "مواصفات كاملة، صور، تقييمات، وخيارات التوصيل والضمان لكل منتج في متجر برق للإلكترونيات في ليبيا.",
+  "ogType": "product"
+}-->
+
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="crumbs" data-crumbs>
+          <li><a href="index.html" data-i18n="nav.home">الرئيسية</a></li>
+          <li><a href="shop.html" data-i18n="nav.shop">المتجر</a></li>
+        </ol>
+      </nav>
+
+      <!-- Skeleton mirrors the real .pdp box model so the render costs no
+           layout shift; page-product.js replaces the whole subtree. -->
+      <div data-pdp-root>
+        <div class="pdp" aria-hidden="true">
+          <div class="gallery">
+            <div class="gallery__main skeleton sk-block"></div>
+            <div class="gallery__thumbs">
+              <span class="skeleton sk-thumb"></span><span class="skeleton sk-thumb"></span><span class="skeleton sk-thumb"></span>
+            </div>
+          </div>
+          <div class="sk-pdp-info">
+            <span class="skeleton sk-line--sm"></span>
+            <span class="skeleton sk-pdp-title"></span>
+            <span class="skeleton sk-line--sm"></span>
+            <span class="skeleton sk-pdp-price"></span>
+            <span class="skeleton sk-pdp-block"></span>
+            <span class="skeleton sk-pdp-block"></span>
+            <span class="skeleton sk-pdp-buy"></span>
+            <span class="skeleton sk-pdp-delivery"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile buy bar: appears once the main buy button scrolls out of view -->
+    <div class="sticky-bar" data-sticky-buy hidden>
+      <div class="price-row">
+        <span class="price num" data-sticky-price></span>
+      </div>
+      <button class="btn btn--primary" data-sticky-add data-i18n="product.addToCart">أضف إلى السلة</button>
+    </div>
