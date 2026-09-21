@@ -1,0 +1,9 @@
+{
+  "name": "council",
+  "description": "Three-lens deliberation for hard, costly, hard-to-reverse decisions. Runs blind independent analysis, a forced disagreement round, and a verdict that keeps dissent, kill criteria, and one concrete next action.",
+  "version": "1.0.0",
+  "author": {
+    "name": "NHT Estates",
+    "email": "info@nhtestates.co.uk"
+  }
+}

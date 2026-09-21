@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-07-05_
+_Last updated: 2026-09-21_
 
 ---
 
@@ -45,6 +45,12 @@ _Last updated: 2026-07-05_
   ├── .claude-plugin/
   │   └── marketplace.json           # marketplace manifest (lists plugins)
   ├── plugins/
+  │   ├── council/
+  │   │   ├── .claude-plugin/plugin.json
+  │   │   ├── agents/                     # council-skeptic / -builder / -risk
+  │   │   └── skills/council/
+  │   │       ├── SKILL.md                # the 3-round protocol
+  │   │       └── reference/lenses.md     # lens roles, labels, kill criteria
   │   └── agency-review/
   │       ├── .claude-plugin/
   │       │   └── plugin.json         # plugin manifest
@@ -167,6 +173,12 @@ _Last updated: 2026-07-05_
 ---
 
 ## Changelog
+
+- **2026-09-21** — Added the **`council` plugin**: a three-lens deliberation skill
+  (Skeptic / Builder / Risk) for costly or hard-to-reverse decisions. Runs
+  blind independent analysis, a forced disagreement round, and a verdict that
+  leads with unresolved questions and carries dissent, kill criteria, and one
+  next action. Registered in `.claude-plugin/marketplace.json`.
 
 - **2026-07-05** — Confirmed `claude/agency-review-framework-3a8hk8` is already
   the repo's default branch (repo was empty on first push), so the plugin

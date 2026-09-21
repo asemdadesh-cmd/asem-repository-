@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-07-05_
+_Last updated: 2026-09-21_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -19,12 +19,15 @@ _Last updated: 2026-07-05_
 - [x] Confirm the marketplace branch is already the repo default branch
       (no PR/merge needed — verified via `git ls-remote --symref origin HEAD`)
 
+- [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
+- [x] Register `council` in the marketplace manifest
+
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
-- [ ] (none currently)
+- [ ] Dogfood `council` on one real decision and tune the round word limits
 
 ## 💤 Backlog
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
