@@ -14,6 +14,12 @@
       "source": "./plugins/agency-review",
       "description": "Elite web-agency review board skill for building and shipping premium websites.",
       "version": "1.0.0"
+    },
+    {
+      "name": "council",
+      "source": "./plugins/council",
+      "description": "Three-lens deliberation (Skeptic, Builder, Risk) for costly or hard-to-reverse decisions — blind analysis, forced disagreement, verdict with dissent and kill criteria.",
+      "version": "1.0.0"
     }
   ]
 }
