@@ -37,12 +37,21 @@ _Last updated: 2026-09-22_
 - [x] Agency review pass: contrast fixes, layout fixes, security headers
 - [x] Hours booked and agreed price per slot, with day totals and an
       "unpriced" flag (`0002_booking_price.sql`)
+- [x] Supabase project provisioned (`cardiff-spa-bookings`, eu-west-2) with all
+      four migrations applied and security advisors clean bar four documented
+      by-design warnings
 - [x] Simplify the lockbox screen for non-technical staff: code shown plainly,
       one button to record a new one, plus a per-person permission so the
       person who rotates the code doesn't need to be an admin
       (`0003_lockbox_editors.sql`)
 
 ## 🔄 In Progress
+- [ ] **Spa Bookings — Vercel deploy blocked:** the Vercel connection can create
+      projects but gets 404 on every read/config call, so env vars and the
+      deploy can't be set from here. Needs the Vercel integration re-authorised
+      with access to the `cardiff-spa-bookings` project.
+- [ ] **Spa Bookings — service-role key needed** for invites, push fan-out and
+      the reminder sweep (not exposed via the Supabase connector).
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 - [ ] **Spa Bookings — provision infrastructure (owner):** create the Supabase

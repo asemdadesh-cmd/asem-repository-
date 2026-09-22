@@ -48,6 +48,7 @@ Create a project (the London `eu-west-2` region keeps latency low), then in the
 supabase/migrations/0001_init.sql            # tables, RLS, role helpers, triggers
 supabase/migrations/0002_booking_price.sql   # agreed price per booking
 supabase/migrations/0003_lockbox_editors.sql # per-person lockbox permission
+supabase/migrations/0004_harden_functions.sql # advisor fixes (see below)
 ```
 
 ### 2. Configure the app
@@ -164,6 +165,25 @@ place that converts between pence and display strings.
 
 Hours are **not stored** — they are derived from `starts_at`/`ends_at`, which
 are already the source of truth for the slot, so the two can never disagree.
+
+## Database security advisors
+
+`0004_harden_functions.sql` closes the two findings Supabase's security linter
+raises on this schema: the trigger functions `handle_new_user()` and
+`guard_role_change()` were reachable as RPC endpoints by `anon`, and
+`lockbox_immutable()` / `touch_updated_at()` ran with a mutable `search_path`.
+
+Four warnings are left standing on purpose:
+
+- `is_admin()`, `is_staff()`, `can_edit_lockbox()` and `current_lockbox_code()`
+  are callable by `authenticated` because that is exactly their job — each
+  resolves `auth.uid()` internally and returns only what that caller is
+  entitled to.
+- `btree_gist` sits in the `public` schema. The bookings overlap constraint
+  depends on it, and relocating an extension underneath a live constraint risks
+  more than the warning is worth.
+
+Re-run the linter after any schema change and keep this list honest.
 
 ## Timezone
 

@@ -179,6 +179,12 @@ Applies to **`apps/spa-bookings/`** only. Supabase Postgres. Full DDL lives in
 trail. It is the *total for the slot*, not a rate. Hours are never stored —
 they are derived from `starts_at`/`ends_at` so the two cannot drift.
 
+**Security advisors:** `0004_harden_functions.sql` closes the linter's findings
+(trigger functions exposed as RPC; unpinned `search_path`). Four warnings remain
+by design and are documented in the app README — the four role-helper functions
+are *meant* to be callable by signed-in users, and `btree_gist` stays in
+`public` because the overlap constraint depends on it.
+
 **Migrations:** plain SQL files, run in order via the Supabase SQL Editor.
 `supabase/cron-setup.sql` is run separately, after deployment, because it needs
 the live app URL.
