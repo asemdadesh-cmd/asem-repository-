@@ -2,16 +2,24 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getSession, displayName } from "@/lib/auth";
-import { notifyUsers, teamUserIds } from "@/lib/push";
+import { actorName, getMyName } from "@/lib/identity";
+import { notifyPhones } from "@/lib/push";
 import { formatDayShort, formatTimeRange, londonDateKey, londonWallClockToUtc } from "@/lib/time";
-import { publicEnv } from "@/lib/env";
 import { formatPence, parsePoundsToPence } from "@/lib/money";
+import { publicEnv } from "@/lib/env";
 import type { ActionResult } from "./types";
 
 const OVERLAP_VIOLATION = "23P01";
 const TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+interface SlotRow {
+  id: string;
+  guest_name: string;
+  starts_at: string;
+  ends_at: string;
+  price_pence?: number | null;
+}
 
 function fail(error: string, field?: string): ActionResult {
   return { ok: false, error, field };
@@ -19,12 +27,21 @@ function fail(error: string, field?: string): ActionResult {
 
 function refresh(bookingId?: string) {
   revalidatePath("/calendar");
-  revalidatePath("/team");
   if (bookingId) revalidatePath(`/bookings/${bookingId}`);
 }
 
 function bookingUrl(id: string) {
   return `${publicEnv.appUrl}/bookings/${id}`;
+}
+
+function slotLabel(b: SlotRow) {
+  return `${formatDayShort(londonDateKey(b.starts_at))} ${formatTimeRange(b.starts_at, b.ends_at)}`;
+}
+
+function nextDay(dateISO: string): string {
+  const d = new Date(`${dateISO}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -34,9 +51,6 @@ export async function createBooking(
   _prev: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const session = await getSession();
-  if (!session) return fail("Your session expired. Sign in again.");
-
   const apartmentId = String(formData.get("apartment_id") ?? "").trim();
   const guestName = String(formData.get("guest_name") ?? "").trim();
   const guestContact = String(formData.get("guest_contact") ?? "").trim();
@@ -54,9 +68,7 @@ export async function createBooking(
   if (!TIME_PATTERN.test(startTime)) return fail("Pick a start time.", "start_time");
   if (!TIME_PATTERN.test(endTime)) return fail("Pick an end time.", "end_time");
   if (notes.length > 1000) return fail("Notes are limited to 1000 characters.", "notes");
-  if (price === "invalid") {
-    return fail("Enter the price as a number, e.g. 45 or 45.50.", "price");
-  }
+  if (price === "invalid") return fail("Enter the price as a number, e.g. 45 or 45.50.", "price");
 
   const startsAt = londonWallClockToUtc(date, startTime);
   // An end time earlier than the start means the slot runs past midnight.
@@ -73,6 +85,8 @@ export async function createBooking(
     return fail("That date is more than a day in the past.", "date");
   }
 
+  const me = await getMyName();
+  const now = new Date().toISOString();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("bookings")
@@ -84,21 +98,15 @@ export async function createBooking(
       ends_at: endsAt.toISOString(),
       notes: notes || null,
       price_pence: price,
-      price_set_by: price === null ? null : session.userId,
-      price_set_at: price === null ? null : new Date().toISOString(),
+      price_set_at: price === null ? null : now,
+      price_set_by_name: price === null ? null : me,
       status: confirmNow ? "confirmed" : "pending",
-      created_by: session.userId,
-      confirmed_by: confirmNow ? session.userId : null,
-      confirmed_at: confirmNow ? new Date().toISOString() : null,
+      created_by_name: me,
+      confirmed_at: confirmNow ? now : null,
+      confirmed_by_name: confirmNow ? me : null,
     })
     .select("id, starts_at, ends_at, guest_name, price_pence")
-    .single<{
-      id: string;
-      starts_at: string;
-      ends_at: string;
-      guest_name: string;
-      price_pence: number | null;
-    }>();
+    .single<SlotRow>();
 
   if (error) {
     if (error.code === OVERLAP_VIOLATION) {
@@ -111,27 +119,18 @@ export async function createBooking(
     return fail("Couldn't save the booking. Try again.");
   }
 
-  await notifyUsers(await teamUserIds(session.userId), {
-    kind: "booking_created",
-    title: confirmNow ? "New spa booking confirmed" : "New spa booking to confirm",
-    body: `${data.guest_name} · ${formatDayShort(londonDateKey(data.starts_at))} ${formatTimeRange(
-      data.starts_at,
-      data.ends_at,
-    )}${priceSuffix(data.price_pence)}${
-      confirmNow ? "" : " — needs confirming"
-    }. Added by ${displayName(session.profile)}.`,
-    url: bookingUrl(data.id),
-    bookingId: data.id,
-  });
+  const priceText = formatPence(data.price_pence ?? null);
+  await notifyPhones(
+    { exceptName: me },
+    {
+      title: confirmNow ? "New spa booking confirmed" : "New spa booking to confirm",
+      body: `${data.guest_name} · ${slotLabel(data)}${priceText ? ` · ${priceText}` : ""}. Added by ${await actorName()}.`,
+      url: bookingUrl(data.id),
+    },
+  );
 
   refresh(data.id);
   return { ok: true, message: confirmNow ? "Booking confirmed." : "Booking added." };
-}
-
-function nextDay(dateISO: string): string {
-  const d = new Date(`${dateISO}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + 1);
-  return d.toISOString().slice(0, 10);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -141,27 +140,25 @@ export async function confirmBooking(
   _prev: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const session = await getSession();
-  if (!session) return fail("Your session expired. Sign in again.");
-
   const id = String(formData.get("booking_id") ?? "");
   if (!id) return fail("Missing booking.");
 
+  const me = await getMyName();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("bookings")
     .update({
       status: "confirmed",
-      confirmed_by: session.userId,
       confirmed_at: new Date().toISOString(),
-      cancelled_by: null,
+      confirmed_by_name: me,
       cancelled_at: null,
+      cancelled_by_name: null,
       cancel_reason: null,
     })
     .eq("id", id)
     .neq("status", "confirmed")
     .select("id, guest_name, starts_at, ends_at")
-    .maybeSingle<{ id: string; guest_name: string; starts_at: string; ends_at: string }>();
+    .maybeSingle<SlotRow>();
 
   if (error) {
     if (error.code === OVERLAP_VIOLATION) {
@@ -172,16 +169,14 @@ export async function confirmBooking(
   }
   if (!data) return fail("That booking is already confirmed.");
 
-  await notifyUsers(await teamUserIds(session.userId), {
-    kind: "booking_confirmed",
-    title: "Spa booking confirmed",
-    body: `${data.guest_name} · ${formatDayShort(londonDateKey(data.starts_at))} ${formatTimeRange(
-      data.starts_at,
-      data.ends_at,
-    )}. Confirmed by ${displayName(session.profile)}.`,
-    url: bookingUrl(data.id),
-    bookingId: data.id,
-  });
+  await notifyPhones(
+    { exceptName: me },
+    {
+      title: "Spa booking confirmed",
+      body: `${data.guest_name} · ${slotLabel(data)}. Confirmed by ${await actorName()}.`,
+      url: bookingUrl(data.id),
+    },
+  );
 
   refresh(id);
   return { ok: true, message: "Booking confirmed." };
@@ -194,27 +189,25 @@ export async function cancelBooking(
   _prev: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const session = await getSession();
-  if (!session) return fail("Your session expired. Sign in again.");
-
   const id = String(formData.get("booking_id") ?? "");
   const reason = String(formData.get("cancel_reason") ?? "").trim();
   if (!id) return fail("Missing booking.");
   if (reason.length > 300) return fail("Keep the reason under 300 characters.", "cancel_reason");
 
+  const me = await getMyName();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("bookings")
     .update({
       status: "cancelled",
-      cancelled_by: session.userId,
       cancelled_at: new Date().toISOString(),
+      cancelled_by_name: me,
       cancel_reason: reason || null,
     })
     .eq("id", id)
     .neq("status", "cancelled")
     .select("id, guest_name, starts_at, ends_at")
-    .maybeSingle<{ id: string; guest_name: string; starts_at: string; ends_at: string }>();
+    .maybeSingle<SlotRow>();
 
   if (error) {
     console.error("[cancelBooking]", error.message);
@@ -222,16 +215,14 @@ export async function cancelBooking(
   }
   if (!data) return fail("That booking is already cancelled.");
 
-  await notifyUsers(await teamUserIds(session.userId), {
-    kind: "booking_cancelled",
-    title: "Spa booking cancelled",
-    body: `${data.guest_name} · ${formatDayShort(londonDateKey(data.starts_at))} ${formatTimeRange(
-      data.starts_at,
-      data.ends_at,
-    )}. Cancelled by ${displayName(session.profile)}${reason ? ` — ${reason}` : ""}.`,
-    url: bookingUrl(data.id),
-    bookingId: data.id,
-  });
+  await notifyPhones(
+    { exceptName: me },
+    {
+      title: "Spa booking cancelled",
+      body: `${data.guest_name} · ${slotLabel(data)}. Cancelled by ${await actorName()}${reason ? ` — ${reason}` : ""}.`,
+      url: bookingUrl(data.id),
+    },
+  );
 
   refresh(id);
   return { ok: true, message: "Booking cancelled." };
@@ -244,20 +235,18 @@ export async function markSpaReady(
   _prev: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const session = await getSession();
-  if (!session) return fail("Your session expired. Sign in again.");
-
   const id = String(formData.get("booking_id") ?? "");
   if (!id) return fail("Missing booking.");
 
+  const me = await getMyName();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("bookings")
-    .update({ spa_ready_at: new Date().toISOString(), spa_ready_by: session.userId })
+    .update({ spa_ready_at: new Date().toISOString(), spa_ready_by_name: me })
     .eq("id", id)
     .is("spa_ready_at", null)
     .select("id, guest_name, starts_at, ends_at")
-    .maybeSingle<{ id: string; guest_name: string; starts_at: string; ends_at: string }>();
+    .maybeSingle<SlotRow>();
 
   if (error) {
     console.error("[markSpaReady]", error.message);
@@ -265,16 +254,14 @@ export async function markSpaReady(
   }
   if (!data) return fail("Someone already marked this one ready.");
 
-  await notifyUsers(await teamUserIds(session.userId), {
-    kind: "spa_ready",
-    title: "Spa is on and heating",
-    body: `${displayName(session.profile)} switched the spa on for ${data.guest_name} · ${formatTimeRange(
-      data.starts_at,
-      data.ends_at,
-    )}.`,
-    url: bookingUrl(data.id),
-    bookingId: data.id,
-  });
+  await notifyPhones(
+    { exceptName: me },
+    {
+      title: "Spa is on and heating",
+      body: `${await actorName()} switched the spa on for ${data.guest_name} · ${formatTimeRange(data.starts_at, data.ends_at)}.`,
+      url: bookingUrl(data.id),
+    },
+  );
 
   refresh(id);
   return { ok: true, message: "Team notified — spa marked ready." };
@@ -287,16 +274,13 @@ export async function undoSpaReady(
   _prev: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const session = await getSession();
-  if (!session) return fail("Your session expired. Sign in again.");
-
   const id = String(formData.get("booking_id") ?? "");
   if (!id) return fail("Missing booking.");
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("bookings")
-    .update({ spa_ready_at: null, spa_ready_by: null })
+    .update({ spa_ready_at: null, spa_ready_by_name: null })
     .eq("id", id);
 
   if (error) {
@@ -315,28 +299,24 @@ export async function setBookingPrice(
   _prev: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const session = await getSession();
-  if (!session) return fail("Your session expired. Sign in again.");
-
   const id = String(formData.get("booking_id") ?? "");
   if (!id) return fail("Missing booking.");
 
   const price = parsePoundsToPence(String(formData.get("price") ?? ""));
-  if (price === "invalid") {
-    return fail("Enter the price as a number, e.g. 45 or 45.50.", "price");
-  }
+  if (price === "invalid") return fail("Enter the price as a number, e.g. 45 or 45.50.", "price");
 
+  const me = await getMyName();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("bookings")
     .update({
       price_pence: price,
-      price_set_by: price === null ? null : session.userId,
       price_set_at: price === null ? null : new Date().toISOString(),
+      price_set_by_name: price === null ? null : me,
     })
     .eq("id", id)
-    .select("id, guest_name, price_pence")
-    .maybeSingle<{ id: string; guest_name: string; price_pence: number | null }>();
+    .select("id")
+    .maybeSingle<{ id: string }>();
 
   if (error) {
     console.error("[setBookingPrice]", error.message);
@@ -344,26 +324,9 @@ export async function setBookingPrice(
   }
   if (!data) return fail("That booking no longer exists.");
 
-  await notifyUsers(await teamUserIds(session.userId), {
-    kind: "booking_price",
-    title: price === null ? "Price cleared" : "Spa price agreed",
-    body:
-      price === null
-        ? `${displayName(session.profile)} cleared the agreed price for ${data.guest_name}.`
-        : `${data.guest_name} · ${formatPence(price)} agreed by ${displayName(session.profile)}.`,
-    url: bookingUrl(data.id),
-    bookingId: data.id,
-  });
-
   refresh(id);
   return {
     ok: true,
     message: price === null ? "Price cleared." : `Price set to ${formatPence(price)}.`,
   };
-}
-
-/** `" · £45"`, or nothing when no price has been agreed. */
-function priceSuffix(pence: number | null): string {
-  const formatted = formatPence(pence);
-  return formatted ? ` · ${formatted}` : "";
 }

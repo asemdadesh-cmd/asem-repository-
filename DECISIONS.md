@@ -8,6 +8,17 @@ _Last updated: 2026-09-22_
 
 ---
 
+### 2026-09-22 — Remove sign-in entirely (owner's call)
+**Decision:** Drop the login screen. Anyone with the link can use the app. Staff
+are a list of names; each phone picks its name once and actions record it.
+**Why:** The owner found the email-link login too much for the team and chose
+no login over a shared PIN after being told plainly that the lockbox code would
+then be visible to anyone with the link. Mitigations kept at no cost to them:
+nothing is deletable (bookings are cancelled, lockbox history is append-only),
+push subscriptions are write-only for the public key, and attribution survives
+through the per-phone name. Trade-off: no roles, no private lockbox, and
+attribution is honour-system — anyone can pick any name.
+
 ### 2026-09-22 — A per-person lockbox permission, not an admin promotion
 **Decision:** Add `profiles.can_edit_lockbox`, granted by an admin, instead of
 either making the person who rotates the code an admin or opening code changes

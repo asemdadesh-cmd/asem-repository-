@@ -368,6 +368,12 @@ Original setup walkthrough, in `apps/spa-bookings/README.md`:
   off-by-one in the booking-clash hint, and added CSP/HSTS security headers.
   **Not yet deployed** — infrastructure is the owner's to provision.
 
+- **2026-09-22** — Spa Bookings: **sign-in removed** at the owner's request.
+  No accounts; staff are names (`staff_members`), each phone picks one, and
+  actions record it. Admin/staff roles and the per-person lockbox permission
+  are gone — everyone can do everything, and nothing can be deleted.
+  Migration `0006_open_access.sql`.
+
 - **2026-09-22** — Spa Bookings **deployed**: Supabase migrated (0001–0004,
   security advisor findings fixed in 0004), Vercel project live at
   cardiff-spa-bookings.vercel.app in the London region, env vars set,

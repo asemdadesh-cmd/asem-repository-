@@ -1,15 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { BookingWithRelations } from "@/lib/types";
 
-/** Every join the booking UI needs, in one place so the shapes stay in sync. */
-export const BOOKING_SELECT = `
-  *,
-  apartment:apartments!bookings_apartment_id_fkey(id, name),
-  created_by_profile:profiles!bookings_created_by_fkey(id, full_name, email),
-  confirmed_by_profile:profiles!bookings_confirmed_by_fkey(id, full_name, email),
-  price_set_by_profile:profiles!bookings_price_set_by_fkey(id, full_name, email),
-  spa_ready_by_profile:profiles!bookings_spa_ready_by_fkey(id, full_name, email)
-`;
+export const BOOKING_SELECT = `*, apartment:apartments!bookings_apartment_id_fkey(id, name)`;
 
 export async function getBookingsBetween(
   supabase: SupabaseClient,

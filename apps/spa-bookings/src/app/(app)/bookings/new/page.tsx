@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { requireSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { londonDateKey } from "@/lib/time";
 import type { Apartment } from "@/lib/types";
@@ -18,7 +17,6 @@ export default async function NewBookingPage({
 }: {
   searchParams: Promise<{ date?: string }>;
 }) {
-  const session = await requireSession();
   const { date } = await searchParams;
   const initialDate = date && DATE_PATTERN.test(date) ? date : londonDateKey();
 
@@ -49,13 +47,9 @@ export default async function NewBookingPage({
           <Alert tone="warn">
             No apartments have been set up yet, so a booking can&rsquo;t be assigned to one.
           </Alert>
-          {session.profile.role === "admin" ? (
-            <Link href="/settings">
-              <Button block>Add apartments in Settings</Button>
-            </Link>
-          ) : (
-            <p className="text-sm text-text-muted">Ask an admin to add the apartments.</p>
-          )}
+          <Link href="/settings">
+            <Button block>Add apartments in Settings</Button>
+          </Link>
         </div>
       ) : (
         <NewBookingForm apartments={apartments} initialDate={initialDate} />

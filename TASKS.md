@@ -37,6 +37,7 @@ _Last updated: 2026-09-22_
 - [x] Agency review pass: contrast fixes, layout fixes, security headers
 - [x] Hours booked and agreed price per slot, with day totals and an
       "unpriced" flag (`0002_booking_price.sql`)
+- [x] Removed sign-in (owner's decision): staff are names, picked once per phone
 - [x] Deployed to Vercel: cardiff-spa-bookings.vercel.app, London region,
       env vars set, previews behind Vercel login, production public
 - [x] `pg_cron` reminder sweep installed and verified reaching the app
@@ -49,8 +50,6 @@ _Last updated: 2026-09-22_
       (`0003_lockbox_editors.sql`)
 
 ## 🔄 In Progress
-- [ ] **Spa Bookings — owner setup:** Supabase Auth Site URL + `/auth/callback`
-      redirect; invite first admin from the Supabase dashboard.
 - [ ] **Spa Bookings — service-role key needed** for invites, push fan-out and
       the reminder sweep (not exposed via the Supabase connector).
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +

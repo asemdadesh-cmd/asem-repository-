@@ -132,7 +132,7 @@ export function BookingCard({
           {booking.spa_ready_at && (
             <p className="flex items-center gap-1.5 text-xs font-medium text-text-muted">
               <CheckIcon width={14} height={14} className="text-ready" />
-              Switched on by {booking.spa_ready_by_profile?.full_name?.split(" ")[0] ?? "a colleague"}
+              Switched on by {booking.spa_ready_by_name ?? "a colleague"}
             </p>
           )}
 

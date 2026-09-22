@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
-import { createAdminClient, tryCreateAdminClient } from "@/lib/supabase/admin";
-import { notifyUsers } from "@/lib/push";
+import { tryCreateAdminClient } from "@/lib/supabase/admin";
+import { notifyPhones } from "@/lib/push";
 import { formatTime, londonDateKey } from "@/lib/time";
 import { publicEnv } from "@/lib/env";
 
@@ -87,18 +87,20 @@ export async function POST(request: Request) {
 
     // --- T-60: tell whoever is on duty to go switch the spa on ---------------
     if (!booking.reminder_sent_at && !booking.spa_ready_at) {
-      const recipients = await recipientsForDate(admin, booking.starts_at);
-      if (recipients.length) {
-        await notifyUsers(recipients, {
-          kind: "switch_on",
-          title: `Switch the spa on — ${when}`,
-          body: `${booking.guest_name} · ${where}. Starts in ${minutesAway} min, so it needs turning on now to heat up.`,
-          url: link,
-          tag: `switch-on-${booking.id}`,
-          bookingId: booking.id,
-          requireInteraction: true,
-        });
-      }
+      const dutyName = await dutyNameForDate(admin, booking.starts_at);
+      const payload = {
+        title: `Switch the spa on — ${when}`,
+        body: `${booking.guest_name} · ${where}. Starts in ${minutesAway} min, so it needs turning on now to heat up.`,
+        url: link,
+        tag: `switch-on-${booking.id}`,
+        requireInteraction: true,
+      };
+      // If the duty person's phone isn't registered, nobody would hear it, so
+      // fall back to every phone rather than sending into the void.
+      const result = dutyName
+        ? await notifyPhones({ names: [dutyName] }, payload)
+        : { sent: 0, failed: 0 };
+      if (result.sent === 0) await notifyPhones({}, payload);
       await admin
         .from("bookings")
         .update({ reminder_sent_at: new Date().toISOString() })
@@ -114,21 +116,16 @@ export async function POST(request: Request) {
       !booking.escalated_at &&
       minutesAway <= ESCALATION_MINUTES
     ) {
-      const { data: team } = await admin
-        .from("profiles")
-        .select("id")
-        .eq("is_active", true)
-        .returns<{ id: string }[]>();
-
-      await notifyUsers((team ?? []).map((p) => p.id), {
-        kind: "not_ready",
-        title: `Spa still not marked ready — ${when}`,
-        body: `${booking.guest_name} · ${where} starts in ${minutesAway} min. Can someone confirm the spa is on?`,
-        url: link,
-        tag: `not-ready-${booking.id}`,
-        bookingId: booking.id,
-        requireInteraction: true,
-      });
+      await notifyPhones(
+        {},
+        {
+          title: `Spa still not marked ready — ${when}`,
+          body: `${booking.guest_name} · ${where} starts in ${minutesAway} min. Can someone confirm the spa is on?`,
+          url: link,
+          tag: `not-ready-${booking.id}`,
+          requireInteraction: true,
+        },
+      );
 
       await admin
         .from("bookings")
@@ -142,28 +139,17 @@ export async function POST(request: Request) {
   return NextResponse.json({ ok: true, reminded, escalated });
 }
 
-/** On-duty staffer for that day, falling back to the whole active team. */
-async function recipientsForDate(
-  admin: ReturnType<typeof createAdminClient>,
+/** The name on the duty rota for that Cardiff calendar day, if any. */
+async function dutyNameForDate(
+  admin: NonNullable<ReturnType<typeof tryCreateAdminClient>>,
   startsAt: string,
-): Promise<string[]> {
-  const dutyDate = londonDateKey(startsAt);
-
-  const { data: duty } = await admin
+): Promise<string | null> {
+  const { data } = await admin
     .from("duty_shifts")
-    .select("user_id")
-    .eq("duty_date", dutyDate)
-    .maybeSingle<{ user_id: string }>();
-
-  if (duty?.user_id) return [duty.user_id];
-
-  const { data: team } = await admin
-    .from("profiles")
-    .select("id")
-    .eq("is_active", true)
-    .returns<{ id: string }[]>();
-
-  return (team ?? []).map((p) => p.id);
+    .select("staff_name")
+    .eq("duty_date", londonDateKey(startsAt))
+    .maybeSingle<{ staff_name: string | null }>();
+  return data?.staff_name ?? null;
 }
 
 /** Vercel Cron issues GET; pg_cron issues POST. Same work either way. */

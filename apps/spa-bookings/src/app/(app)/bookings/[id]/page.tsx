@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { requireSession, displayName } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { BOOKING_SELECT } from "@/lib/queries";
 import type { BookingWithRelations } from "@/lib/types";
@@ -29,7 +28,6 @@ export default async function BookingPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireSession();
   const { id } = await params;
 
   const supabase = await createClient();
@@ -46,11 +44,11 @@ export default async function BookingPage({
 
   const timeline = [
     booking.created_at && {
-      label: `Added by ${displayName(booking.created_by_profile)}`,
+      label: `Added by ${booking.created_by_name ?? "someone"}`,
       at: booking.created_at,
     },
     booking.confirmed_at && {
-      label: `Confirmed by ${displayName(booking.confirmed_by_profile)}`,
+      label: `Confirmed by ${booking.confirmed_by_name ?? "someone"}`,
       at: booking.confirmed_at,
     },
     booking.reminder_sent_at && {
@@ -58,17 +56,19 @@ export default async function BookingPage({
       at: booking.reminder_sent_at,
     },
     booking.price_set_at && {
-      label: `${formatPence(booking.price_pence)} agreed by ${displayName(
-        booking.price_set_by_profile,
-      )}`,
+      label: `${formatPence(booking.price_pence)} agreed${
+        booking.price_set_by_name ? ` by ${booking.price_set_by_name}` : ""
+      }`,
       at: booking.price_set_at,
     },
     booking.spa_ready_at && {
-      label: `Spa switched on by ${displayName(booking.spa_ready_by_profile)}`,
+      label: `Spa switched on by ${booking.spa_ready_by_name ?? "someone"}`,
       at: booking.spa_ready_at,
     },
     booking.cancelled_at && {
-      label: `Cancelled${booking.cancel_reason ? ` — ${booking.cancel_reason}` : ""}`,
+      label: `Cancelled${booking.cancelled_by_name ? ` by ${booking.cancelled_by_name}` : ""}${
+        booking.cancel_reason ? ` — ${booking.cancel_reason}` : ""
+      }`,
       at: booking.cancelled_at,
     },
   ].filter(Boolean) as { label: string; at: string }[];

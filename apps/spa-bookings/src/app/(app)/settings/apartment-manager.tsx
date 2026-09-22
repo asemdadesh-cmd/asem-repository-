@@ -6,7 +6,7 @@ import type { Apartment } from "@/lib/types";
 import { Alert, Button, Card, Field, Input, cx } from "@/components/ui";
 import { ActionForm } from "@/components/action-form";
 import { PlusIcon, SpinnerIcon } from "@/components/icons";
-import { addApartment, toggleApartment } from "@/app/actions/admin";
+import { addApartment, toggleApartment } from "@/app/actions/people";
 import type { ActionResult } from "@/app/actions/types";
 
 function Submit() {

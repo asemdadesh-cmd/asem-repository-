@@ -48,7 +48,9 @@ Create a project (the London `eu-west-2` region keeps latency low), then in the
 supabase/migrations/0001_init.sql            # tables, RLS, role helpers, triggers
 supabase/migrations/0002_booking_price.sql   # agreed price per booking
 supabase/migrations/0003_lockbox_editors.sql # per-person lockbox permission
-supabase/migrations/0004_harden_functions.sql # advisor fixes (see below)
+supabase/migrations/0004_harden_functions.sql # advisor fixes
+supabase/migrations/0005_invite_only_signup.sql # (superseded by 0006)
+supabase/migrations/0006_open_access.sql     # no sign-in; staff are names
 ```
 
 ### 2. Configure the app
@@ -203,7 +205,27 @@ npm run bootstrap:admin  # create the first admin
 node scripts/generate-icons.mjs   # regenerate the PWA icon set
 ```
 
-## Who can do what with the lockbox
+## No sign-in (owner's decision, 2026-09-22)
+
+There is no login. Anyone with the link can use the app, including seeing and
+changing the lockbox code. The owner chose this for simplicity after being
+told the trade-off.
+
+What still holds:
+
+- **Who did what.** Each phone taps its name once (Settings → *Who is using this
+  phone*, or the prompt on the calendar). It's kept in a cookie and every action
+  records it: "Maria changed the code".
+- **Nothing can be deleted.** Bookings are cancelled, never deleted. Lockbox
+  history is append-only at the database level.
+- **Push endpoints are private.** Phones register through
+  `register_push()` / `unregister_push()`; the public key cannot list them.
+
+To put a lock back later, the lowest-effort option is a shared PIN checked in
+`middleware.ts`. The earlier email-login version is in git history before
+migration 0006.
+
+## Who can do what with the lockbox (before 0006, kept for history)
 
 | | See the code | Record a new code | See the history |
 | --- | --- | --- | --- |

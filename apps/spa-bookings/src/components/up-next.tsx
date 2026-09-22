@@ -90,7 +90,7 @@ export function UpNext({ booking, now }: { booking: BookingWithRelations; now: s
                 className="mr-1.5 inline-block shrink-0 align-[-0.2em]"
               />
               Spa is on — switched on by{" "}
-              {booking.spa_ready_by_profile?.full_name?.split(" ")[0] ?? "a colleague"}
+              {booking.spa_ready_by_name ?? "a colleague"}
             </p>
           ) : overdue ? (
             <p className="text-sm font-semibold text-warn-soft-fg">

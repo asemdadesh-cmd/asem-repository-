@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { requireSession } from "@/lib/auth";
+import { getMyName } from "@/lib/identity";
+import { NamePicker } from "@/components/name-picker";
 import { createClient } from "@/lib/supabase/server";
 import { getBookingsBetween } from "@/lib/queries";
 import {
@@ -31,8 +32,8 @@ export default async function CalendarPage({
 }: {
   searchParams: Promise<{ date?: string }>;
 }) {
-  await requireSession();
   const { date } = await searchParams;
+  const myName = await getMyName();
   const selected = date && DATE_PATTERN.test(date) ? date : londonDateKey();
 
   const supabase = await createClient();
@@ -42,10 +43,19 @@ export default async function CalendarPage({
   const stripFrom = dayBoundsUtc(addDays(selected, -10)).from;
   const stripTo = dayBoundsUtc(addDays(selected, 11)).to;
 
-  const [dayBookings, windowBookings, upNext] = await Promise.all([
+  const [dayBookings, windowBookings, upNext, staff] = await Promise.all([
     getBookingsBetween(supabase, from, to),
     getBookingsBetween(supabase, stripFrom, stripTo),
     getNextLiveBooking(supabase),
+    myName
+      ? Promise.resolve([] as string[])
+      : supabase
+          .from("staff_members")
+          .select("name")
+          .eq("is_active", true)
+          .order("name")
+          .returns<{ name: string }[]>()
+          .then(({ data }) => (data ?? []).map((r) => r.name)),
   ]);
 
   const counts = windowBookings.reduce<Record<string, number>>((acc, booking) => {
@@ -79,6 +89,8 @@ export default async function CalendarPage({
           </div>
           <DateStrip selected={selected} counts={counts} />
         </header>
+
+        {!myName && <NamePicker names={staff} current={null} />}
 
         {upNext && <UpNext booking={upNext} now={now} />}
 

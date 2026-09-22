@@ -28,9 +28,8 @@ function Submit() {
 
 /**
  * One job, one screenful: type the new code, save it, done.
- * The optional "why" note is admin-only — it is paperwork, not the task.
  */
-export function ChangeCodeForm({ showNote = false }: { showNote?: boolean }) {
+export function ChangeCodeForm() {
   const [state, formAction] = useActionState<ActionResult, FormData>(setLockboxCode, {
     ok: true,
   });
@@ -106,15 +105,6 @@ export function ChangeCodeForm({ showNote = false }: { showNote?: boolean }) {
             className="h-16 text-center font-mono text-3xl font-bold tracking-[0.2em]"
           />
         </div>
-
-        {showNote && (
-          <div className="space-y-1.5">
-            <label htmlFor="note" className="block text-sm font-medium text-text-muted">
-              Note <span className="font-normal text-text-subtle">(optional)</span>
-            </label>
-            <Input id="note" name="note" maxLength={500} autoComplete="off" />
-          </div>
-        )}
 
         {!state.ok && (
           <div id="code-error">
