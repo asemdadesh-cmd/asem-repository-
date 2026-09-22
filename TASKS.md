@@ -37,6 +37,9 @@ _Last updated: 2026-09-22_
 - [x] Agency review pass: contrast fixes, layout fixes, security headers
 - [x] Hours booked and agreed price per slot, with day totals and an
       "unpriced" flag (`0002_booking_price.sql`)
+- [x] Deployed to Vercel: cardiff-spa-bookings.vercel.app, London region,
+      env vars set, previews behind Vercel login, production public
+- [x] `pg_cron` reminder sweep installed and verified reaching the app
 - [x] Supabase project provisioned (`cardiff-spa-bookings`, eu-west-2) with all
       four migrations applied and security advisors clean bar four documented
       by-design warnings
@@ -46,10 +49,8 @@ _Last updated: 2026-09-22_
       (`0003_lockbox_editors.sql`)
 
 ## 🔄 In Progress
-- [ ] **Spa Bookings — Vercel deploy blocked:** the Vercel connection can create
-      projects but gets 404 on every read/config call, so env vars and the
-      deploy can't be set from here. Needs the Vercel integration re-authorised
-      with access to the `cardiff-spa-bookings` project.
+- [ ] **Spa Bookings — owner setup:** Supabase Auth Site URL + `/auth/callback`
+      redirect; invite first admin from the Supabase dashboard.
 - [ ] **Spa Bookings — service-role key needed** for invites, push fan-out and
       the reminder sweep (not exposed via the Supabase connector).
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +

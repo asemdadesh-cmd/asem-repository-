@@ -279,8 +279,29 @@ Route handlers:
 
 ### Spa Bookings deployment
 
-Not yet deployed — the owner provisions the infrastructure. Full walkthrough in
-`apps/spa-bookings/README.md`. In short:
+**Live:** https://cardiff-spa-bookings.vercel.app (Vercel project
+`cardiff-spa-bookings`, functions in `lhr1` London, next to the database).
+**Database:** Supabase project `cardiff-spa-bookings` (`zxosacjovpgmqkjyckuc`,
+eu-west-2), migrations `0001`–`0004` applied. `pg_cron` job
+`spa-reminder-sweep` calls `/api/cron/reminders` every minute; check
+`net._http_response` in Supabase to see what the app answered.
+
+- Vercel login protects **preview** deployments only; production is public
+  because the app has its own invite-only sign-in and staff have no Vercel
+  accounts.
+- Production currently deploys from branch `claude/spa-booking-app-cardiff-dj9km9`
+  via manual production deployments, because the repo's default branch does not
+  contain the app yet. Once PR #3 merges, pushes to the default branch deploy
+  production automatically.
+- Vercel MCP note: calls must **omit** `teamId` — passing it returns 404 on
+  every project-level call with this connection.
+
+**Still outstanding (owner):** set Supabase Auth Site URL and the
+`/auth/callback` redirect URL; invite the first admin from the Supabase
+dashboard; add `SUPABASE_SERVICE_ROLE_KEY` to Vercel (until then reminders,
+push and in-app invites are off, and the cron job returns 503 saying so).
+
+Original setup walkthrough, in `apps/spa-bookings/README.md`:
 
 1. Create a Supabase project (London, `eu-west-2`) and run
    `supabase/migrations/0001_init.sql` in the SQL Editor.
@@ -346,6 +367,14 @@ Not yet deployed — the owner provisions the infrastructure. Full walkthrough i
   form-control border token, fixed countdown text wrapping, corrected a BST
   off-by-one in the booking-clash hint, and added CSP/HSTS security headers.
   **Not yet deployed** — infrastructure is the owner's to provision.
+
+- **2026-09-22** — Spa Bookings **deployed**: Supabase migrated (0001–0004,
+  security advisor findings fixed in 0004), Vercel project live at
+  cardiff-spa-bookings.vercel.app in the London region, env vars set,
+  `pg_cron` reminder sweep installed. Fixed along the way: Next.js 15.5.4 →
+  15.5.26 (CVE-2025-66478; the old version failed to deploy), notification
+  failures no longer break the booking action that triggered them, and the
+  cron route returns a readable 503 when the service key is missing.
 
 - **2026-09-22** — Spa Bookings: **simplified the lockbox screen** for the
   non-technical staff member who actually rotates the code. The code is now
