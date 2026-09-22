@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, tryCreateAdminClient } from "@/lib/supabase/admin";
 import { notifyUsers } from "@/lib/push";
 import { formatTime, londonDateKey } from "@/lib/time";
 import { publicEnv } from "@/lib/env";
@@ -42,7 +42,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
 
-  const admin = createAdminClient();
+  // A missing service-role key is a configuration problem, not a crash: say so
+  // plainly, since pg_net records this response body in net._http_response.
+  const admin = tryCreateAdminClient();
+  if (!admin) {
+    return NextResponse.json(
+      { error: "Not configured: SUPABASE_SERVICE_ROLE_KEY is missing on the server" },
+      { status: 503 },
+    );
+  }
   const now = new Date();
   const horizon = new Date(now.getTime() + SWITCH_ON_LEAD_MINUTES * 60_000);
 
