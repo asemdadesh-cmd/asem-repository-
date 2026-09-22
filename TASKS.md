@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-22_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -22,14 +22,36 @@ _Last updated: 2026-09-21_
 - [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
 - [x] Register `council` in the marketplace manifest
 
+### Spa Bookings app (`apps/spa-bookings/`)
+- [x] Clarify requirements before writing code (reminders, backend, scope, scale)
+- [x] Database schema + RLS + audit triggers (`supabase/migrations/0001_init.sql`)
+- [x] Magic-link auth with an invite allowlist enforced in the database
+- [x] Shared day calendar with live cross-device updates (Supabase Realtime)
+- [x] Create / confirm / cancel / mark-ready booking actions
+- [x] T-60 switch-on reminder + T-15 escalation via `pg_cron`
+- [x] Web Push (VAPID) + in-app notification feed
+- [x] Lockbox panel with admin-only, append-only change history
+- [x] Duty rota with admin assignment and staff self-claim
+- [x] Admin settings: apartments, staff roles, invites
+- [x] PWA manifest, service worker, generated icon set
+- [x] Agency review pass: contrast fixes, layout fixes, security headers
+
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
+- [ ] **Spa Bookings — provision infrastructure (owner):** create the Supabase
+      project, run `0001_init.sql`, set env vars, deploy to Vercel, run
+      `cron-setup.sql`. See `apps/spa-bookings/README.md`.
 
 ## ⬜ Planned
 - [ ] Dogfood `council` on one real decision and tune the round word limits
+- [ ] Spa Bookings: end-to-end test against the live project (invite, book,
+      confirm, receive the T-60 push on a real phone)
 
 ## 💤 Backlog
+- [ ] Spa Bookings: Uplisting reservation sync to prefill guest and apartment
+- [ ] Spa Bookings: support a second spa (resource column on the overlap constraint)
+- [ ] Spa Bookings: device-independent magic links via the custom email template
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
 - [ ] Create a `website-scaffold` skill for consistent starter structure
 - [ ] Add per-website deployment notes once a real site is built

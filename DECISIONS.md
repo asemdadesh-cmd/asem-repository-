@@ -4,9 +4,52 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-22_
 
 ---
+
+### 2026-09-22 — Drive the T-60 reminder from Postgres, not Vercel Cron
+**Decision:** Schedule the spa-bookings reminder sweep with Supabase `pg_cron`
+firing `pg_net` at `/api/cron/reminders` every minute, rather than Vercel Cron.
+**Why:** Vercel's Hobby plan runs cron **once per day**. A "switch the spa on an
+hour before the booking" reminder needs minute-level granularity or it is
+worthless. `pg_cron` is free, already sits next to the data, and survives the
+app being cold. The route is idempotent (`reminder_sent_at` / `escalated_at` are
+set under an `is null` guard) so a double fire cannot double-notify, and it also
+answers `GET`, so moving to Vercel Cron on a paid plan is a config change with
+no code change. Trade-off: scheduling lives outside the repo, so
+`supabase/cron-setup.sql` has to be run by hand once per environment.
+
+### 2026-09-22 — Web Push instead of WhatsApp/SMS for staff reminders
+**Decision:** Deliver the duty reminder as a Web Push notification to an
+installed PWA, backed by an in-app notification feed.
+**Why:** Twilio WhatsApp needs a paid number, Business sender approval with days
+of lead time, and a per-message cost, for a team of a handful of people who are
+already holding the phone. Web Push is free, instant, and needs no third party.
+Trade-off: iOS only supports Web Push once the app is added to the Home Screen,
+so onboarding has a real step that Settings explains explicitly. The in-app feed
+is written first on every notification, so the record survives a failed push.
+
+### 2026-09-22 — Guard signup with an allowlist trigger, not just client config
+**Decision:** Block uninvited accounts in the `handle_new_user` database trigger
+against a `staff_invites` table, on top of `shouldCreateUser: false` on the
+client.
+**Why:** `shouldCreateUser: false` is a client argument — anyone holding the
+publishable anon key can call the auth API without it. The trigger is the real
+boundary: an email that was never invited cannot get a profile regardless of how
+the request is made. The first user in an empty workspace becomes admin so the
+system can be bootstrapped at all.
+
+### 2026-09-22 — One spa enforced by a database exclusion constraint
+**Decision:** Prevent overlapping bookings with
+`EXCLUDE USING gist (tstzrange(starts_at, ends_at) WITH &&) WHERE (status <> 'cancelled')`
+rather than an application-level check.
+**Why:** Two staff answering the same WhatsApp message at the same moment is the
+expected case, not an edge case, and an application check has a race window
+between read and write. The constraint makes a double-booking physically
+impossible; the server actions catch `23P01` and turn it into a plain-English
+message. Trade-off: supporting a second spa later means adding a resource column
+to the constraint and a migration.
 
 ### 2026-09-21 — Three lenses, not eighteen personas
 **Decision:** Build the `council` plugin around three functional lenses

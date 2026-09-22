@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+/* ===========================================================================
+   Design tokens
+   A calm, spa-toned palette. Every foreground/background pair below meets
+   WCAG AA (4.5:1) for body text and 3:1 for large text and UI borders.
+   =========================================================================== */
+:root {
+  color-scheme: light dark;
+
+  --bg:            #f6f7f6;
+  --bg-elevated:   #ffffff;
+  --surface:       #ffffff;
+  --surface-muted: #eff1f0;
+  --border:        #dcdfde;
+  --border-input:  #8c8f8e;   /* 3:1 against surface — WCAG 1.4.11 */
+  --border-strong: #6f7472;
+
+  --text:          #141816;
+  --text-muted:    #596160;
+  --text-subtle:   #666e6c;
+
+  --accent:        #0f6f66;
+  --accent-hover:  #0b5b53;
+  --accent-fg:     #ffffff;
+  --accent-soft:   #dff0ed;
+  --accent-soft-fg:#0a4f49;
+
+  --warn:          #8a5a00;
+  --warn-soft:     #fdf0d8;
+  --warn-soft-fg:  #6f4800;
+
+  --danger:        #a32020;
+  --danger-hover:  #8a1a1a;
+  --danger-soft:   #fbe6e6;
+  --danger-soft-fg:#851b1b;
+
+  --ready:         #1d4ed8;
+  --ready-soft:    #e2eaff;
+  --ready-soft-fg: #1e40af;
+
+  --ring:          #0f6f66;
+
+  --radius:        0.875rem;
+  --radius-sm:     0.625rem;
+  --shadow-card:   0 1px 2px rgb(20 24 22 / 0.05), 0 1px 3px rgb(20 24 22 / 0.04);
+  --shadow-pop:    0 10px 30px -12px rgb(20 24 22 / 0.28);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:            #0b0f0e;
+    --bg-elevated:   #141a18;
+    --surface:       #141a18;
+    --surface-muted: #1c2422;
+    --border:        #2a3331;
+    --border-input:  #5e6765;
+    --border-strong: #79837f;
+
+    --text:          #eef2f0;
+    --text-muted:    #a3aead;
+    --text-subtle:   #8b9694;
+
+    --accent:        #3ecfbd;
+    --accent-hover:  #64ded0;
+    --accent-fg:     #04201d;
+    --accent-soft:   #0e2d2a;
+    --accent-soft-fg:#7fe6d9;
+
+    --warn:          #e0aa4a;
+    --warn-soft:     #2e2413;
+    --warn-soft-fg:  #f0c579;
+
+    --danger:        #f08a84;
+    --danger-hover:  #f6a5a0;
+    --danger-soft:   #321a1a;
+    --danger-soft-fg:#f3a8a3;
+
+    --ready:         #8fb1ff;
+    --ready-soft:    #16203a;
+    --ready-soft-fg: #a8c2ff;
+
+    --ring:          #3ecfbd;
+
+    --shadow-card:   0 1px 2px rgb(0 0 0 / 0.5);
+    --shadow-pop:    0 10px 30px -12px rgb(0 0 0 / 0.7);
+  }
+}
+
+@theme inline {
+  --color-bg:            var(--bg);
+  --color-bg-elevated:   var(--bg-elevated);
+  --color-surface:       var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border:        var(--border);
+  --color-border-input:  var(--border-input);
+  --color-border-strong: var(--border-strong);
+  --color-text:          var(--text);
+  --color-text-muted:    var(--text-muted);
+  --color-text-subtle:   var(--text-subtle);
+  --color-accent:        var(--accent);
+  --color-accent-hover:  var(--accent-hover);
+  --color-accent-fg:     var(--accent-fg);
+  --color-accent-soft:   var(--accent-soft);
+  --color-accent-soft-fg:var(--accent-soft-fg);
+  --color-warn:          var(--warn);
+  --color-warn-soft:     var(--warn-soft);
+  --color-warn-soft-fg:  var(--warn-soft-fg);
+  --color-danger:        var(--danger);
+  --color-danger-hover:  var(--danger-hover);
+  --color-danger-soft:   var(--danger-soft);
+  --color-danger-soft-fg:var(--danger-soft-fg);
+  --color-ready:         var(--ready);
+  --color-ready-soft:    var(--ready-soft);
+  --color-ready-soft-fg: var(--ready-soft-fg);
+
+  --radius-card: var(--radius);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+
+/* ===========================================================================
+   Base
+   =========================================================================== */
+* { min-width: 0; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Stops iOS rubber-banding revealing a white strip under the tab bar. */
+  overscroll-behavior-y: none;
+}
+
+/* Visible, consistent focus for keyboard users on every interactive element. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}
+
+/* Native controls should follow the theme, not the OS default. */
+input, select, textarea, button { font: inherit; color: inherit; }
+
+/* iOS zooms any input rendered below 16px on focus. */
+input, select, textarea { font-size: max(1rem, 16px); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@utility safe-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--safe-extra, 0px));
+}
+
+@utility tap {
+  /* WCAG 2.2 target size: nothing interactive smaller than 44px. */
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--warn) 45%, transparent); }
+  70%  { box-shadow: 0 0 0 10px color-mix(in srgb, var(--warn) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--warn) 0%, transparent); }
+}
+
+@utility pulse-attention {
+  animation: pulse-ring 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fade-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@utility enter {
+  animation: fade-rise 0.24s ease-out both;
+}
