@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { BookingWithRelations } from "@/lib/types";
-import { formatDayShort, formatTimeRange, londonDateKey } from "@/lib/time";
+import { formatDayShort, formatDuration, formatTimeRange, londonDateKey } from "@/lib/time";
+import { formatPence } from "@/lib/money";
 import { Card, cx } from "@/components/ui";
 import { ActionForm } from "@/components/action-form";
 import { CheckIcon, FlameIcon } from "@/components/icons";
@@ -64,6 +65,19 @@ export function UpNext({ booking, now }: { booking: BookingWithRelations; now: s
           <p className="mt-1 text-[0.9375rem] text-text">
             <span className="font-medium">{booking.guest_name}</span>
             <span className="text-text-muted"> · {booking.apartment?.name ?? "Unassigned"}</span>
+          </p>
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-sm text-text-muted">
+            <span className="font-medium">
+              {formatDuration(booking.starts_at, booking.ends_at)}
+            </span>
+            {formatPence(booking.price_pence) && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="font-semibold tabular-nums text-text">
+                  {formatPence(booking.price_pence)}
+                </span>
+              </>
+            )}
           </p>
         </Link>
 

@@ -131,3 +131,37 @@ export function timeOptions(stepMinutes = 30): string[] {
   }
   return out;
 }
+
+/** `"1 h"`, `"1½ h"`, `"45 min"`, `"2 h 15 min"` — how long the spa is booked. */
+export function formatDuration(start: Date | string, end: Date | string): string {
+  const startMs = (typeof start === "string" ? new Date(start) : start).getTime();
+  const endMs = (typeof end === "string" ? new Date(end) : end).getTime();
+  const minutes = Math.max(0, Math.round((endMs - startMs) / 60000));
+
+  if (minutes < 60) return `${minutes} min`;
+
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (rest === 0) return `${hours} h`;
+  if (rest === 30) return `${hours}\u00bd h`;
+  if (rest === 15) return `${hours}\u00bc h`;
+  if (rest === 45) return `${hours}\u00be h`;
+  return `${hours} h ${rest} min`;
+}
+
+/** Decimal hours, for totals. 90 minutes → 1.5 */
+export function durationHours(start: Date | string, end: Date | string): number {
+  const startMs = (typeof start === "string" ? new Date(start) : start).getTime();
+  const endMs = (typeof end === "string" ? new Date(end) : end).getTime();
+  return Math.max(0, (endMs - startMs) / 3600000);
+}
+
+/** `2.5` → `"2½ h"`, `3` → `"3 h"` — for summed totals across bookings. */
+export function formatHoursTotal(hours: number): string {
+  const rounded = Math.round(hours * 4) / 4;
+  const whole = Math.floor(rounded);
+  const fraction = rounded - whole;
+  const suffix = fraction === 0.25 ? "\u00bc" : fraction === 0.5 ? "\u00bd" : fraction === 0.75 ? "\u00be" : "";
+  if (whole === 0 && suffix) return `${suffix} h`;
+  return `${whole}${suffix} h`;
+}

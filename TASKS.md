@@ -35,6 +35,8 @@ _Last updated: 2026-09-22_
 - [x] Admin settings: apartments, staff roles, invites
 - [x] PWA manifest, service worker, generated icon set
 - [x] Agency review pass: contrast fixes, layout fixes, security headers
+- [x] Hours booked and agreed price per slot, with day totals and an
+      "unpriced" flag (`0002_booking_price.sql`)
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +

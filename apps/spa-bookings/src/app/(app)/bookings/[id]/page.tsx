@@ -7,16 +7,19 @@ import { BOOKING_SELECT } from "@/lib/queries";
 import type { BookingWithRelations } from "@/lib/types";
 import {
   formatDayLong,
+  formatDuration,
   formatTime,
   formatTimeRange,
   londonDateKey,
   relativeToNow,
 } from "@/lib/time";
+import { formatPence } from "@/lib/money";
 import { Card, SectionHeading } from "@/components/ui";
 import { StatusBadge } from "@/components/booking-card";
 import { BookingActions } from "./booking-actions";
 import { RealtimeRefresher } from "@/components/realtime-refresher";
 import { ChevronLeftIcon, ClockIcon, FlameIcon, HomeIcon } from "@/components/icons";
+import { PriceEditor } from "./price-editor";
 
 export const metadata: Metadata = { title: "Booking" };
 export const dynamic = "force-dynamic";
@@ -53,6 +56,12 @@ export default async function BookingPage({
     booking.reminder_sent_at && {
       label: "Switch-on reminder sent",
       at: booking.reminder_sent_at,
+    },
+    booking.price_set_at && {
+      label: `${formatPence(booking.price_pence)} agreed by ${displayName(
+        booking.price_set_by_profile,
+      )}`,
+      at: booking.price_set_at,
     },
     booking.spa_ready_at && {
       label: `Spa switched on by ${displayName(booking.spa_ready_by_profile)}`,
@@ -92,6 +101,27 @@ export default async function BookingPage({
             {formatTimeRange(booking.starts_at, booking.ends_at)}
           </p>
           <p className="mt-1 text-sm text-text-muted">{formatDayLong(dayKey)}</p>
+
+          <div className="mt-4 flex gap-3">
+            <div className="flex-1 rounded-xl bg-surface-muted px-3.5 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-subtle">
+                Hours booked
+              </p>
+              <p className="mt-1 text-lg font-semibold tabular-nums text-text">
+                {formatDuration(booking.starts_at, booking.ends_at)}
+              </p>
+            </div>
+            <div className="flex-1 rounded-xl bg-surface-muted px-3.5 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-subtle">
+                Agreed price
+              </p>
+              <p className="mt-1 text-lg font-semibold tabular-nums text-text">
+                {formatPence(booking.price_pence) ?? (
+                  <span className="text-sm font-normal text-text-subtle">Not set</span>
+                )}
+              </p>
+            </div>
+          </div>
 
           <dl className="mt-5 space-y-3 text-sm">
             <div className="flex items-start gap-2.5">
@@ -151,6 +181,8 @@ export default async function BookingPage({
             </div>
           )}
         </Card>
+
+        <PriceEditor booking={booking} />
 
         <BookingActions booking={booking} />
 

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import type { BookingWithRelations } from "@/lib/types";
-import { formatTimeRange, relativeToNow } from "@/lib/time";
+import { formatDuration, formatTimeRange, relativeToNow } from "@/lib/time";
+import { formatPence } from "@/lib/money";
 import { Badge, Card, cx } from "@/components/ui";
 import { ActionForm } from "@/components/action-form";
 import { CheckIcon, FlameIcon, HomeIcon, XIcon } from "@/components/icons";
@@ -34,6 +35,7 @@ export function BookingCard({
   const needsSwitchOn =
     booking.status === "confirmed" && !booking.spa_ready_at && upcoming && minutesAway <= 90;
   const showSwitchOnWarning = needsSwitchOn && !isUpNext;
+  const price = formatPence(booking.price_pence);
 
   return (
     <Card
@@ -64,6 +66,16 @@ export function BookingCard({
             <p className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-text-muted">
               <HomeIcon width={14} height={14} className="shrink-0" />
               {booking.apartment?.name ?? "Unassigned"}
+            </p>
+            <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+              <span className="rounded-md bg-surface-muted px-1.5 py-0.5 text-xs font-semibold text-text-muted">
+                {formatDuration(booking.starts_at, booking.ends_at)}
+              </span>
+              {price ? (
+                <span className="font-semibold tabular-nums text-text">{price}</span>
+              ) : (
+                <span className="text-xs text-text-subtle">No price agreed</span>
+              )}
             </p>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-1.5">

@@ -60,6 +60,12 @@ export function NewBookingForm({
     [startTime, duration],
   );
   const options = useMemo(() => timeOptions(30), []);
+  const durationLabel = useMemo(() => {
+    if (duration < 60) return `${duration} min`;
+    const hours = Math.floor(duration / 60);
+    const rest = duration % 60;
+    return rest === 0 ? `${hours} h` : rest === 30 ? `${hours}\u00bd h` : `${hours} h ${rest} min`;
+  }, [duration]);
 
   // Redirect once the booking saves.
   useEffect(() => {
@@ -193,6 +199,8 @@ export function NewBookingForm({
           </div>
           <p className="mt-2 text-xs text-text-subtle">
             Slot: <span className="font-medium text-text-muted">{startTime} – {endTime}</span>
+            {" · "}
+            <span className="font-medium text-text-muted">{durationLabel}</span>
             {" · "}spa needs switching on around{" "}
             <span className="font-medium text-text-muted">
               {addMinutesToTime(startTime, -60)}
@@ -220,6 +228,30 @@ export function NewBookingForm({
       </Card>
 
       <Card className="space-y-5 p-5">
+        <Field
+          label="Agreed price"
+          htmlFor="price"
+          hint={`Optional \u2014 what the guest agreed to pay for the ${durationLabel} slot. Leave blank if it's not settled yet; you can add it later.`}
+          error={fieldError("price")}
+        >
+          <div className="relative">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+            >
+              £
+            </span>
+            <Input
+              id="price"
+              name="price"
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="45"
+              className="pl-7 tabular-nums"
+            />
+          </div>
+        </Field>
+
         <Field
           label="Notes"
           htmlFor="notes"

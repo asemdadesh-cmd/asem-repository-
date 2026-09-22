@@ -29,6 +29,9 @@ export interface Booking {
   ends_at: string;
   status: BookingStatus;
   notes: string | null;
+  price_pence: number | null;
+  price_set_by: string | null;
+  price_set_at: string | null;
   created_by: string | null;
   confirmed_by: string | null;
   confirmed_at: string | null;
@@ -48,6 +51,7 @@ export interface BookingWithRelations extends Booking {
   apartment: Pick<Apartment, "id" | "name"> | null;
   created_by_profile: Pick<Profile, "id" | "full_name" | "email"> | null;
   confirmed_by_profile: Pick<Profile, "id" | "full_name" | "email"> | null;
+  price_set_by_profile: Pick<Profile, "id" | "full_name" | "email"> | null;
   spa_ready_by_profile: Pick<Profile, "id" | "full_name" | "email"> | null;
 }
 

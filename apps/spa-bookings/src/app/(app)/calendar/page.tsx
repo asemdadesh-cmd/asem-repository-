@@ -6,10 +6,13 @@ import { getBookingsBetween } from "@/lib/queries";
 import {
   addDays,
   dayBoundsUtc,
+  durationHours,
   formatDayLong,
+  formatHoursTotal,
   isToday,
   londonDateKey,
 } from "@/lib/time";
+import { formatPence, sumPence } from "@/lib/money";
 import type { BookingWithRelations } from "@/lib/types";
 import { Button, EmptyState, SectionHeading } from "@/components/ui";
 import { DateStrip, TodayLink } from "@/components/date-strip";
@@ -56,6 +59,12 @@ export default async function CalendarPage({
   const cancelled = dayBookings.filter((b) => b.status === "cancelled");
   const now = new Date().toISOString();
 
+  // Day totals: hours the spa is booked for, and what was agreed for them.
+  // Cancelled slots are excluded; unpriced slots are counted but flagged.
+  const totalHours = live.reduce((sum, b) => sum + durationHours(b.starts_at, b.ends_at), 0);
+  const totalPence = sumPence(live.map((b) => b.price_pence));
+  const unpricedCount = live.filter((b) => b.price_pence === null).length;
+
   return (
     <>
       <RealtimeRefresher />
@@ -79,6 +88,31 @@ export default async function CalendarPage({
               {isToday(selected) ? "Today's slots" : formatDayLong(selected)}
             </span>
           </SectionHeading>
+
+          {live.length > 0 && (
+            <dl className="mb-3 flex gap-2">
+              <div className="flex-1 rounded-xl border border-border bg-surface px-3.5 py-2.5">
+                <dt className="text-xs font-medium text-text-subtle">Booked</dt>
+                <dd className="mt-0.5 text-base font-semibold tabular-nums text-text">
+                  {formatHoursTotal(totalHours)}
+                  <span className="ml-1.5 text-xs font-normal text-text-muted">
+                    over {live.length} slot{live.length === 1 ? "" : "s"}
+                  </span>
+                </dd>
+              </div>
+              <div className="flex-1 rounded-xl border border-border bg-surface px-3.5 py-2.5">
+                <dt className="text-xs font-medium text-text-subtle">Agreed</dt>
+                <dd className="mt-0.5 text-base font-semibold tabular-nums text-text">
+                  {formatPence(totalPence)}
+                  {unpricedCount > 0 && (
+                    <span className="ml-1.5 text-xs font-normal text-warn">
+                      {unpricedCount} unpriced
+                    </span>
+                  )}
+                </dd>
+              </div>
+            </dl>
+          )}
 
           {live.length === 0 ? (
             <EmptyState

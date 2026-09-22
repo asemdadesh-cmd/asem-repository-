@@ -121,8 +121,9 @@ _Last updated: 2026-09-22_
   - **Spa Bookings app** — shared day calendar with live cross-device sync;
     create / confirm / cancel bookings; T-60 "switch the spa on" push reminder
     to the on-duty staffer with a T-15 escalation; one-tap "spa is on" team
-    broadcast; admin-only lockbox panel with append-only change history; duty
-    rota; apartment and staff management; installable PWA with dark mode.
+    broadcast; hours booked and agreed price per slot with running day totals;
+    admin-only lockbox panel with append-only change history; duty rota;
+    apartment and staff management; installable PWA with dark mode.
 - **Features in progress**
   - Establishing auto-update discipline for the documentation files.
   - Spa Bookings: infrastructure provisioning and first live run (owner).
@@ -148,7 +149,7 @@ Applies to **`apps/spa-bookings/`** only. Supabase Postgres. Full DDL lives in
 | `profiles` | One row per auth user: name, phone, `role` (`admin`/`staff`), `is_active`. |
 | `staff_invites` | Email allowlist. Enforced in the `handle_new_user` trigger. |
 | `apartments` | The bookable apartments. Hideable rather than deletable. |
-| `bookings` | Guest, apartment, slot, status, confirmation/cancellation/ready audit columns, reminder timestamps. |
+| `bookings` | Guest, apartment, slot, status, agreed price (`price_pence`), confirmation/cancellation/ready audit columns, reminder timestamps. |
 | `lockbox_codes` | Append-only code history. Newest row is the current code. |
 | `duty_shifts` | One staffer per calendar day; drives reminder routing. |
 | `push_subscriptions` | One row per device Web Push endpoint. |
@@ -170,6 +171,11 @@ Applies to **`apps/spa-bookings/`** only. Supabase Postgres. Full DDL lives in
 - `bookings` and `notifications` are in the `supabase_realtime` publication,
   which is what keeps every phone's calendar in sync.
 
+**Money and hours:** the agreed price is stored as integer pence
+(`price_pence`, nullable) with `price_set_by` / `price_set_at` for the audit
+trail. It is the *total for the slot*, not a rate. Hours are never stored —
+they are derived from `starts_at`/`ends_at` so the two cannot drift.
+
 **Migrations:** plain SQL files, run in order via the Supabase SQL Editor.
 `supabase/cron-setup.sql` is run separately, after deployment, because it needs
 the live app URL.
@@ -186,6 +192,7 @@ rather than REST endpoints, so they inherit the user's session and RLS.
 | `createBooking` / `confirmBooking` / `cancelBooking` | Validate server-side; translate Postgres `23P01` (overlap) into a readable clash message. |
 | `markSpaReady` / `undoSpaReady` | Guarded with `is null` filters so two people tapping at once can't both "win". |
 | `setLockboxCode` | Admin only. Notifies the team **without** putting the code in the notification body. |
+| `setBookingPrice` | Sets or clears the agreed price. Editable for the life of the booking, since prices are often agreed after the slot is logged. |
 | `setDuty` | Admin assigns anyone; staff may only claim a free day for themselves. |
 | `inviteStaff` / `setStaffRole` / `setStaffActive` / `addApartment` / `toggleApartment` | Admin only. Refuses to remove the last admin or self-demote. |
 
@@ -329,6 +336,14 @@ Not yet deployed — the owner provisions the infrastructure. Full walkthrough i
   form-control border token, fixed countdown text wrapping, corrected a BST
   off-by-one in the booking-clash hint, and added CSP/HSTS security headers.
   **Not yet deployed** — infrastructure is the owner's to provision.
+
+- **2026-09-22** — Spa Bookings: added **hours booked and agreed price** per
+  slot. Each booking now shows its duration and what the guest agreed to pay,
+  the calendar carries running day totals (hours over N slots, total agreed,
+  and a count of unpriced slots), and the price stays editable after the fact
+  with a who/when entry in the booking's activity trail. Price is stored as
+  integer pence; hours are derived from the slot times rather than stored.
+  Migration `0002_booking_price.sql`.
 
 - **2026-09-21** — Added the **`council` plugin**: a three-lens deliberation skill
   (Skeptic / Builder / Risk) for costly or hard-to-reverse decisions. Runs

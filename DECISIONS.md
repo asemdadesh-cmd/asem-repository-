@@ -8,6 +8,21 @@ _Last updated: 2026-09-22_
 
 ---
 
+### 2026-09-22 — Store price in pence; derive hours rather than storing them
+**Decision:** Record the agreed slot price as `bookings.price_pence` (integer),
+and compute hours from `starts_at`/`ends_at` instead of adding an hours column.
+**Why:** Money in a float is a defect waiting to be discovered at month end, and
+`numeric` would still need a conversion layer, so a single integer with one
+conversion module (`src/lib/money.ts`) is the smallest correct thing. Hours are
+already fully determined by the slot times; storing them as well creates two
+sources of truth that drift the first time someone edits a booking's times.
+The price is the **total for the slot**, not a rate, because that is what gets
+agreed over WhatsApp, and it is nullable and editable for the life of the
+booking because the number is often settled after the slot is already in the
+calendar. Trade-off: no per-hour rate card, and no historical price list — the
+booking records the one number that was agreed, and the activity trail records
+who agreed it and when.
+
 ### 2026-09-22 — Drive the T-60 reminder from Postgres, not Vercel Cron
 **Decision:** Schedule the spa-bookings reminder sweep with Supabase `pg_cron`
 firing `pg_net` at `/api/cron/reminders` every minute, rather than Vercel Cron.

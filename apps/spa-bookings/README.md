@@ -6,6 +6,8 @@ this app is where staff log it, confirm it, and get reminded to go switch the
 spa on an hour beforehand.
 
 - **Shared calendar** — spa slots by day, with guest name, apartment and time.
+- **Hours and price** — each slot shows how long the spa is booked for and what
+  the guest agreed to pay, with running day totals and an "unpriced" flag.
 - **Create / confirm / cancel** — any staff member, from their phone.
 - **Switch-on reminder** — push notification to whoever is on duty, 60 minutes
   before a confirmed booking, with a T-15 chase if nobody has marked it ready.
@@ -39,14 +41,12 @@ keeps the shared JS bundle around 102 kB.
 ### 1. Create the Supabase project
 
 Create a project (the London `eu-west-2` region keeps latency low), then in the
-**SQL Editor** run the contents of:
+**SQL Editor** run each file in `supabase/migrations/` **in filename order**:
 
 ```
-supabase/migrations/0001_init.sql
+supabase/migrations/0001_init.sql          # tables, RLS, role helpers, triggers
+supabase/migrations/0002_booking_price.sql # agreed price per booking
 ```
-
-That creates every table, the RLS policies, the role helpers and the
-append-only lockbox history.
 
 ### 2. Configure the app
 
@@ -144,6 +144,19 @@ if the project moves to a paid plan.
   lock screens.
 - CSP, HSTS, `X-Frame-Options: DENY` and friends are set in `next.config.ts`.
   `robots.txt` disallows everything and pages are `noindex`.
+
+## Money
+
+Prices are the **total agreed for the slot**, not a per-hour rate, and are
+optional — a guest often agrees a number after the slot is already in the
+calendar, so the price stays editable for the life of the booking.
+
+Stored as integer pence (`bookings.price_pence`), never a float: `0.1 + 0.2`
+problems do not belong in a booking ledger. `src/lib/money.ts` is the only
+place that converts between pence and display strings.
+
+Hours are **not stored** — they are derived from `starts_at`/`ends_at`, which
+are already the source of truth for the slot, so the two can never disagree.
 
 ## Timezone
 

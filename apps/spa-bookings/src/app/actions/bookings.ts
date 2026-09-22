@@ -6,6 +6,7 @@ import { getSession, displayName } from "@/lib/auth";
 import { notifyUsers, teamUserIds } from "@/lib/push";
 import { formatDayShort, formatTimeRange, londonDateKey, londonWallClockToUtc } from "@/lib/time";
 import { publicEnv } from "@/lib/env";
+import { formatPence, parsePoundsToPence } from "@/lib/money";
 import type { ActionResult } from "./types";
 
 const OVERLAP_VIOLATION = "23P01";
@@ -44,6 +45,7 @@ export async function createBooking(
   const endTime = String(formData.get("end_time") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
   const confirmNow = formData.get("confirm_now") === "on";
+  const price = parsePoundsToPence(String(formData.get("price") ?? ""));
 
   if (!apartmentId) return fail("Pick which apartment the guest is in.", "apartment_id");
   if (!guestName) return fail("Add the guest's name.", "guest_name");
@@ -52,6 +54,9 @@ export async function createBooking(
   if (!TIME_PATTERN.test(startTime)) return fail("Pick a start time.", "start_time");
   if (!TIME_PATTERN.test(endTime)) return fail("Pick an end time.", "end_time");
   if (notes.length > 1000) return fail("Notes are limited to 1000 characters.", "notes");
+  if (price === "invalid") {
+    return fail("Enter the price as a number, e.g. 45 or 45.50.", "price");
+  }
 
   const startsAt = londonWallClockToUtc(date, startTime);
   // An end time earlier than the start means the slot runs past midnight.
@@ -78,13 +83,22 @@ export async function createBooking(
       starts_at: startsAt.toISOString(),
       ends_at: endsAt.toISOString(),
       notes: notes || null,
+      price_pence: price,
+      price_set_by: price === null ? null : session.userId,
+      price_set_at: price === null ? null : new Date().toISOString(),
       status: confirmNow ? "confirmed" : "pending",
       created_by: session.userId,
       confirmed_by: confirmNow ? session.userId : null,
       confirmed_at: confirmNow ? new Date().toISOString() : null,
     })
-    .select("id, starts_at, ends_at, guest_name")
-    .single<{ id: string; starts_at: string; ends_at: string; guest_name: string }>();
+    .select("id, starts_at, ends_at, guest_name, price_pence")
+    .single<{
+      id: string;
+      starts_at: string;
+      ends_at: string;
+      guest_name: string;
+      price_pence: number | null;
+    }>();
 
   if (error) {
     if (error.code === OVERLAP_VIOLATION) {
@@ -103,7 +117,9 @@ export async function createBooking(
     body: `${data.guest_name} · ${formatDayShort(londonDateKey(data.starts_at))} ${formatTimeRange(
       data.starts_at,
       data.ends_at,
-    )}${confirmNow ? "" : " — needs confirming"}. Added by ${displayName(session.profile)}.`,
+    )}${priceSuffix(data.price_pence)}${
+      confirmNow ? "" : " — needs confirming"
+    }. Added by ${displayName(session.profile)}.`,
     url: bookingUrl(data.id),
     bookingId: data.id,
   });
@@ -290,4 +306,64 @@ export async function undoSpaReady(
 
   refresh(id);
   return { ok: true, message: "Marked as not ready." };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Agreed price                                                                */
+/* -------------------------------------------------------------------------- */
+export async function setBookingPrice(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const session = await getSession();
+  if (!session) return fail("Your session expired. Sign in again.");
+
+  const id = String(formData.get("booking_id") ?? "");
+  if (!id) return fail("Missing booking.");
+
+  const price = parsePoundsToPence(String(formData.get("price") ?? ""));
+  if (price === "invalid") {
+    return fail("Enter the price as a number, e.g. 45 or 45.50.", "price");
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("bookings")
+    .update({
+      price_pence: price,
+      price_set_by: price === null ? null : session.userId,
+      price_set_at: price === null ? null : new Date().toISOString(),
+    })
+    .eq("id", id)
+    .select("id, guest_name, price_pence")
+    .maybeSingle<{ id: string; guest_name: string; price_pence: number | null }>();
+
+  if (error) {
+    console.error("[setBookingPrice]", error.message);
+    return fail("Couldn't save the price. Try again.");
+  }
+  if (!data) return fail("That booking no longer exists.");
+
+  await notifyUsers(await teamUserIds(session.userId), {
+    kind: "booking_price",
+    title: price === null ? "Price cleared" : "Spa price agreed",
+    body:
+      price === null
+        ? `${displayName(session.profile)} cleared the agreed price for ${data.guest_name}.`
+        : `${data.guest_name} · ${formatPence(price)} agreed by ${displayName(session.profile)}.`,
+    url: bookingUrl(data.id),
+    bookingId: data.id,
+  });
+
+  refresh(id);
+  return {
+    ok: true,
+    message: price === null ? "Price cleared." : `Price set to ${formatPence(price)}.`,
+  };
+}
+
+/** `" · £45"`, or nothing when no price has been agreed. */
+function priceSuffix(pence: number | null): string {
+  const formatted = formatPence(pence);
+  return formatted ? ` · ${formatted}` : "";
 }
