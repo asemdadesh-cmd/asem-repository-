@@ -4,9 +4,102 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-22_
 
 ---
+
+### 2026-09-22 — Remove sign-in entirely (owner's call)
+**Decision:** Drop the login screen. Anyone with the link can use the app. Staff
+are a list of names; each phone picks its name once and actions record it.
+**Why:** The owner found the email-link login too much for the team and chose
+no login over a shared PIN after being told plainly that the lockbox code would
+then be visible to anyone with the link. Mitigations kept at no cost to them:
+nothing is deletable (bookings are cancelled, lockbox history is append-only),
+push subscriptions are write-only for the public key, and attribution survives
+through the per-phone name. Trade-off: no roles, no private lockbox, and
+attribution is honour-system — anyone can pick any name.
+
+### 2026-09-22 — A per-person lockbox permission, not an admin promotion
+**Decision:** Add `profiles.can_edit_lockbox`, granted by an admin, instead of
+either making the person who rotates the code an admin or opening code changes
+to all staff.
+**Why:** The person who physically changes the code on the door is not an
+admin. Promoting her would also hand over staff management, role changes and
+the full code history — far more than the job needs. Opening it to all staff
+would drop a control the owner explicitly asked for. One boolean is the
+smallest thing that fits the actual workflow, and the `guard_role_change`
+trigger stops anyone granting it to themselves. Reading the history stays
+admin-only, and `lockbox_codes` still refuses UPDATE and DELETE, so widening
+who can *write* a code does not weaken the audit trail.
+
+### 2026-09-22 — Show the lockbox code instead of hiding it behind a reveal
+**Decision:** Display the current code directly, dropping the tap-to-reveal and
+the 45-second auto-hide.
+**Why:** The screen exists to answer one question — what is the code right now.
+A hidden value with a "Show code" button reads as a broken page to someone not
+expecting it, and the staff member who uses this most is not a confident app
+user. The reveal was protecting against shoulder-surfing in a lobby, which is a
+real but much smaller risk than the team failing to use the tool at all.
+Trade-off accepted and documented in the app README, with a one-line pointer to
+where the reveal goes back if that judgement ever changes.
+
+### 2026-09-22 — Store price in pence; derive hours rather than storing them
+**Decision:** Record the agreed slot price as `bookings.price_pence` (integer),
+and compute hours from `starts_at`/`ends_at` instead of adding an hours column.
+**Why:** Money in a float is a defect waiting to be discovered at month end, and
+`numeric` would still need a conversion layer, so a single integer with one
+conversion module (`src/lib/money.ts`) is the smallest correct thing. Hours are
+already fully determined by the slot times; storing them as well creates two
+sources of truth that drift the first time someone edits a booking's times.
+The price is the **total for the slot**, not a rate, because that is what gets
+agreed over WhatsApp, and it is nullable and editable for the life of the
+booking because the number is often settled after the slot is already in the
+calendar. Trade-off: no per-hour rate card, and no historical price list — the
+booking records the one number that was agreed, and the activity trail records
+who agreed it and when.
+
+### 2026-09-22 — Drive the T-60 reminder from Postgres, not Vercel Cron
+**Decision:** Schedule the spa-bookings reminder sweep with Supabase `pg_cron`
+firing `pg_net` at `/api/cron/reminders` every minute, rather than Vercel Cron.
+**Why:** Vercel's Hobby plan runs cron **once per day**. A "switch the spa on an
+hour before the booking" reminder needs minute-level granularity or it is
+worthless. `pg_cron` is free, already sits next to the data, and survives the
+app being cold. The route is idempotent (`reminder_sent_at` / `escalated_at` are
+set under an `is null` guard) so a double fire cannot double-notify, and it also
+answers `GET`, so moving to Vercel Cron on a paid plan is a config change with
+no code change. Trade-off: scheduling lives outside the repo, so
+`supabase/cron-setup.sql` has to be run by hand once per environment.
+
+### 2026-09-22 — Web Push instead of WhatsApp/SMS for staff reminders
+**Decision:** Deliver the duty reminder as a Web Push notification to an
+installed PWA, backed by an in-app notification feed.
+**Why:** Twilio WhatsApp needs a paid number, Business sender approval with days
+of lead time, and a per-message cost, for a team of a handful of people who are
+already holding the phone. Web Push is free, instant, and needs no third party.
+Trade-off: iOS only supports Web Push once the app is added to the Home Screen,
+so onboarding has a real step that Settings explains explicitly. The in-app feed
+is written first on every notification, so the record survives a failed push.
+
+### 2026-09-22 — Guard signup with an allowlist trigger, not just client config
+**Decision:** Block uninvited accounts in the `handle_new_user` database trigger
+against a `staff_invites` table, on top of `shouldCreateUser: false` on the
+client.
+**Why:** `shouldCreateUser: false` is a client argument — anyone holding the
+publishable anon key can call the auth API without it. The trigger is the real
+boundary: an email that was never invited cannot get a profile regardless of how
+the request is made. The first user in an empty workspace becomes admin so the
+system can be bootstrapped at all.
+
+### 2026-09-22 — One spa enforced by a database exclusion constraint
+**Decision:** Prevent overlapping bookings with
+`EXCLUDE USING gist (tstzrange(starts_at, ends_at) WITH &&) WHERE (status <> 'cancelled')`
+rather than an application-level check.
+**Why:** Two staff answering the same WhatsApp message at the same moment is the
+expected case, not an edge case, and an application check has a race window
+between read and write. The constraint makes a double-booking physically
+impossible; the server actions catch `23P01` and turn it into a plain-English
+message. Trade-off: supporting a second spa later means adding a resource column
+to the constraint and a migration.
 
 ### 2026-09-21 — Three lenses, not eighteen personas
 **Decision:** Build the `council` plugin around three functional lenses
