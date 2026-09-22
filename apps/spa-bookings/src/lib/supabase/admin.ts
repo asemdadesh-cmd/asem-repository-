@@ -14,3 +14,17 @@ export function createAdminClient() {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
+
+/**
+ * Same client, but null when the server env isn't configured.
+ * Notification fan-out uses this so a missing key degrades to "no push sent"
+ * rather than failing the booking action that triggered it.
+ */
+export function tryCreateAdminClient() {
+  try {
+    return createAdminClient();
+  } catch (error) {
+    console.error("[admin] service-role client unavailable:", (error as Error).message);
+    return null;
+  }
+}

@@ -1,6 +1,6 @@
 import "server-only";
 import webpush, { type PushSubscription as WebPushSubscription } from "web-push";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import { requireServerEnv } from "@/lib/env";
 
 let configured = false;
@@ -43,7 +43,8 @@ export async function notifyUsers(
   const unique = [...new Set(userIds.filter(Boolean))];
   if (unique.length === 0) return { sent: 0, failed: 0 };
 
-  const admin = createAdminClient();
+  const admin = tryCreateAdminClient();
+  if (!admin) return { sent: 0, failed: 0 };
 
   // In-app feed first — it is the reliable record; push is best-effort.
   const { error: feedError } = await admin.from("notifications").insert(
@@ -115,7 +116,8 @@ export async function notifyUsers(
 
 /** Everyone active except the person who performed the action. */
 export async function teamUserIds(excludeUserId?: string): Promise<string[]> {
-  const admin = createAdminClient();
+  const admin = tryCreateAdminClient();
+  if (!admin) return [];
   const { data } = await admin
     .from("profiles")
     .select("id")
