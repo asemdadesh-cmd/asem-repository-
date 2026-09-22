@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import { getSession } from "@/lib/auth";
 import { publicEnv } from "@/lib/env";
 import type { ActionResult } from "./types";
@@ -110,23 +110,32 @@ export async function inviteStaff(
     return { ok: false, error: "Couldn't record the invite. Try again." };
   }
 
-  // Send the actual invitation email via the Admin API.
-  const admin = createAdminClient();
+  // The allowlist row above IS the invite: they can now sign in at the app's
+  // login page with this email. The Admin API email is a courtesy on top, and
+  // only possible when the service-role key is configured.
+  const signInUrl = publicEnv.appUrl || "the app";
+  const admin = tryCreateAdminClient();
+  if (!admin) {
+    revalidatePath("/team");
+    return {
+      ok: true,
+      message: `${email} can now sign in at ${signInUrl} using this email.`,
+    };
+  }
+
   const { error: authError } = await admin.auth.admin.inviteUserByEmail(email, {
     redirectTo: `${publicEnv.appUrl}/auth/callback`,
     data: { full_name: fullName },
   });
 
   if (authError) {
-    // Already registered: the allowlist row is enough, they can sign in normally.
-    if (/already been registered|already exists/i.test(authError.message)) {
-      revalidatePath("/team");
-      return { ok: true, message: `${email} already has an account — they can sign in now.` };
-    }
-    console.error("[inviteStaff] auth", authError.message);
+    // Already registered, or email sending failed: either way they are on the
+    // allowlist and can sign in themselves, so this is not a failure.
+    console.error("[inviteStaff] invite email:", authError.message);
+    revalidatePath("/team");
     return {
-      ok: false,
-      error: `Allowlisted, but the invite email failed: ${authError.message}`,
+      ok: true,
+      message: `${email} can now sign in at ${signInUrl} using this email.`,
     };
   }
 

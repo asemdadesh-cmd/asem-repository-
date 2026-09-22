@@ -7,9 +7,12 @@ import { CheckIcon, SpinnerIcon } from "@/components/icons";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
+const NOT_INVITED = "That email hasn't been invited yet. Ask an admin to add you.";
+
 const FRIENDLY_ERRORS: Record<string, string> = {
-  "Signups not allowed for otp":
-    "That email hasn't been invited yet. Ask an admin to add you.",
+  "Signups not allowed for otp": NOT_INVITED,
+  // The handle_new_user trigger rejecting an email that isn't on the allowlist.
+  "Database error saving new user": NOT_INVITED,
   "Email rate limit exceeded":
     "Too many sign-in emails just went out. Wait a minute and try again.",
 };
@@ -41,8 +44,9 @@ export function LoginForm({
       const { error } = await supabase.auth.signInWithOtp({
         email: trimmed,
         options: {
-          // Accounts are created by an admin invite, never by signing in.
-          shouldCreateUser: false,
+          // Invited people get their account on first sign-in. The allowlist is
+          // enforced by the handle_new_user trigger, not by this flag.
+          shouldCreateUser: true,
           emailRedirectTo: redirectTo.toString(),
         },
       });
