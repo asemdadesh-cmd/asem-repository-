@@ -234,3 +234,36 @@ export async function updateOwnProfile(
   revalidatePath("/team");
   return { ok: true, message: "Saved." };
 }
+
+/* -------------------------------------------------------------------------- */
+/* Lockbox access                                                              */
+/* -------------------------------------------------------------------------- */
+export async function setLockboxAccess(
+  _prev: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const guard = await requireAdminSession();
+  if (!guard.ok) return { ok: false, error: guard.error };
+
+  const userId = String(formData.get("user_id") ?? "");
+  const canEdit = formData.get("can_edit_lockbox") === "true";
+  if (!userId) return { ok: false, error: "Missing user." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ can_edit_lockbox: !canEdit })
+    .eq("id", userId);
+
+  if (error) {
+    console.error("[setLockboxAccess]", error.message);
+    return { ok: false, error: "Couldn't update lockbox access. Try again." };
+  }
+
+  revalidatePath("/team");
+  revalidatePath("/lockbox");
+  return {
+    ok: true,
+    message: canEdit ? "Lockbox access removed." : "They can now change the lockbox code.",
+  };
+}

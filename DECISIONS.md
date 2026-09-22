@@ -8,6 +8,30 @@ _Last updated: 2026-09-22_
 
 ---
 
+### 2026-09-22 — A per-person lockbox permission, not an admin promotion
+**Decision:** Add `profiles.can_edit_lockbox`, granted by an admin, instead of
+either making the person who rotates the code an admin or opening code changes
+to all staff.
+**Why:** The person who physically changes the code on the door is not an
+admin. Promoting her would also hand over staff management, role changes and
+the full code history — far more than the job needs. Opening it to all staff
+would drop a control the owner explicitly asked for. One boolean is the
+smallest thing that fits the actual workflow, and the `guard_role_change`
+trigger stops anyone granting it to themselves. Reading the history stays
+admin-only, and `lockbox_codes` still refuses UPDATE and DELETE, so widening
+who can *write* a code does not weaken the audit trail.
+
+### 2026-09-22 — Show the lockbox code instead of hiding it behind a reveal
+**Decision:** Display the current code directly, dropping the tap-to-reveal and
+the 45-second auto-hide.
+**Why:** The screen exists to answer one question — what is the code right now.
+A hidden value with a "Show code" button reads as a broken page to someone not
+expecting it, and the staff member who uses this most is not a confident app
+user. The reveal was protecting against shoulder-surfing in a lobby, which is a
+real but much smaller risk than the team failing to use the tool at all.
+Trade-off accepted and documented in the app README, with a one-line pointer to
+where the reveal goes back if that judgement ever changes.
+
 ### 2026-09-22 — Store price in pence; derive hours rather than storing them
 **Decision:** Record the agreed slot price as `bookings.price_pence` (integer),
 and compute hours from `starts_at`/`ends_at` instead of adding an hours column.

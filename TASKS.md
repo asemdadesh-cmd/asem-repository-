@@ -37,6 +37,10 @@ _Last updated: 2026-09-22_
 - [x] Agency review pass: contrast fixes, layout fixes, security headers
 - [x] Hours booked and agreed price per slot, with day totals and an
       "unpriced" flag (`0002_booking_price.sql`)
+- [x] Simplify the lockbox screen for non-technical staff: code shown plainly,
+      one button to record a new one, plus a per-person permission so the
+      person who rotates the code doesn't need to be an admin
+      (`0003_lockbox_editors.sql`)
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +

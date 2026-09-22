@@ -14,13 +14,15 @@ export const dynamic = "force-dynamic";
 export default async function LockboxPage() {
   const { profile } = await requireSession();
   const supabase = await createClient();
+
   const isAdmin = profile.role === "admin";
+  const canEdit = isAdmin || profile.can_edit_lockbox;
 
   const { data: current } = await supabase
     .rpc("current_lockbox_code")
     .maybeSingle<{ code: string; changed_at: string }>();
 
-  // Full history is admin-only at the database level, not just hidden in the UI.
+  // The full history is admin-only at the database level, not merely hidden.
   const { data: history } = isAdmin
     ? await supabase
         .from("lockbox_codes")
@@ -31,33 +33,38 @@ export default async function LockboxPage() {
     : { data: null };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <h1 className="text-xl font-semibold tracking-tight text-text">Lockbox</h1>
 
       {current?.code ? (
         <CurrentCode code={current.code} changedAt={current.changed_at} />
       ) : (
         <EmptyState
-          title="No code set yet"
+          title="No code saved yet"
           description={
-            isAdmin
-              ? "Set the current lockbox code below so the team can see it."
-              : "An admin needs to set the lockbox code."
+            canEdit
+              ? "Tap the button below to put in the code that's on the lockbox now."
+              : "Nobody has saved the lockbox code yet."
           }
         />
       )}
 
-      {isAdmin && (
-        <section aria-labelledby="change-heading">
-          <SectionHeading>
-            <span id="change-heading">Rotate the code</span>
-          </SectionHeading>
-          <ChangeCodeForm />
-        </section>
+      {canEdit ? (
+        <>
+          <ChangeCodeForm showNote={isAdmin} />
+          <p className="px-1 text-center text-sm text-text-muted">
+            Changed the code on the lockbox? Put the new one in here so everyone
+            can see it.
+          </p>
+        </>
+      ) : (
+        <p className="px-1 text-center text-sm text-text-muted">
+          Ask an admin if the code needs changing.
+        </p>
       )}
 
       {isAdmin && (
-        <section aria-labelledby="history-heading">
+        <section aria-labelledby="history-heading" className="pt-2">
           <SectionHeading>
             <span id="history-heading">Change history</span>
           </SectionHeading>
@@ -71,10 +78,7 @@ export default async function LockboxPage() {
             <Card className="divide-y divide-border">
               {history.map((entry, index) => (
                 <div key={entry.id} className="flex items-start gap-3 px-4 py-3.5">
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 shrink-0 text-text-subtle"
-                  >
+                  <span aria-hidden="true" className="mt-0.5 shrink-0 text-text-subtle">
                     <HistoryIcon width={16} height={16} />
                   </span>
                   <div className="min-w-0 flex-1">
@@ -90,8 +94,8 @@ export default async function LockboxPage() {
                     </p>
                     <p className="mt-0.5 text-xs text-text-muted">
                       Set by {displayName(entry.changed_by_profile)} ·{" "}
-                      {formatDayShort(londonDateKey(entry.created_at))} {formatTime(entry.created_at)}{" "}
-                      ({relativeToNow(entry.created_at)})
+                      {formatDayShort(londonDateKey(entry.created_at))}{" "}
+                      {formatTime(entry.created_at)} ({relativeToNow(entry.created_at)})
                     </p>
                     {entry.note && (
                       <p className="mt-1 text-xs italic text-text-subtle">{entry.note}</p>
@@ -102,12 +106,6 @@ export default async function LockboxPage() {
             </Card>
           )}
         </section>
-      )}
-
-      {!isAdmin && (
-        <p className="text-xs text-text-subtle">
-          Only admins can change the code or see its history.
-        </p>
       )}
     </div>
   );

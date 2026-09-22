@@ -12,8 +12,9 @@ spa on an hour beforehand.
 - **Switch-on reminder** — push notification to whoever is on duty, 60 minutes
   before a confirmed booking, with a T-15 chase if nobody has marked it ready.
 - **"Spa is on"** — one tap notifies the whole team.
-- **Lockbox panel** — current code (hidden by default, tap to reveal) with a
-  full, immutable change history. Admin-only to change or view history.
+- **Lockbox panel** — the current code shown plainly, and one button to record
+  a new one. Admins can grant a named staff member permission to change the
+  code without making them an admin. The full change history stays admin-only.
 - **Two roles** — `admin` and `staff`.
 
 Installable to the phone home screen (PWA), works in light and dark mode.
@@ -44,8 +45,9 @@ Create a project (the London `eu-west-2` region keeps latency low), then in the
 **SQL Editor** run each file in `supabase/migrations/` **in filename order**:
 
 ```
-supabase/migrations/0001_init.sql          # tables, RLS, role helpers, triggers
-supabase/migrations/0002_booking_price.sql # agreed price per booking
+supabase/migrations/0001_init.sql            # tables, RLS, role helpers, triggers
+supabase/migrations/0002_booking_price.sql   # agreed price per booking
+supabase/migrations/0003_lockbox_editors.sql # per-person lockbox permission
 ```
 
 ### 2. Configure the app
@@ -137,9 +139,14 @@ if the project moves to a paid plan.
 - Sign-in uses `shouldCreateUser: false` plus a `staff_invites` allowlist
   enforced in the `handle_new_user` trigger, so an uninvited email can never get
   an account.
-- Lockbox history is admin-only at the database level; staff read only the
-  current code through the `current_lockbox_code()` definer function. The table
-  rejects `UPDATE` and `DELETE` outright, so the audit trail can't be rewritten.
+- Lockbox history is admin-only at the database level; everyone else reads only
+  the current code through the `current_lockbox_code()` definer function. The
+  table rejects `UPDATE` and `DELETE` outright, so the audit trail can't be
+  rewritten — including by the person who changed the code.
+- Writing a new code needs `can_edit_lockbox()`: admin, or a staff member an
+  admin has explicitly granted it. Staff cannot grant it to themselves — the
+  `guard_role_change` trigger rejects that, even though they may edit their own
+  profile row.
 - The lockbox code is never put in a push notification body — those surface on
   lock screens.
 - CSP, HSTS, `X-Frame-Options: DENY` and friends are set in `next.config.ts`.
@@ -175,6 +182,21 @@ npm run gen:vapid        # generate Web Push keys
 npm run bootstrap:admin  # create the first admin
 node scripts/generate-icons.mjs   # regenerate the PWA icon set
 ```
+
+## Who can do what with the lockbox
+
+| | See the code | Record a new code | See the history |
+| --- | --- | --- | --- |
+| Staff | ✅ | — | — |
+| Staff with lockbox access | ✅ | ✅ | — |
+| Admin | ✅ | ✅ | ✅ |
+
+Grant it in **Team → the person → "Let them change the lockbox code"**.
+
+The code is displayed rather than hidden behind a reveal tap: the screen exists
+to answer "what is the code", and an extra step there reads as a broken page to
+anyone not expecting it. The trade-off is deliberate — if shoulder-surfing in
+the lobby matters more than speed, put the reveal back in `current-code.tsx`.
 
 ## Known limitations
 

@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import type { ComponentPropsWithRef, ComponentPropsWithoutRef, ReactNode } from "react";
 
 /* -------------------------------------------------------------------------- */
 /* Utilities                                                                   */
@@ -170,7 +170,7 @@ export function Field({
   );
 }
 
-export function Input({ className, ...props }: ComponentPropsWithoutRef<"input">) {
+export function Input({ className, ...props }: ComponentPropsWithRef<"input">) {
   return <input className={cx(fieldControl, className)} {...props} />;
 }
 

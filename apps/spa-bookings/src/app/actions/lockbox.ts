@@ -13,15 +13,17 @@ export async function setLockboxCode(
 ): Promise<ActionResult> {
   const session = await getSession();
   if (!session) return { ok: false, error: "Your session expired. Sign in again." };
-  if (session.profile.role !== "admin") {
-    return { ok: false, error: "Only admins can change the lockbox code." };
+  const canEdit =
+    session.profile.role === "admin" || session.profile.can_edit_lockbox;
+  if (!canEdit) {
+    return { ok: false, error: "You don't have permission to change the lockbox code." };
   }
 
   const code = String(formData.get("code") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim();
 
   if (code.length < 3 || code.length > 32) {
-    return { ok: false, error: "The code must be between 3 and 32 characters.", field: "code" };
+    return { ok: false, error: "The code needs to be between 3 and 32 characters.", field: "code" };
   }
   if (note.length > 500) {
     return { ok: false, error: "Keep the note under 500 characters.", field: "note" };
@@ -34,7 +36,7 @@ export async function setLockboxCode(
     .maybeSingle<{ code: string; changed_at: string }>();
 
   if (current?.code === code) {
-    return { ok: false, error: "That's already the current code.", field: "code" };
+    return { ok: false, error: "That's already the code we have saved.", field: "code" };
   }
 
   const { error } = await supabase
@@ -43,7 +45,7 @@ export async function setLockboxCode(
 
   if (error) {
     console.error("[setLockboxCode]", error.message);
-    return { ok: false, error: "Couldn't save the new code. Try again." };
+    return { ok: false, error: "Couldn't save it. Check your signal and try again." };
   }
 
   // The code itself is deliberately kept out of the notification body — push
@@ -58,5 +60,5 @@ export async function setLockboxCode(
   });
 
   revalidatePath("/lockbox");
-  return { ok: true, message: "Lockbox code updated and the team has been notified." };
+  return { ok: true, message: "Saved." };
 }

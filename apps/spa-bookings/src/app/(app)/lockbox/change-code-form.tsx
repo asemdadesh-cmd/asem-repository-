@@ -1,49 +1,95 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Alert, Button, Card, Field, Input } from "@/components/ui";
-import { SpinnerIcon } from "@/components/icons";
+import { Alert, Button, Card, Input } from "@/components/ui";
+import { CheckIcon, LockIcon, SpinnerIcon, XIcon } from "@/components/icons";
 import { setLockboxCode } from "@/app/actions/lockbox";
 import type { ActionResult } from "@/app/actions/types";
 
 function Submit() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" block disabled={pending} aria-busy={pending}>
+    <Button type="submit" size="lg" block disabled={pending} aria-busy={pending}>
       {pending ? (
         <>
-          <SpinnerIcon width={18} height={18} />
+          <SpinnerIcon width={20} height={20} />
           Saving…
         </>
       ) : (
-        "Save new code"
+        <>
+          <CheckIcon width={20} height={20} />
+          Save the new code
+        </>
       )}
     </Button>
   );
 }
 
-export function ChangeCodeForm() {
+/**
+ * One job, one screenful: type the new code, save it, done.
+ * The optional "why" note is admin-only — it is paperwork, not the task.
+ */
+export function ChangeCodeForm({ showNote = false }: { showNote?: boolean }) {
   const [state, formAction] = useActionState<ActionResult, FormData>(setLockboxCode, {
     ok: true,
   });
+  const [open, setOpen] = useState(false);
+  const [saved, setSaved] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (state.ok && state.message) formRef.current?.reset();
+    if (state.ok && state.message) {
+      formRef.current?.reset();
+      setOpen(false);
+      setSaved(true);
+    }
   }, [state]);
+
+  // Dismiss the confirmation on its own so the screen returns to normal.
+  useEffect(() => {
+    if (!saved) return;
+    const timer = setTimeout(() => setSaved(false), 6000);
+    return () => clearTimeout(timer);
+  }, [saved]);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
+  if (saved) {
+    return (
+      <Card className="p-6 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-accent-soft-fg">
+          <CheckIcon width={28} height={28} />
+        </div>
+        <p className="mt-4 text-lg font-semibold text-text">Saved</p>
+        <p className="mt-1.5 text-sm text-text-muted">
+          Everyone can see the new code now. The team has been told it changed.
+        </p>
+      </Card>
+    );
+  }
+
+  if (!open) {
+    return (
+      <Button size="lg" block onClick={() => setOpen(true)}>
+        <LockIcon width={20} height={20} />
+        I&rsquo;ve changed the code
+      </Button>
+    );
+  }
 
   return (
     <Card className="p-5">
       <form ref={formRef} action={formAction} className="space-y-4" noValidate>
-        <Field
-          label="New code"
-          htmlFor="code"
-          required
-          hint="The team is notified that it changed — the code itself is never put in the notification."
-          error={!state.ok && state.field === "code" ? state.error : undefined}
-        >
+        <div className="space-y-2">
+          <label htmlFor="code" className="block text-base font-semibold text-text">
+            Type the new code
+          </label>
           <Input
+            ref={inputRef}
             id="code"
             name="code"
             required
@@ -51,24 +97,37 @@ export function ChangeCodeForm() {
             maxLength={32}
             inputMode="numeric"
             autoComplete="off"
-            className="font-mono tracking-[0.2em]"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             placeholder="0000"
+            aria-describedby={!state.ok ? "code-error" : undefined}
+            aria-invalid={!state.ok}
+            className="h-16 text-center font-mono text-3xl font-bold tracking-[0.2em]"
           />
-        </Field>
+        </div>
 
-        <Field
-          label="Why it changed"
-          htmlFor="note"
-          hint="Optional — e.g. 'routine rotation' or 'contractor had the old code'."
-          error={!state.ok && state.field === "note" ? state.error : undefined}
-        >
-          <Input id="note" name="note" maxLength={500} autoComplete="off" />
-        </Field>
+        {showNote && (
+          <div className="space-y-1.5">
+            <label htmlFor="note" className="block text-sm font-medium text-text-muted">
+              Note <span className="font-normal text-text-subtle">(optional)</span>
+            </label>
+            <Input id="note" name="note" maxLength={500} autoComplete="off" />
+          </div>
+        )}
 
-        {!state.ok && !state.field && <Alert>{state.error}</Alert>}
-        {state.ok && state.message && <Alert tone="accent">{state.message}</Alert>}
+        {!state.ok && (
+          <div id="code-error">
+            <Alert>{state.error}</Alert>
+          </div>
+        )}
 
         <Submit />
+
+        <Button variant="ghost" block onClick={() => setOpen(false)}>
+          <XIcon width={18} height={18} />
+          Cancel
+        </Button>
       </form>
     </Card>
   );

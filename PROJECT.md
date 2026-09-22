@@ -122,7 +122,8 @@ _Last updated: 2026-09-22_
     create / confirm / cancel bookings; T-60 "switch the spa on" push reminder
     to the on-duty staffer with a T-15 escalation; one-tap "spa is on" team
     broadcast; hours booked and agreed price per slot with running day totals;
-    admin-only lockbox panel with append-only change history; duty rota;
+    a deliberately plain lockbox panel (code shown, one button to record a new
+    one, per-person permission) with an append-only change history; duty rota;
     apartment and staff management; installable PWA with dark mode.
 - **Features in progress**
   - Establishing auto-update discipline for the documentation files.
@@ -146,7 +147,7 @@ Applies to **`apps/spa-bookings/`** only. Supabase Postgres. Full DDL lives in
 
 | Table | Purpose |
 | --- | --- |
-| `profiles` | One row per auth user: name, phone, `role` (`admin`/`staff`), `is_active`. |
+| `profiles` | One row per auth user: name, phone, `role` (`admin`/`staff`), `is_active`, `can_edit_lockbox`. |
 | `staff_invites` | Email allowlist. Enforced in the `handle_new_user` trigger. |
 | `apartments` | The bookable apartments. Hideable rather than deletable. |
 | `bookings` | Guest, apartment, slot, status, agreed price (`price_pence`), confirmation/cancellation/ready audit columns, reminder timestamps. |
@@ -163,7 +164,9 @@ Applies to **`apps/spa-bookings/`** only. Supabase Postgres. Full DDL lives in
 - `lockbox_immutable` — trigger rejecting `UPDATE`/`DELETE` on
   `lockbox_codes`, so the audit trail cannot be rewritten.
 - `guard_role_change` — trigger preventing a non-admin from changing any
-  `role` or `is_active`, even on their own row.
+  `role`, `is_active` or `can_edit_lockbox`, even on their own row.
+- `can_edit_lockbox()` — `SECURITY DEFINER` check gating who may record a new
+  lockbox code: admins, plus any staff member an admin has granted it.
 - `handle_new_user` — creates a profile only for an invited email; the first
   user in an empty workspace bootstraps as admin.
 - RLS is enabled on every table. `is_admin()` / `is_staff()` are
@@ -191,10 +194,10 @@ rather than REST endpoints, so they inherit the user's session and RLS.
 | --- | --- |
 | `createBooking` / `confirmBooking` / `cancelBooking` | Validate server-side; translate Postgres `23P01` (overlap) into a readable clash message. |
 | `markSpaReady` / `undoSpaReady` | Guarded with `is null` filters so two people tapping at once can't both "win". |
-| `setLockboxCode` | Admin only. Notifies the team **without** putting the code in the notification body. |
+| `setLockboxCode` | Admin, or a staff member granted lockbox access. Notifies the team **without** putting the code in the notification body. |
 | `setBookingPrice` | Sets or clears the agreed price. Editable for the life of the booking, since prices are often agreed after the slot is logged. |
 | `setDuty` | Admin assigns anyone; staff may only claim a free day for themselves. |
-| `inviteStaff` / `setStaffRole` / `setStaffActive` / `addApartment` / `toggleApartment` | Admin only. Refuses to remove the last admin or self-demote. |
+| `inviteStaff` / `setStaffRole` / `setStaffActive` / `setLockboxAccess` / `addApartment` / `toggleApartment` | Admin only. Refuses to remove the last admin or self-demote. |
 
 Route handlers:
 
@@ -225,7 +228,8 @@ Route handlers:
 | View calendar, create / confirm / cancel bookings, mark spa ready | ✅ | ✅ |
 | Claim a free duty day for themselves | ✅ | ✅ |
 | See the current lockbox code | ✅ | ✅ |
-| Change the lockbox code / view its history | ❌ | ✅ |
+| Record a new lockbox code | only if granted | ✅ |
+| View the lockbox change history | ❌ | ✅ |
 | Assign anyone to duty, manage apartments, invite staff, change roles | ❌ | ✅ |
 
 **Repository-level:**
@@ -336,6 +340,16 @@ Not yet deployed — the owner provisions the infrastructure. Full walkthrough i
   form-control border token, fixed countdown text wrapping, corrected a BST
   off-by-one in the booking-clash hint, and added CSP/HSTS security headers.
   **Not yet deployed** — infrastructure is the owner's to provision.
+
+- **2026-09-22** — Spa Bookings: **simplified the lockbox screen** for the
+  non-technical staff member who actually rotates the code. The code is now
+  shown plainly instead of behind a reveal tap, and changing it is a single
+  button leading to one large numeric field and a save. Added
+  `profiles.can_edit_lockbox` so an admin can let a named staff member record a
+  new code without promoting them to admin — reading the history stays
+  admin-only and the history table is still append-only. Also made relative
+  times human ("yesterday", "3 days ago") rather than "30 h 1 min ago".
+  Migration `0003_lockbox_editors.sql`.
 
 - **2026-09-22** — Spa Bookings: added **hours booked and agreed price** per
   slot. Each booking now shows its duration and what the guest agreed to pay,

@@ -8,6 +8,7 @@ export interface Profile {
   phone: string | null;
   role: UserRole;
   is_active: boolean;
+  can_edit_lockbox: boolean;
   created_at: string;
   updated_at: string;
 }

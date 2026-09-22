@@ -111,14 +111,42 @@ export function dayBoundsUtc(dateISO: string): { from: string; to: string } {
   };
 }
 
-/** "in 45 min" / "in 2 h 10 min" / "now" / "1 h ago" */
+/**
+ * Human-scale relative time: "now", "in 45 min", "2 h ago", "yesterday",
+ * "3 days ago". Precision drops as the distance grows, because nobody needs
+ * "30 h 1 min ago" when "yesterday" is what they actually mean.
+ */
 export function relativeToNow(instant: Date | string, now: Date = new Date()): string {
   const target = typeof instant === "string" ? new Date(instant) : instant;
   const diffMin = Math.round((target.getTime() - now.getTime()) / 60000);
   const abs = Math.abs(diffMin);
+  const future = diffMin > 0;
+
   if (abs < 1) return "now";
-  const label = abs < 60 ? `${abs} min` : `${Math.floor(abs / 60)} h ${abs % 60} min`;
-  return diffMin > 0 ? `in ${label}` : `${label} ago`;
+
+  if (abs < 60) return future ? `in ${abs} min` : `${abs} min ago`;
+
+  const hours = Math.floor(abs / 60);
+  if (hours < 24) {
+    const rest = abs % 60;
+    // Minutes stop being useful past a couple of hours.
+    const label = hours < 3 && rest > 0 ? `${hours} h ${rest} min` : `${hours} h`;
+    return future ? `in ${label}` : `${label} ago`;
+  }
+
+  const days = Math.round(hours / 24);
+  if (days === 1) return future ? "tomorrow" : "yesterday";
+  if (days < 7) return future ? `in ${days} days` : `${days} days ago`;
+
+  const weeks = Math.round(days / 7);
+  if (weeks < 5) {
+    const label = weeks === 1 ? "1 week" : `${weeks} weeks`;
+    return future ? `in ${label}` : `${label} ago`;
+  }
+
+  const months = Math.round(days / 30);
+  const label = months <= 1 ? "1 month" : `${months} months`;
+  return future ? `in ${label}` : `${label} ago`;
 }
 
 /** Default 30-minute steps for the time picker. */
