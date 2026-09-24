@@ -4,17 +4,17 @@ import "./globals.css";
 
 const font = IBM_Plex_Sans_Arabic({
   subsets: ["arabic", "latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
   variable: "--font-arabic",
 });
 
 export const metadata: Metadata = {
-  title: "دفتر الحلويات",
-  description: "حساب صواني الحلويات لكل زبون",
+  title: "دفتر الصواني",
+  description: "تتبّع الصواني عند كل زبون",
   robots: { index: false, follow: false },
-  appleWebApp: { capable: true, title: "دفتر الحلويات", statusBarStyle: "default" },
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  appleWebApp: { capable: true, title: "دفتر الصواني", statusBarStyle: "default" },
+  icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },
   manifest: "/manifest.webmanifest",
 };
 
@@ -23,8 +23,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf6ef" },
-    { media: "(prefers-color-scheme: dark)", color: "#17120d" },
+    { media: "(prefers-color-scheme: light)", color: "#f5f5f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f1110" },
   ],
 };
 

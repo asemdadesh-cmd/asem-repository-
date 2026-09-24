@@ -1,11 +1,13 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PageHeader } from "@/components/PageHeader";
 import { TransactionForm } from "@/components/TransactionForm";
 import { TIME_ZONE } from "@/lib/config";
+import { loadSettings } from "@/lib/data";
 import { nowLocal } from "@/lib/format";
 import { idSchema } from "@/lib/validation";
 import { loadTxContext } from "../data";
 import { NoProducts } from "../NoProducts";
+import { OutstandingReminder } from "../Reminder";
 
 export const dynamic = "force-dynamic";
 
@@ -19,28 +21,29 @@ export default async function NewTransaction({
   const [{ id: rawId }, { kind: rawKind }] = await Promise.all([params, searchParams]);
   const id = idSchema.safeParse(rawId);
   if (!id.success) notFound();
-  const { customer, products } = await loadTxContext(id.data);
+  const [settings, { customer, products }] = await Promise.all([loadSettings(), loadTxContext(id.data)]);
   if (!customer) notFound();
 
   const kind = rawKind === "return" ? "return" : "take";
-  // Returning: preselect the product they owe the most of. Taking: the one they owe (their usual), else the first.
-  const owed = [...products].sort((a, b) => b.balance - a.balance)[0];
-  const productId = (owed && owed.balance > 0 ? owed : products[0])?.id ?? 0;
+  // Return: preselect what they hold most of. Take: what they usually take, else the first product.
+  const held = [...products].sort((a, b) => b.balance - a.balance)[0];
+  const productId = (held && held.balance > 0 ? held : products[0])?.id ?? 0;
 
   return (
     <>
-      <Link href={`/customers/${customer.id}`} className="back">
-        → {customer.name}
-      </Link>
-      <h1 className="page-title">{kind === "take" ? "أخذ صواني" : "إرجاع صواني"} — {customer.name}</h1>
+      <PageHeader title={customer.name} sub="عملية جديدة" back={`/customers/${customer.id}`} />
       {products.length === 0 ? (
         <NoProducts />
       ) : (
-        <TransactionForm
-          customerId={customer.id}
-          products={products}
-          defaults={{ kind, productId, quantity: 1, note: "", occurredAt: nowLocal(TIME_ZONE) }}
-        />
+        <div className="stack">
+          <OutstandingReminder customer={customer} settings={settings} />
+          <TransactionForm
+            customerId={customer.id}
+            products={products}
+            currency={settings.currency}
+            defaults={{ kind, productId, quantity: 1, note: "", occurredAt: nowLocal(TIME_ZONE) }}
+          />
+        </div>
       )}
     </>
   );

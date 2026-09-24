@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { normalizeDigits } from "./digits";
+import { CURRENCIES, parseMoney } from "./money";
 
 export { normalizeDigits };
 
@@ -24,8 +25,23 @@ export const customerSchema = z.object({
     ),
 });
 
+const money = (required: boolean) =>
+  z
+    .string()
+    .transform((v) => normalizeDigits(v).replace(/٫/g, ".").trim())
+    .transform((v, ctx) => {
+      if (v === "" && !required) return 0;
+      const cents = parseMoney(v);
+      if (cents === null) {
+        ctx.addIssue({ code: "custom", message: v === "" ? "اكتب السعر" : "السعر غير صحيح (مثال: 12.50)" });
+        return z.NEVER;
+      }
+      return cents;
+    });
+
 export const productSchema = z.object({
   name: text(60, "اكتب اسم الصنف", "اسم الصنف طويل جداً"),
+  priceCents: money(true),
 });
 
 export const transactionSchema = z.object({
@@ -36,6 +52,8 @@ export const transactionSchema = z.object({
     .transform((v) => normalizeDigits(v).trim())
     .pipe(z.string().regex(/^\d+$/, "اكتب عدد الصواني").transform(Number))
     .pipe(z.number().int().min(1, "العدد يجب أن يكون ١ على الأقل").max(1000, "العدد كبير جداً")),
+  // Price per tray for "take"; ignored (0) for "return" — returns settle the oldest takes (FIFO).
+  unitPriceCents: money(false),
   note: z.string().transform(collapse).pipe(z.string().max(200, "الملاحظة طويلة جداً")),
   // Local wall-clock time from <input type="datetime-local">, interpreted in APP_TIMEZONE.
   occurredAt: z
@@ -43,6 +61,23 @@ export const transactionSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/, "التاريخ غير صحيح"),
 });
 
+export const settingsSchema = z.object({
+  shopName: text(60, "اكتب اسم المحل", "الاسم طويل جداً"),
+  currency: z.enum(CURRENCIES.map((c) => c.code) as [string, ...string[]], { message: "اختر العملة" }),
+  overdueDays: z
+    .string()
+    .transform((v) => normalizeDigits(v).trim())
+    .pipe(z.string().regex(/^\d+$/, "اكتب عدد الأيام").transform(Number))
+    .pipe(z.number().int().min(1, "يوم واحد على الأقل").max(90, "90 يوماً كحد أقصى")),
+  reminderWeekday: z.coerce.number().int().min(0).max(6),
+  remindersEnabled: z.boolean(),
+  countryCode: z
+    .string()
+    .transform((v) => normalizeDigits(v).replace(/^\+|^00/, "").trim())
+    .pipe(z.string().regex(/^\d{1,4}$/, "رمز الدولة غير صحيح (مثال: 44)")),
+});
+
+export type SettingsInput = z.infer<typeof settingsSchema>;
 export type CustomerInput = z.infer<typeof customerSchema>;
 export type ProductInput = z.infer<typeof productSchema>;
 export type TransactionInput = z.infer<typeof transactionSchema>;

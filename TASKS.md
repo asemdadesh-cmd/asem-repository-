@@ -25,6 +25,9 @@ _Last updated: 2026-09-24_
 - [x] Dessert shop: 17 ledger tests + Playwright mobile E2E passing
 - [x] Dessert shop: Supabase project `dessert-shop-ledger` (RLS + least-privilege role)
 - [x] Dessert shop: Vercel project `dessert-shop-ledger` (root dir `dessert-shop`, lhr1)
+- [x] Dessert shop v2: prices per tray + FIFO valuation
+- [x] Dessert shop v2: reminders (take banner, Reminders screen, WhatsApp, weekly push)
+- [x] Dessert shop v2: professional redesign + PWA icons + settings page
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
@@ -33,10 +36,12 @@ _Last updated: 2026-09-24_
 ## ⬜ Planned
 - [ ] Dessert shop: move `dessert-shop/` to its own GitHub repo (session couldn't create repos)
 - [ ] Dessert shop: owner changes `APP_PASSWORD` in Vercel after first login
+- [ ] Dessert shop: owner sets the بسبوسة price and enables notifications on their phone
 - [ ] Dogfood `council` on one real decision and tune the round word limits
 
 ## 💤 Backlog
-- [ ] Dessert shop: CSV export of balances / WhatsApp reminder link per customer
+- [ ] Dessert shop: CSV export of balances
+- [ ] Dessert shop: record payments (money owed) separately from trays, if the shop needs it
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
 - [ ] Create a `website-scaffold` skill for consistent starter structure
 - [ ] Add per-website deployment notes once a real site is built

@@ -8,6 +8,21 @@ _Last updated: 2026-09-24_
 
 ---
 
+### 2026-09-24 — Dessert shop v2: FIFO valuation, Web Push + WhatsApp reminders
+**Decision:** (1) Store prices in minor units; snapshot the price on each *take*;
+returns carry no price. Outstanding value = the trays still out valued at the price
+they were taken at, with returns settling the oldest takes first (FIFO, computed in
+view `take_outstanding`). (2) Reminders go to the **owner** by Web Push (VAPID,
+service worker, daily Vercel Cron that only fires on the chosen weekday and is
+idempotent via `settings.last_weekly_sent`), and to **customers** via a `wa.me` link
+with a pre-written message the owner sends with one tap.
+**Why:** FIFO also gives "how long has the oldest tray been out", which is the natural
+definition of overdue. Web Push needs no third-party account or per-message cost,
+unlike SMS/email APIs. Sending WhatsApp messages automatically would need the
+WhatsApp Business API (verification, templates, fees); a pre-filled link keeps it free
+and keeps the owner in control of what each customer receives. Trade-off: iPhone push
+needs the app added to the Home Screen (iOS 16.4+); the UI explains this.
+
 ### 2026-09-24 — Dessert shop ledger: server-rendered Next.js + plain Postgres
 **Decision:** Build the app as Next.js Server Components + Server Actions talking to
 Supabase Postgres with the `postgres` driver through the transaction pooler, using a

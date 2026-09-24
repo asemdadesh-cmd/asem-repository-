@@ -1,26 +1,33 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/Logo";
 import { requireAuth } from "@/lib/auth";
-import { logout } from "../actions";
-import { NavLinks } from "./NavLinks";
+import { loadCustomers, loadSettings } from "@/lib/data";
+import { isOverdue } from "@/lib/reminders";
+import { Nav } from "./Nav";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   await requireAuth();
+  const [settings, customers] = await Promise.all([loadSettings(), loadCustomers()]);
+  const overdue = customers.filter((c) => isOverdue(c, settings.overdueDays)).length;
+
   return (
-    <>
-      <header className="topbar">
-        <nav className="container topbar-inner" aria-label="التنقل الرئيسي">
-          <Link href="/" className="brand">
-            <span aria-hidden="true">🍯</span> دفتر الحلويات
-          </Link>
-          <NavLinks />
-          <form action={logout}>
-            <button type="submit" className="nav-link">
-              خروج
-            </button>
-          </form>
-        </nav>
-      </header>
-      <main className="container">{children}</main>
-    </>
+    <div className="shell">
+      <aside className="sidebar" aria-label="القائمة">
+        <Link href="/" className="brand">
+          <LogoMark />
+          <span style={{ minWidth: 0 }}>
+            <span className="brand-name" style={{ display: "block" }}>
+              دفتر الصواني
+            </span>
+            <span className="brand-sub" style={{ display: "block" }}>
+              {settings.shopName}
+            </span>
+          </span>
+        </Link>
+        <Nav variant="side" overdue={overdue} />
+      </aside>
+      <main className="content">{children}</main>
+      <Nav variant="tabs" overdue={overdue} />
+    </div>
   );
 }

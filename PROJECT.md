@@ -24,9 +24,9 @@ _Last updated: 2026-09-24_
 - **Target users:** The repository owner (NHT Estates) and any collaborator who
   runs Claude Code in this repo. End beneficiaries are the clients whose
   websites/landing pages get built through the skill.
-- **Apps in this repo:** `dessert-shop/` — **دفتر الحلويات**, a mobile-first Arabic
+- **Apps in this repo:** `dessert-shop/` — **دفتر الصواني**, a mobile-first Arabic
   (RTL) web app that tracks how many trays (صواني) each customer of a dessert shop
-  owes. Live on Vercel; full details in the *Dessert Shop Ledger* sections below and
+  owes, what they're worth, and reminds the owner (weekly push + WhatsApp). Live on Vercel; full details in the *Dessert Shop Ledger* sections below and
   in `dessert-shop/README.md`.
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
@@ -114,6 +114,11 @@ _Last updated: 2026-09-24_
     products ON DELETE RESTRICT, kind take|return, quantity 1–1000, note ≤200,
     occurred_at, created_at)`; indexes on (customer_id, occurred_at desc), product_id
   - `login_attempts(ip, created_at)` — login throttle
+  - v2: `products.price_cents`, `transactions.unit_price_cents` (money in minor units;
+    price snapshotted per take), `settings` (single row: shop name, currency, country
+    code, overdue days, reminder weekday/enabled, last weekly send), `push_subscriptions`,
+    `reminder_log`, and view `take_outstanding` (security_invoker) that values
+    outstanding trays FIFO and gives the age of the oldest unreturned tray.
   - Balance is **derived**: `SUM(take) − SUM(return)` per customer/product. Every
     write runs in a transaction that locks the customer row and rejects any
     change leaving a negative balance.
@@ -126,7 +131,9 @@ _Last updated: 2026-09-24_
 
 - **Dessert Shop Ledger:** no public API. Mutations are Next.js Server Actions
   (`src/app/actions.ts`), each calling `requireAuth()`. `GET /api/health` →
-  `{ok:true}` when the DB is reachable (503 otherwise).
+  `{ok:true}` when the DB is reachable (503 otherwise). `GET /api/cron/weekly` —
+  Vercel Cron (daily 07:00 UTC, `Authorization: Bearer CRON_SECRET`); sends the Web
+  Push weekly summary on the configured weekday, once per day.
 - Endpoints / Authentication / Request & response examples / Error codes:
   _none yet._
 
@@ -148,7 +155,8 @@ _Last updated: 2026-09-24_
 
 - **Required environment variables:** plugins — none. Dessert Shop Ledger
   (set in Vercel): `DATABASE_URL`, `APP_PASSWORD`, `SESSION_SECRET`,
-  `APP_TIMEZONE` (see `dessert-shop/.env.example`).
+  `APP_TIMEZONE`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`,
+  `CRON_SECRET` (see `dessert-shop/.env.example`).
 - **Third-party services:** GitHub (hosting/version control); Claude Code (the
   agent that consumes the skill).
 - **Setup instructions:**
@@ -203,6 +211,12 @@ _Last updated: 2026-09-24_
 ---
 
 ## Changelog
+
+- **2026-09-24** — Dessert shop **v2**: prices per tray (snapshotted per take, FIFO
+  valuation), reminders (banner on take, Reminders screen with one-tap WhatsApp
+  message + "last reminded", weekly Web Push via Vercel Cron), settings page, full
+  professional redesign (custom logo, pistachio palette, bottom tabs/sidebar, grouped
+  history, PWA icons). 32 unit + 4 E2E tests.
 
 - **2026-09-24** — Added **Dessert Shop Ledger** (`dessert-shop/`): Next.js 16 +
   Supabase Postgres, Arabic RTL, mobile-first. Customers, products, take/return

@@ -1,3 +1,5 @@
+import { AlertIcon, CheckIcon } from "./icons";
+
 export function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
@@ -10,15 +12,17 @@ export function FieldError({ id, message }: { id: string; message?: string }) {
 export function FormAlert({ error, ok }: { error?: string; ok?: string }) {
   if (error)
     return (
-      <p className="alert alert-error" role="alert">
-        {error}
-      </p>
+      <div className="banner danger" role="alert">
+        <AlertIcon size={18} />
+        <span>{error}</span>
+      </div>
     );
   if (ok)
     return (
-      <p className="alert alert-ok" role="status">
-        {ok}
-      </p>
+      <div className="banner ok" role="status">
+        <CheckIcon size={18} />
+        <span>{ok}</span>
+      </div>
     );
   return null;
 }

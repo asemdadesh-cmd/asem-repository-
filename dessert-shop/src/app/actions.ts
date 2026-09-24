@@ -7,11 +7,14 @@ import { checkPassword, createSessionToken, requireAuth, SESSION_COOKIE, SESSION
 import { TIME_ZONE } from "@/lib/config";
 import { db } from "@/lib/db";
 import * as L from "@/lib/ledger";
+import { sendToAll } from "@/lib/push";
+import { weeklySummary } from "@/lib/reminders";
 import {
   customerSchema,
   fieldErrors,
   idSchema,
   productSchema,
+  settingsSchema,
   transactionSchema,
 } from "@/lib/validation";
 
@@ -100,7 +103,8 @@ export async function saveCustomer(_: FormState, fd: FormData): Promise<FormStat
     return { errors: { form: ledgerMessage(e) } };
   }
   revalidatePath("/", "layout");
-  redirect(`/customers/${id}${rawId ? "?saved=customer" : ""}`);
+  if (!rawId && str(fd, "next") === "take") redirect(`/customers/${id}/tx/new?kind=take`);
+  redirect(`/customers/${id}?saved=${rawId ? "customer" : "created"}`);
 }
 
 export async function removeCustomer(_: FormState, fd: FormData): Promise<FormState> {
@@ -118,17 +122,17 @@ export async function removeCustomer(_: FormState, fd: FormData): Promise<FormSt
 
 export async function saveProduct(_: FormState, fd: FormData): Promise<FormState> {
   await requireAuth();
-  const parsed = productSchema.safeParse({ name: str(fd, "name") });
+  const parsed = productSchema.safeParse({ name: str(fd, "name"), priceCents: str(fd, "price") });
   if (!parsed.success) return { errors: fieldErrors(parsed.error) };
   const rawId = str(fd, "id");
   try {
-    if (rawId) await L.renameProduct(db(), idSchema.parse(rawId), parsed.data);
+    if (rawId) await L.updateProduct(db(), idSchema.parse(rawId), parsed.data);
     else await L.createProduct(db(), parsed.data);
   } catch (e) {
     return { errors: { name: ledgerMessage(e) } };
   }
   revalidatePath("/", "layout");
-  return { ok: rawId ? "تم تعديل الاسم" : `تمت إضافة «${parsed.data.name}»` };
+  return { ok: rawId ? "تم حفظ التعديل" : `تمت إضافة «${parsed.data.name}»` };
 }
 
 export async function removeProduct(_: FormState, fd: FormData): Promise<FormState> {
@@ -153,6 +157,7 @@ export async function saveTransaction(_: FormState, fd: FormData): Promise<FormS
     productId: str(fd, "productId"),
     kind: str(fd, "kind"),
     quantity: str(fd, "quantity"),
+    unitPriceCents: str(fd, "kind") === "take" ? str(fd, "unitPrice") : "",
     note: str(fd, "note"),
     occurredAt: str(fd, "occurredAt"),
   });
@@ -182,4 +187,67 @@ export async function removeTransaction(_: FormState, fd: FormData): Promise<For
   }
   revalidatePath("/", "layout");
   redirect(`/customers/${customerId}?saved=deleted`);
+}
+
+// ---------- Reminders & settings ----------
+
+export async function markReminded(customerId: number): Promise<void> {
+  await requireAuth();
+  const id = idSchema.parse(customerId);
+  await L.logReminder(db(), id);
+  revalidatePath("/reminders");
+}
+
+export async function saveSettings(_: FormState, fd: FormData): Promise<FormState> {
+  await requireAuth();
+  const parsed = settingsSchema.safeParse({
+    shopName: str(fd, "shopName"),
+    currency: str(fd, "currency"),
+    overdueDays: str(fd, "overdueDays"),
+    reminderWeekday: str(fd, "reminderWeekday"),
+    remindersEnabled: fd.get("remindersEnabled") === "on",
+    countryCode: str(fd, "countryCode"),
+  });
+  if (!parsed.success) return { errors: fieldErrors(parsed.error) };
+  await L.updateSettings(db(), parsed.data);
+  revalidatePath("/", "layout");
+  return { ok: "تم حفظ الإعدادات" };
+}
+
+export async function subscribePush(sub: { endpoint: string; keys: { p256dh: string; auth: string } }): Promise<void> {
+  await requireAuth();
+  const ok =
+    typeof sub?.endpoint === "string" &&
+    /^https:\/\//.test(sub.endpoint) &&
+    sub.endpoint.length < 1000 &&
+    typeof sub.keys?.p256dh === "string" &&
+    typeof sub.keys?.auth === "string";
+  if (!ok) throw new Error("invalid subscription");
+  const h = await headers();
+  await L.savePushSubscription(
+    db(),
+    { endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth },
+    h.get("user-agent") ?? "",
+  );
+  revalidatePath("/reminders");
+}
+
+export async function unsubscribePush(endpoint: string): Promise<void> {
+  await requireAuth();
+  if (typeof endpoint !== "string") return;
+  await L.deletePushSubscription(db(), endpoint);
+  revalidatePath("/reminders");
+}
+
+/** Sends this week's summary right now — lets the owner check notifications work. */
+export async function sendTestNotification(): Promise<{ sent: number }> {
+  await requireAuth();
+  const sql = db();
+  const [settings, customers] = await Promise.all([L.getSettings(sql), L.listCustomers(sql)]);
+  const summary = weeklySummary(customers, settings) ?? {
+    title: "دفتر الصواني",
+    body: "الإشعارات تعمل ✓ لا توجد صواني عند الزبائن حالياً.",
+  };
+  const { sent } = await sendToAll(sql, { ...summary, url: "/reminders", tag: "weekly" });
+  return { sent };
 }

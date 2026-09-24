@@ -1,18 +1,23 @@
 import "server-only";
 import { db } from "@/lib/db";
-import { getCustomer, getCustomerBalances, listProducts } from "@/lib/ledger";
+import { getCustomerBalances, getCustomerSummary, listProducts } from "@/lib/ledger";
 
-/** Customer + every product with this customer's current balance for it. */
+/** Customer summary + every product with its price and this customer's current balance of it. */
 export async function loadTxContext(customerId: number) {
   const sql = db();
   const [customer, products, balances] = await Promise.all([
-    getCustomer(sql, customerId),
+    getCustomerSummary(sql, customerId),
     listProducts(sql),
     getCustomerBalances(sql, customerId),
   ]);
   const byId = new Map(balances.map((b) => [b.productId, b.balance]));
   return {
     customer,
-    products: products.map((p) => ({ id: p.id, name: p.name, balance: byId.get(p.id) ?? 0 })),
+    products: products.map((p) => ({
+      id: p.id,
+      name: p.name,
+      priceCents: p.priceCents,
+      balance: byId.get(p.id) ?? 0,
+    })),
   };
 }

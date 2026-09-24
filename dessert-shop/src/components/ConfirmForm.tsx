@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import type { FormState } from "@/app/actions";
+import { ActionForm } from "./ActionForm";
 import { FormAlert } from "./Field";
 import { SubmitButton } from "./SubmitButton";
 
@@ -19,15 +20,9 @@ export function ConfirmForm({
   label: string;
   pendingText?: string;
 }) {
-  const [state, formAction] = useActionState<FormState, FormData>(action, undefined);
+  const [state, formAction, pending] = useActionState<FormState, FormData>(action, undefined);
   return (
-    <form
-      action={formAction}
-      onSubmit={(ev) => {
-        if (!window.confirm(confirmText)) ev.preventDefault();
-      }}
-      className="stack"
-    >
+    <ActionForm action={formAction} pending={pending} confirm={confirmText} className="stack-sm">
       {Object.entries(fields).map(([k, v]) => (
         <input key={k} type="hidden" name={k} value={v} />
       ))}
@@ -35,6 +30,6 @@ export function ConfirmForm({
       <SubmitButton className="btn btn-danger btn-block" pendingText={pendingText}>
         {label}
       </SubmitButton>
-    </form>
+    </ActionForm>
   );
 }
