@@ -123,7 +123,8 @@ _Last updated: 2026-09-24_
     write runs in a transaction that locks the customer row and rejects any
     change leaving a negative balance.
   - Access: RLS on all tables, no anon/authenticated grants; app connects as
-    role `shop_app` via the transaction pooler (port 6543).
+    role `shop_app` via the Supavisor pooler in **session mode (port 5432)** —
+    transaction mode (6543) hangs when postgres.js pipelines parallel queries.
 
 ---
 
@@ -176,7 +177,7 @@ _Last updated: 2026-09-24_
   "deployed" simply by being present in `.claude/skills/`.
 - **Dessert Shop Ledger:** Vercel project `dessert-shop-ledger` (team
   asemdadesh-5431s-projects), Root Directory `dessert-shop`, region `lhr1`,
-  URL https://dessert-shop-ledger.vercel.app (pooler host: aws-0-eu-west-2 — aws-1 returns "tenant not found"). Vercel SSO protection applies to
+  URL https://dessert-shop-ledger.vercel.app (pooler host: aws-0-eu-west-2, port 5432 — aws-1 returns "tenant not found"). Vercel SSO protection applies to
   previews only; production relies on the app password. `vercel.json`'s
   `ignoreCommand` skips builds when `dessert-shop/` is unchanged. Note: the
   repo's default branch is `claude/agency-review-framework-3a8hk8`, so
@@ -216,7 +217,8 @@ _Last updated: 2026-09-24_
   valuation), reminders (banner on take, Reminders screen with one-tap WhatsApp
   message + "last reminded", weekly Web Push via Vercel Cron), settings page, full
   professional redesign (custom logo, pistachio palette, bottom tabs/sidebar, grouped
-  history, PWA icons). 32 unit + 4 E2E tests.
+  history, PWA icons). 32 unit + 4 E2E tests. Fixed a production hang by moving
+  the DB connection from the transaction pooler (6543) to session mode (5432).
 
 - **2026-09-24** — Added **Dessert Shop Ledger** (`dessert-shop/`): Next.js 16 +
   Supabase Postgres, Arabic RTL, mobile-first. Customers, products, take/return

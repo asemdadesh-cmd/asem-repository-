@@ -36,7 +36,7 @@ Arabic UI, RTL, Western digits (Arabic-Indic digits typed on the keyboard are ac
 | Layer | Choice |
 |---|---|
 | App | Next.js 16 (App Router, Server Components, Server Actions), React 19, TypeScript |
-| DB | Postgres (Supabase, eu-west-2) via `postgres` driver through the transaction pooler |
+| DB | Postgres (Supabase, eu-west-2) via `postgres` driver through the pooler (session mode) |
 | Validation | zod (server) + native/inline hints (client) |
 | Styling | Plain CSS with tokens, light + dark, IBM Plex Sans Arabic |
 | Tests | Vitest (ledger logic vs real Postgres) + Playwright (mobile E2E) |
@@ -63,7 +63,7 @@ dessert-shop/
 
 | Name | Description |
 |---|---|
-| `DATABASE_URL` | Postgres URL. On Supabase use the **transaction pooler**, port 6543 |
+| `DATABASE_URL` | Postgres URL. On Supabase use the pooler in **session mode, port 5432** (transaction mode stalls on pipelined parallel queries) |
 | `APP_PASSWORD` | Password the owner types to log in. Changing it logs out all devices |
 | `SESSION_SECRET` | 32+ random chars for signing the cookie (`openssl rand -hex 32`) |
 | `APP_TIMEZONE` | IANA timezone for showing/entering dates and the weekly reminder (default `Europe/London`) |

@@ -8,6 +8,16 @@ _Last updated: 2026-09-24_
 
 ---
 
+### 2026-09-24 — Supabase pooler: session mode (5432), not transaction mode (6543)
+**Decision:** Connect through Supavisor on port 5432 (session mode).
+**Why:** v2 pages run several queries in parallel; postgres.js pipelines them on a
+connection, and Supavisor transaction mode stalled indefinitely (reproduced: 10
+parallel queries on 1 connection → hang on 6543, 650 ms on 5432). Session mode holds
+one server connection per client connection, which is fine for a single-owner app
+with a pool of 3 and a 20 s idle timeout.
+
+---
+
 ### 2026-09-24 — Dessert shop v2: FIFO valuation, Web Push + WhatsApp reminders
 **Decision:** (1) Store prices in minor units; snapshot the price on each *take*;
 returns carry no price. Outstanding value = the trays still out valued at the price
