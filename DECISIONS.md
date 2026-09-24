@@ -4,9 +4,30 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-24_
 
 ---
+
+### 2026-09-24 — Dessert shop ledger: server-rendered Next.js + plain Postgres
+**Decision:** Build the app as Next.js Server Components + Server Actions talking to
+Supabase Postgres with the `postgres` driver through the transaction pooler, using a
+dedicated `shop_app` role. RLS is enabled with no anon/authenticated policies so the
+public Supabase Data API exposes nothing. Auth is a single owner password (env var)
+with an HMAC-signed httpOnly cookie, not Supabase Auth.
+**Why:** One user, one phone — accounts/sign-up/email flows would be pure overhead.
+Keeping all SQL server-side means no keys ship to the browser and business rules
+(no negative balances) live in one DB transaction with a row lock. Balances are
+*derived* (SUM of take − return) rather than stored, so edits/deletes of old
+transactions can never desync a cached total. Trade-off: no per-user audit trail;
+fine for a single-owner shop.
+
+### 2026-09-24 — Dessert shop lives in `dessert-shop/` of this repo (for now)
+**Decision:** The owner asked for a new repo, but the session's GitHub integration
+returned 403 on repo creation, so the app is a self-contained folder here, deployed
+by Vercel with Root Directory `dessert-shop` and an ignore-build command so
+unrelated commits don't redeploy it.
+**Why:** Unblocks delivery today; the folder has no dependency on the rest of the
+repo, so moving it to its own repo later is a copy + re-link in Vercel.
 
 ### 2026-09-21 — Three lenses, not eighteen personas
 **Decision:** Build the `council` plugin around three functional lenses

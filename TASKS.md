@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-24_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -21,15 +21,22 @@ _Last updated: 2026-09-21_
 
 - [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
 - [x] Register `council` in the marketplace manifest
+- [x] Build `dessert-shop/` ledger app (Next.js + Supabase Postgres, Arabic RTL)
+- [x] Dessert shop: 17 ledger tests + Playwright mobile E2E passing
+- [x] Dessert shop: Supabase project `dessert-shop-ledger` (RLS + least-privilege role)
+- [x] Dessert shop: Vercel project `dessert-shop-ledger` (root dir `dessert-shop`, lhr1)
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
+- [ ] Dessert shop: move `dessert-shop/` to its own GitHub repo (session couldn't create repos)
+- [ ] Dessert shop: owner changes `APP_PASSWORD` in Vercel after first login
 - [ ] Dogfood `council` on one real decision and tune the round word limits
 
 ## 💤 Backlog
+- [ ] Dessert shop: CSV export of balances / WhatsApp reminder link per customer
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
 - [ ] Create a `website-scaffold` skill for consistent starter structure
 - [ ] Add per-website deployment notes once a real site is built
