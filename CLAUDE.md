@@ -22,3 +22,10 @@ enough that a new developer understands the project in ~10 minutes.
 When asked to make/design/improve a website, the `agency-review` skill applies —
 build, run the full agency review, fix every issue, then present. Record the new
 site's stack, structure, environment, and deployment in PROJECT.md.
+
+## Deploying
+
+Always deploy through the **Vercel MCP tools** (e.g. `create_deployment`,
+`create_project`, `edit_project_env`, `get_deployment`) — not the Vercel CLI or
+other methods. Verify the deployment reaches `READY`, then smoke-test it (a Vercel
+Sandbox via the same MCP works when the local network can't reach `*.vercel.app`).
