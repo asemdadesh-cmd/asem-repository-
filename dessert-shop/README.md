@@ -66,6 +66,8 @@ npm run dev
 # needs a throwaway Postgres DB (default postgres://postgres@127.0.0.1:5432/shop_test)
 npm test                          # 17 ledger/validation tests
 npm run build && npm run test:e2e # Playwright; set PW_CHROMIUM to a Chromium path if needed
+# live, non-destructive (temp customer is deleted at the end):
+BASE_URL=https://dessert-shop-ledger.vercel.app APP_PASSWORD=... node e2e/prod-smoke.mjs
 ```
 
 ## Deployment

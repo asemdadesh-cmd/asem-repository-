@@ -6,7 +6,7 @@ import { chromium } from "playwright";
 const base = process.env.BASE_URL;
 const password = process.env.APP_PASSWORD;
 const name = `اختبار-${Date.now()}`;
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {});
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: "ar" });
 const step = (m) => console.log("✓", m);
 const expectText = async (sel, text) => {
