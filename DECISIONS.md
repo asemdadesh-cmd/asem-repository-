@@ -4,7 +4,18 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-24_
+
+---
+
+### 2026-09-24 — Local HyperFrames CLI, original art + synthesized music
+**Decision:** Author the anime edit as a local HyperFrames project instead of
+the hosted HyperFrames MCP, with all-original SVG art and a stdlib-Python
+synthesized soundtrack; vendor GSAP and fonts locally.
+**Why:** The hosted `compose` tool rejects Claude Code clients. Using real anime
+footage or commercial music would be a copyright problem for anything posted.
+The sandbox proxy blocks headless Chrome from CDNs, and vendored assets make
+renders reproducible offline anyway.
 
 ---
 

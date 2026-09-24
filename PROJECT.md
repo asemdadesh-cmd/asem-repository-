@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-24_
 
 ---
 
@@ -84,6 +84,14 @@ _Last updated: 2026-09-21_
   - `reference/rewrite-guide.md` — copywriting & conversion patterns.
   - README documenting purpose and usage.
   - Living documentation system (PROJECT.md / TASKS.md / DECISIONS.md).
+  - **`videos/limit-break/`** — a 20s vertical (1080×1920) anime-style edit
+    built with **HyperFrames** (HTML + GSAP → MP4). All-original SVG art
+    (eye, katana, swordsman silhouette, skyline) and an original 120 BPM
+    soundtrack synthesized by `scripts/make_bgm.py`. Render:
+    `cd videos/limit-break && npx hyperframes@0.8.69 render --quality delivery --output renders/limit-break.mp4`
+    (needs Node 22+, FFmpeg, `npx hyperframes browser ensure`). GSAP and fonts
+    are vendored under `assets/` so renders need no network. `renders/` is
+    gitignored.
 - **Features in progress**
   - Establishing auto-update discipline for the documentation files.
 - **Planned features**
@@ -174,6 +182,10 @@ _Last updated: 2026-09-21_
 
 ## Changelog
 
+- **2026-09-24** — Added `videos/limit-break/`: a HyperFrames anime edit
+  ("LIMIT BREAK", 20s, 9:16) with original art and synthesized music. Hosted
+  HyperFrames MCP `compose` is disabled for Claude Code, so it was authored
+  locally with the HyperFrames CLI/skills instead.
 - **2026-09-21** — Added the **`council` plugin**: a three-lens deliberation skill
   (Skeptic / Builder / Risk) for costly or hard-to-reverse decisions. Runs
   blind independent analysis, a forced disagreement round, and a verdict that
