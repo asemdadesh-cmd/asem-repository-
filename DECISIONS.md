@@ -10,8 +10,9 @@ _Last updated: 2026-09-24_
 
 ### 2026-09-24 — One app per repository; Vercel projects build only their own code
 **Decision:** Apps live in their own repositories (dessert-shop → `dessert-shop-ledger`).
-Vercel projects still connected to this repo must skip builds that aren't theirs
-(`cardiff-spa-bookings` Ignored Build Step allows only its branch).
+Cardiff spa bookings → `cardiff-spa-bookings`. Vercel projects still *connected* to this repo
+skip every build from it (Root Directory = repo root, Ignored Build Step checks the repo slug);
+a Root Directory that doesn't exist fails before the Ignored Build Step can run.
 **Why:** Every Vercel project connected to a repo builds every push to it; with apps in
 different folders/branches, each app's commits produced failing deployments for the others.
 The owner asked for separate repos from the start; the first attempt hit a GitHub

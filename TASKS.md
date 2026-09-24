@@ -22,7 +22,8 @@ _Last updated: 2026-09-24_
 - [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
 - [x] Register `council` in the marketplace manifest
 - [x] Dessert-shop app built, then moved to its own repo `asemdadesh-cmd/dessert-shop-ledger`
-- [x] Vercel: `cardiff-spa-bookings` builds only its own branch; old dessert project retired
+- [x] Cardiff spa app copied to its own repo `asemdadesh-cmd/cardiff-spa-bookings`; its Vercel
+      project builds only from that repo; old dessert Vercel project retired
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +

@@ -24,7 +24,8 @@ _Last updated: 2026-09-24_
 - **Target users:** The repository owner (NHT Estates) and any collaborator who
   runs Claude Code in this repo. End beneficiaries are the clients whose
   websites/landing pages get built through the skill.
-- **Related apps (own repositories):** the dessert-shop tray ledger (**دفتر الصواني**)
+- **Related apps (own repositories):** Cardiff spa bookings → `asemdadesh-cmd/cardiff-spa-bookings`
+  (live: https://cardiff-spa-bookings.vercel.app). The dessert-shop tray ledger (**دفتر الصواني**)
   lives in `asemdadesh-cmd/dessert-shop-ledger` (live: https://dessert-ledger.vercel.app).
   It was briefly developed in `dessert-shop/` here and moved out on 2026-09-24; its
   docs (PROJECT/TASKS/DECISIONS) now live in that repo.
@@ -178,9 +179,10 @@ _Last updated: 2026-09-24_
 
 - **2026-09-24** — Moved the dessert-shop app out of this repo into its own repository
   `asemdadesh-cmd/dessert-shop-ledger` (history preserved) with its own Vercel project.
-  Retired the old Vercel project (now only redirects the old URL, ignores all builds) and set
-  `cardiff-spa-bookings` to build only its own branch, so projects sharing this repo no
-  longer fail each other's commits.
+  Retired the old Vercel project (now only redirects the old URL, ignores all builds). The
+  Cardiff spa app was likewise copied to its own repo `asemdadesh-cmd/cardiff-spa-bookings`;
+  its Vercel project now builds only from that repo (Root Directory = repo root, Ignored
+  Build Step checks `VERCEL_GIT_REPO_SLUG`), so pushes here no longer fail its checks.
 
 - **2026-09-24** — Dessert shop **v2**: prices per tray (snapshotted per take, FIFO
   valuation), reminders (banner on take, Reminders screen with one-tap WhatsApp
