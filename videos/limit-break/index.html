@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>LIMIT BREAK — anime edit</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Anton";
+        src: url("assets/fonts/anton.woff2") format("woff2");
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: "NotoJP";
+        src: url("assets/fonts/notojp-black.woff2") format("woff2");
+        font-weight: 900;
+      }
+      @font-face {
+        font-family: "Space Grotesk";
+        src: url("assets/fonts/spacegrotesk.woff2") format("woff2");
+        font-weight: 500;
+      }
+      :root {
+        --ink: #05020c;
+        --violet: #8b5cff;
+        --magenta: #ff2fb4;
+        --cyan: #35f2ff;
+        --paper: #f4efff;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #000;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: "Space Grotesk", sans-serif;
+        color: var(--paper);
+      }
+      .full {
+        position: absolute;
+        inset: 0;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .scn {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      svg {
+        display: block;
+      }
+      .defs {
+        position: absolute;
+        width: 0;
+        height: 0;
+      }
+
+      /* ---------- global layers ---------- */
+      #bg {
+        background: radial-gradient(circle at 50% 38%, #2a0f5c 0%, #0b0620 55%, #03020a 100%);
+      }
+      #bgHot {
+        opacity: 0;
+        background: radial-gradient(circle at 50% 45%, #ff2fb4 0%, #5b10a8 38%, #0b0220 80%);
+      }
+      #rain {
+        pointer-events: none;
+      }
+      .drop {
+        position: absolute;
+        top: -220px;
+        width: 2px;
+        background: linear-gradient(180deg, rgba(160, 200, 255, 0), rgba(190, 220, 255, 0.55));
+      }
+      #speed {
+        opacity: 0;
+      }
+      #flash {
+        background: #fff;
+        opacity: 0;
+      }
+      #grain {
+        opacity: 0.16;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+        background-size: 300px 300px;
+      }
+      #scan {
+        background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.16) 2px 4px);
+      }
+      #vignette {
+        background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 0.78) 100%);
+      }
+      #fade {
+        background: #000;
+        opacity: 0;
+      }
+
+      /* ---------- typography ---------- */
+      .kanji {
+        font-family: "NotoJP", sans-serif;
+        font-weight: 900;
+        line-height: 1;
+      }
+      .display {
+        font-family: "Anton", sans-serif;
+        text-transform: uppercase;
+        line-height: 0.9;
+        letter-spacing: 0.01em;
+      }
+      .mono {
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: 0.5em;
+        text-transform: uppercase;
+      }
+
+      /* S1 */
+      #s1-kanji {
+        font-size: 330px;
+        color: #fff;
+        text-shadow:
+          0 0 30px var(--violet),
+          0 0 90px var(--violet),
+          6px 0 0 rgba(255, 47, 180, 0.7),
+          -6px 0 0 rgba(53, 242, 255, 0.7);
+      }
+      #s1-sub {
+        margin-top: 60px;
+        font-size: 34px;
+        color: #cdbcff;
+      }
+
+      /* S2 */
+      #s2-tag {
+        position: absolute;
+        top: 220px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 30px;
+        color: var(--cyan);
+        text-shadow: 0 0 18px var(--cyan);
+      }
+
+      /* S3 */
+      .s3 {
+        background: radial-gradient(circle at 50% 50%, #26093f 0%, #070211 70%);
+      }
+      .s3 .art {
+        width: 1000px;
+        height: 1000px;
+      }
+      .slam {
+        position: absolute;
+        bottom: 250px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+      }
+      .slam span {
+        display: block;
+        font-size: 250px;
+        color: #fff;
+        -webkit-text-stroke: 4px var(--ink);
+        text-shadow:
+          10px 10px 0 var(--magenta),
+          -8px -6px 0 var(--cyan),
+          0 0 60px rgba(139, 92, 255, 0.9);
+      }
+
+      /* S4 manga */
+      #s4 {
+        background: var(--paper);
+      }
+      .panel {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .panel .fill {
+        position: absolute;
+        inset: 0;
+      }
+      .tone {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(circle, rgba(255, 255, 255, 0.35) 28%, transparent 30%);
+        background-size: 16px 16px;
+        mix-blend-mode: overlay;
+      }
+      #p1 {
+        clip-path: polygon(0 0, 100% 0, 100% 29%, 0 39%);
+      }
+      #p2 {
+        clip-path: polygon(0 41.5%, 100% 31.5%, 100% 65%, 0 72%);
+      }
+      #p3 {
+        clip-path: polygon(0 74.5%, 100% 67.5%, 100% 100%, 0 100%);
+      }
+      #p1 .fill {
+        background: radial-gradient(circle at 50% 18%, #6e0f2a 0%, #14030a 60%);
+      }
+      #p2 .fill {
+        background: radial-gradient(circle at 50% 50%, #5b1cc9 0%, #12042a 55%);
+      }
+      #p3 .fill {
+        background: linear-gradient(160deg, #0b0418, #250a44);
+      }
+      #p1-eye {
+        position: absolute;
+        left: 40px;
+        top: 20px;
+        width: 1000px;
+        height: 620px;
+      }
+      #p2-man {
+        position: absolute;
+        left: 340px;
+        top: 590px;
+        width: 400px;
+        height: 700px;
+      }
+      #p2-aura {
+        position: absolute;
+        left: 240px;
+        top: 620px;
+        width: 600px;
+        height: 620px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 47, 180, 0.85) 0%, rgba(139, 92, 255, 0.4) 45%, transparent 70%);
+      }
+      #p3-text {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 150px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #p3-kanji {
+        font-size: 230px;
+        color: #fff;
+        text-shadow: 8px 8px 0 var(--magenta);
+      }
+      #p3-en {
+        margin-top: 24px;
+        font-size: 30px;
+        color: var(--cyan);
+      }
+
+      /* S5 drop */
+      .ring {
+        position: absolute;
+        left: 140px;
+        top: 560px;
+        width: 800px;
+        height: 800px;
+        border-radius: 50%;
+        border: 18px solid rgba(255, 255, 255, 0.9);
+        box-shadow:
+          0 0 60px var(--magenta),
+          inset 0 0 60px var(--cyan);
+        opacity: 0;
+      }
+      .glitch {
+        position: relative;
+        width: 1000px;
+        height: 620px;
+      }
+      .glitch .layer {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 300px;
+      }
+      .glitch .c {
+        color: var(--cyan);
+        mix-blend-mode: screen;
+      }
+      .glitch .m {
+        color: var(--magenta);
+        mix-blend-mode: screen;
+      }
+      .glitch .w {
+        color: #fff;
+        -webkit-text-stroke: 5px var(--ink);
+      }
+      .glitch .layer div {
+        display: block;
+      }
+
+      /* S6 */
+      #s6-kanji {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 170px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 360px;
+        color: rgba(170, 140, 240, 0.36);
+      }
+      #s6-aura {
+        position: absolute;
+        left: 90px;
+        top: 620px;
+        width: 900px;
+        height: 1000px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse, rgba(255, 47, 180, 0.75) 0%, rgba(139, 92, 255, 0.45) 40%, transparent 70%);
+      }
+      #s6-man {
+        position: absolute;
+        left: 290px;
+        top: 700px;
+        width: 500px;
+        height: 1025px;
+      }
+      #slashes {
+        position: absolute;
+        inset: 0;
+        width: 1080px;
+        height: 1920px;
+        filter: drop-shadow(0 0 18px #fff) drop-shadow(0 0 40px var(--cyan)) drop-shadow(0 0 70px var(--magenta));
+      }
+      .spark {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 26px;
+        height: 4px;
+        border-radius: 2px;
+        background: #fff;
+        box-shadow: 0 0 12px var(--cyan);
+        opacity: 0;
+      }
+
+      /* S7 */
+      #s7-title {
+        font-size: 170px;
+        color: #fff;
+        text-shadow:
+          0 0 40px var(--violet),
+          5px 0 0 rgba(255, 47, 180, 0.8),
+          -5px 0 0 rgba(53, 242, 255, 0.8);
+      }
+      #s7-rule {
+        width: 520px;
+        height: 3px;
+        margin: 44px 0 36px;
+        background: linear-gradient(90deg, transparent, var(--magenta), var(--cyan), transparent);
+      }
+      #s7-ep {
+        font-size: 30px;
+        color: #cdbcff;
+      }
+      #s7-jp {
+        margin-top: 36px;
+        font-size: 60px;
+        color: rgba(205, 188, 255, 0.55);
+        letter-spacing: 0.4em;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="20"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- Reusable original artwork -->
+      <svg class="defs" aria-hidden="true">
+        <defs>
+          <radialGradient id="irisGrad" cx="0.45" cy="0.4" r="0.6">
+            <stop offset="0" stop-color="#ffd6ff" />
+            <stop offset="0.35" stop-color="#ff3dc8" />
+            <stop offset="0.75" stop-color="#6a1fd6" />
+            <stop offset="1" stop-color="#1a0638" />
+          </radialGradient>
+          <linearGradient id="lidShade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#0a0014" stop-opacity="0.85" />
+            <stop offset="0.45" stop-color="#0a0014" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="bladeGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#6c6a8a" />
+            <stop offset="0.45" stop-color="#f4f2ff" />
+            <stop offset="0.55" stop-color="#b9b6d6" />
+            <stop offset="1" stop-color="#3a3858" />
+          </linearGradient>
+          <clipPath id="eyeClip">
+            <path d="M-340,10 C-220,-150 180,-170 340,-20 C200,110 -200,130 -340,10Z" />
+          </clipPath>
+          <symbol id="eye" viewBox="-400 -300 800 500">
+            <path d="M-340,10 C-220,-150 180,-170 340,-20 C200,110 -200,130 -340,10Z" fill="#f1e9ff" />
+            <g clip-path="url(#eyeClip)">
+              <circle cx="10" cy="-15" r="138" fill="url(#irisGrad)" />
+              <circle cx="10" cy="-15" r="138" fill="none" stroke="#12002a" stroke-width="10" />
+              <ellipse cx="10" cy="-15" rx="28" ry="96" fill="#0a0010" />
+              <rect x="-400" y="-300" width="800" height="400" fill="url(#lidShade)" />
+              <circle cx="-45" cy="-70" r="34" fill="#fff" />
+              <circle cx="62" cy="38" r="14" fill="#fff" opacity="0.85" />
+            </g>
+            <path d="M-360,20 C-230,-165 190,-190 360,-30 L385,-70 C190,-235 -240,-210 -385,-15Z" fill="#07030f" />
+            <path d="M-300,42 C-180,122 170,112 300,12" stroke="#07030f" stroke-width="9" fill="none" />
+            <path d="M-330,-215 C-150,-290 150,-290 345,-232 L338,-205 C150,-258 -150,-258 -322,-188Z" fill="#07030f" />
+          </symbol>
+          <symbol id="man" viewBox="0 0 400 820">
+            <polygon
+              points="160,185 90,200 20,168 62,214 4,242 110,232"
+              fill="#07030f"
+              stroke="#b99bff"
+              stroke-width="3"
+            />
+            <polygon
+              points="150,150 118,92 160,104 148,46 186,84 200,26 216,84 252,42 246,100 288,88 256,150 246,176 156,176"
+              fill="#07030f"
+              stroke="#b99bff"
+              stroke-width="3"
+            />
+            <polygon
+              points="140,180 260,180 300,230 310,420 330,560 352,652 300,630 290,700 250,660 230,722 200,670 170,722 150,660 110,700 105,630 52,652 80,560 95,420 100,230"
+              fill="#07030f"
+              stroke="#b99bff"
+              stroke-width="3"
+            />
+            <rect x="160" y="660" width="30" height="150" fill="#07030f" />
+            <rect x="215" y="660" width="30" height="150" fill="#07030f" />
+            <path d="M296,232 L336,430 L318,436 L282,250Z" fill="#07030f" stroke="#b99bff" stroke-width="3" />
+            <line x1="328" y1="432" x2="396" y2="816" stroke="url(#bladeGrad)" stroke-width="8" />
+            <line x1="312" y1="440" x2="346" y2="426" stroke="#c9a24a" stroke-width="10" />
+          </symbol>
+        </defs>
+      </svg>
+
+      <div id="bg" class="full"></div>
+      <div id="bgHot" class="full"></div>
+
+      <!-- S1 · 0–2s · awakening -->
+      <section id="s1" class="clip" data-start="0" data-duration="2" data-track-index="1">
+        <div class="scn">
+          <div id="s1-kanji" class="kanji">覚醒</div>
+          <div id="s1-sub" class="mono">Awakening</div>
+        </div>
+      </section>
+
+      <!-- S2 · 2–4s · neon city push-in -->
+      <section id="s2" class="clip" data-start="2" data-duration="2" data-track-index="1">
+        <div class="scn">
+          <svg id="city-far" class="full" viewBox="0 0 1080 1920" width="1080" height="1920"></svg>
+          <svg id="city-near" class="full" viewBox="0 0 1080 1920" width="1080" height="1920"></svg>
+          <div id="s2-tag" class="mono">Tokyo // 02:14 AM</div>
+        </div>
+      </section>
+
+      <!-- S3 · 4–7s · rapid impact cuts -->
+      <section id="s3a" class="clip s3" data-start="4" data-duration="0.75" data-track-index="1">
+        <div class="scn">
+          <svg class="art" viewBox="-400 -300 800 500"><use href="#eye" x="-400" y="-300" width="800" height="500" /></svg>
+          <div class="slam"><span class="display">No</span></div>
+        </div>
+      </section>
+      <section id="s3b" class="clip s3" data-start="4.75" data-duration="0.75" data-track-index="1">
+        <div class="scn">
+          <svg id="hilt" class="art" viewBox="0 0 400 900" style="width: 520px; height: 1170px"></svg>
+          <div class="slam"><span class="display">More</span></div>
+        </div>
+      </section>
+      <section id="s3c" class="clip s3" data-start="5.5" data-duration="0.75" data-track-index="1">
+        <div class="scn">
+          <svg id="blade" class="full" viewBox="0 0 1080 1920" width="1080" height="1920">
+            <defs>
+              <linearGradient id="glint" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#fff" stop-opacity="0" />
+                <stop offset="0.5" stop-color="#fff" stop-opacity="1" />
+                <stop offset="1" stop-color="#fff" stop-opacity="0" />
+              </linearGradient>
+              <clipPath id="bladeClip"><polygon points="-60,1500 1140,380 1180,440 -20,1580" /></clipPath>
+            </defs>
+            <polygon points="-60,1500 1140,380 1180,440 -20,1580" fill="url(#bladeGrad)" />
+            <line x1="-40" y1="1540" x2="1160" y2="410" stroke="#fff" stroke-width="3" opacity="0.8" />
+            <g clip-path="url(#bladeClip)">
+              <rect id="glintBar" x="-300" y="300" width="260" height="1400" fill="url(#glint)" transform="rotate(0)" />
+            </g>
+          </svg>
+          <div class="slam"><span class="display">Holding</span></div>
+        </div>
+      </section>
+      <section id="s3d" class="clip s3" data-start="6.25" data-duration="0.75" data-track-index="1">
+        <div class="scn">
+          <svg id="eye2" class="art" viewBox="-400 -300 800 500" style="width: 1400px; height: 875px">
+            <use href="#eye" x="-400" y="-300" width="800" height="500" />
+          </svg>
+          <div class="slam"><span class="display">Back</span></div>
+        </div>
+      </section>
+
+      <!-- S4 · 7–10s · manga panels -->
+      <section id="s4" class="clip" data-start="7" data-duration="3" data-track-index="1">
+        <div class="scn">
+          <div id="p1" class="panel">
+            <div class="fill"></div>
+            <svg id="p1-eye" viewBox="-400 -300 800 500"><use href="#eye" x="-400" y="-300" width="800" height="500" /></svg>
+            <div class="tone"></div>
+          </div>
+          <div id="p2" class="panel">
+            <div class="fill"></div>
+            <div id="p2-aura"></div>
+            <svg id="p2-man" viewBox="0 0 400 820"><use href="#man" /></svg>
+            <div class="tone"></div>
+          </div>
+          <div id="p3" class="panel">
+            <div class="fill"></div>
+            <div id="p3-text">
+              <div id="p3-kanji" class="kanji">突破</div>
+              <div id="p3-en" class="mono">Beyond the limit</div>
+            </div>
+            <div class="tone"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S5 · 10–12s · the drop -->
+      <section id="s5" class="clip" data-start="10" data-duration="2" data-track-index="1">
+        <div class="scn">
+          <div class="ring" id="ring1"></div>
+          <div class="ring" id="ring2"></div>
+          <div class="ring" id="ring3"></div>
+          <div class="glitch" id="glitch">
+            <div class="layer c display" id="gc" data-layout-allow-overlap data-layout-allow-occlusion><div data-layout-allow-overlap data-layout-allow-occlusion>Limit</div><div data-layout-allow-overlap data-layout-allow-occlusion>Break</div></div>
+            <div class="layer m display" id="gm" data-layout-allow-overlap data-layout-allow-occlusion><div data-layout-allow-overlap data-layout-allow-occlusion>Limit</div><div data-layout-allow-overlap data-layout-allow-occlusion>Break</div></div>
+            <div class="layer w display" id="gw" data-layout-allow-overlap data-layout-allow-occlusion><div data-layout-allow-overlap data-layout-allow-occlusion>Limit</div><div data-layout-allow-overlap data-layout-allow-occlusion>Break</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S6 · 12–17s · the slash -->
+      <section id="s6" class="clip" data-start="12" data-duration="5" data-track-index="1">
+        <div class="scn">
+          <div id="s6-kanji" class="kanji" data-layout-allow-overlap data-layout-allow-occlusion><div data-layout-allow-overlap data-layout-allow-occlusion>限界</div><div data-layout-allow-overlap data-layout-allow-occlusion>突破</div></div>
+          <div id="s6-aura"></div>
+          <svg id="s6-man" viewBox="0 0 400 820"><use href="#man" /></svg>
+          <svg id="slashes" data-layout-allow-overflow viewBox="0 0 1080 1920" width="1080" height="1920">
+            <path id="slash1" d="M -120 1560 Q 520 760 1200 260" stroke="#fff" stroke-width="30" fill="none" stroke-linecap="round" />
+            <path id="slash2" d="M 1200 1480 Q 480 1180 -120 480" stroke="#fff" stroke-width="22" fill="none" stroke-linecap="round" />
+          </svg>
+          <div id="sparks" class="full"></div>
+        </div>
+      </section>
+
+      <!-- S7 · 17–20s · end card -->
+      <section id="s7" class="clip" data-start="17" data-duration="3" data-track-index="1">
+        <div class="scn">
+          <div id="s7-title" data-layout-allow-occlusion class="display">Limit Break</div>
+          <div id="s7-rule"></div>
+          <div id="s7-ep" data-layout-allow-occlusion class="mono">— Episode 01 —</div>
+          <div id="s7-jp" data-layout-allow-occlusion class="kanji">第一話</div>
+        </div>
+      </section>
+
+      <!-- Global FX (untimed, driven by the timeline) -->
+      <div id="rain" class="full"></div>
+      <svg id="speed" class="full" viewBox="0 0 1080 1920" width="1080" height="1920"></svg>
+      <div id="scan" class="full"></div>
+      <div id="grain" class="full"></div>
+      <div id="vignette" class="full"></div>
+      <div id="flash" class="full"></div>
+      <div id="fade" class="full"></div>
+
+      <audio id="bgm" src="assets/bgm.m4a" data-start="0" data-duration="20" data-track-index="9" data-volume="1"></audio>
+    </div>
+
+    <script>
+      (function () {
+        const SVGNS = "http://www.w3.org/2000/svg";
+        // Seeded PRNG — deterministic art + motion.
+        function mulberry32(a) {
+          return function () {
+            a |= 0;
+            a = (a + 0x6d2b79f5) | 0;
+            let t = Math.imul(a ^ (a >>> 15), 1 | a);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        }
+        const rnd = mulberry32(20260924);
+        const R = (a, b) => a + (b - a) * rnd();
+        const el = (tag, attrs, parent) => {
+          const n = document.createElementNS(SVGNS, tag);
+          for (const k in attrs) n.setAttribute(k, attrs[k]);
+          if (parent) parent.appendChild(n);
+          return n;
+        };
+
+        // ---------- build art ----------
+        // Skyline: far + near layers, neon windows, moon.
+        const far = document.getElementById("city-far");
+        const near = document.getElementById("city-near");
+        const moonG = el("radialGradient", { id: "moonGrad" }, el("defs", {}, far));
+        el("stop", { offset: "0", "stop-color": "#ffe3f6" }, moonG);
+        el("stop", { offset: "0.6", "stop-color": "#ff5fc8" }, moonG);
+        el("stop", { offset: "1", "stop-color": "#ff2fb4", "stop-opacity": "0" }, moonG);
+        el("circle", { cx: 700, cy: 560, r: 330, fill: "url(#moonGrad)", opacity: 0.55 }, far);
+        el("circle", { cx: 700, cy: 560, r: 190, fill: "#ffd9f1" }, far);
+        const neon = ["#35f2ff", "#ff2fb4", "#ffd36b", "#8b5cff"];
+        function skyline(svg, fill, hMin, hMax, wMin, wMax, lit) {
+          let x = -30;
+          while (x < 1110) {
+            const w = R(wMin, wMax);
+            const h = R(hMin, hMax);
+            const top = 1920 - h;
+            el("rect", { x, y: top, width: w, height: h, fill }, svg);
+            if (rnd() < 0.35) el("rect", { x: x + w / 2 - 3, y: top - R(60, 160), width: 6, height: 160, fill }, svg);
+            for (let wy = top + 30; wy < 1900; wy += 34) {
+              for (let wx = x + 12; wx < x + w - 16; wx += 26) {
+                if (rnd() < lit) {
+                  el("rect", { x: wx, y: wy, width: 12, height: 16, fill: neon[Math.floor(rnd() * 4)], opacity: R(0.35, 0.95) }, svg);
+                }
+              }
+            }
+            if (rnd() < 0.3) {
+              const c = neon[Math.floor(rnd() * 3)];
+              el("rect", { x: x + 8, y: top + 60, width: 18, height: R(200, 380), fill: c, opacity: 0.9, style: "filter:drop-shadow(0 0 14px " + c + ")" }, svg);
+            }
+            x += w + R(4, 14);
+          }
+        }
+        skyline(far, "#150a30", 900, 1450, 90, 170, 0.12);
+        skyline(near, "#06020f", 450, 900, 110, 210, 0.2);
+
+        // Katana hilt close-up.
+        const hilt = document.getElementById("hilt");
+        el("rect", { x: 170, y: -40, width: 60, height: 420, fill: "url(#bladeGrad)" }, hilt);
+        el("line", { x1: 200, y1: -40, x2: 200, y2: 380, stroke: "#fff", "stroke-width": 2, opacity: 0.7 }, hilt);
+        el("rect", { x: 160, y: 370, width: 80, height: 34, fill: "#c9a24a" }, hilt);
+        el("ellipse", { cx: 200, cy: 420, rx: 160, ry: 42, fill: "#1a1026", stroke: "#c9a24a", "stroke-width": 8 }, hilt);
+        el("rect", { x: 162, y: 450, width: 76, height: 400, rx: 10, fill: "#120a1c" }, hilt);
+        for (let i = 0; i < 9; i++) {
+          const y = 480 + i * 42;
+          el("polygon", { points: `200,${y - 22} 232,${y} 200,${y + 22} 168,${y}`, fill: "#8b5cff", opacity: 0.9 }, hilt);
+        }
+        el("ellipse", { cx: 200, cy: 858, rx: 46, ry: 18, fill: "#c9a24a" }, hilt);
+
+        // Rain streaks.
+        const rain = document.getElementById("rain");
+        const drops = [];
+        for (let i = 0; i < 80; i++) {
+          const d = document.createElement("div");
+          d.className = "drop";
+          d.style.left = R(0, 1080).toFixed(1) + "px";
+          d.style.height = R(90, 200).toFixed(0) + "px";
+          d.style.opacity = R(0.25, 0.8).toFixed(2);
+          rain.appendChild(d);
+          drops.push({ node: d, off: R(0, 2300), speed: R(2600, 4200) });
+        }
+
+        // Radial manga speed lines.
+        const speed = document.getElementById("speed");
+        const cx = 540,
+          cy = 960;
+        for (let i = 0; i < 90; i++) {
+          const a = (i / 90) * Math.PI * 2 + R(-0.02, 0.02);
+          const spread = R(0.004, 0.014);
+          const r0 = R(330, 560),
+            r1 = 1500;
+          const p = (ang, r) => `${cx + Math.cos(ang) * r},${cy + Math.sin(ang) * r}`;
+          el("polygon", { points: `${p(a, r0)} ${p(a - spread, r1)} ${p(a + spread, r1)}`, fill: i % 3 ? "#fff" : "#cdbcff", opacity: R(0.35, 0.9) }, speed);
+        }
+
+        // Sparks for the slashes.
+        const sparks = document.getElementById("sparks");
+        const sparkData = [];
+        for (let i = 0; i < 56; i++) {
+          const s = document.createElement("div");
+          s.className = "spark";
+          sparks.appendChild(s);
+          sparkData.push({ node: s, ang: R(0, 360), dist: R(160, 520), wave: i < 28 ? 0 : 1, u: R(0.15, 0.85) });
+        }
+
+        // ---------- timeline ----------
+        const tl = gsap.timeline({ paused: true });
+        const BEAT = 0.5;
+
+        // Background grade shifts
+        tl.to("#bgHot", { opacity: 0.55, duration: 0.15, ease: "none" }, 10);
+        tl.to("#bgHot", { opacity: 0.25, duration: 1.8, ease: "power2.out" }, 10.2);
+        tl.to("#bgHot", { opacity: 0, duration: 1.2, ease: "power1.inOut" }, 16.8);
+
+        // Rain: seek-safe wraparound via modifiers.
+        drops.forEach((d) => {
+          tl.to(
+            d.node,
+            {
+              y: d.speed * 20,
+              duration: 20,
+              ease: "none",
+              modifiers: { y: (v) => (((parseFloat(v) + d.off) % 2300) - 100).toFixed(1) + "px" },
+            },
+            0
+          );
+        });
+
+        // Film grain jitter @12fps (stepped sets).
+        for (let f = 0, t = 0; t < 20; f++, t = f / 12) {
+          tl.set("#grain", { backgroundPosition: `${Math.floor(R(0, 300))}px ${Math.floor(R(0, 300))}px` }, t);
+        }
+
+        // Helpers
+        function flash(t, peak = 0.95, dur = 0.28) {
+          tl.fromTo("#flash", { opacity: peak }, { opacity: 0, duration: dur, ease: "power2.out", immediateRender: false }, t);
+        }
+        function shake(t, amp = 26, steps = 7) {
+          for (let i = 0; i < steps; i++) {
+            const k = 1 - i / steps;
+            tl.to(".scn", { x: R(-amp, amp) * k, y: R(-amp, amp) * k, duration: 0.035, ease: "none" }, t + i * 0.035);
+          }
+          tl.to(".scn", { x: 0, y: 0, duration: 0.05, ease: "power1.out" }, t + steps * 0.035);
+        }
+        function speedBurst(t, hold = 0.45, peak = 0.85) {
+          tl.fromTo("#speed", { opacity: peak, scale: 1.25, rotation: 0 }, { opacity: 0, scale: 1, rotation: 4, duration: hold, ease: "power2.out", immediateRender: false, transformOrigin: "50% 50%" }, t);
+        }
+
+        // S1 — awakening
+        tl.fromTo("#s1-kanji", { opacity: 0, scale: 1.35, filter: "blur(24px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 1.2, ease: "power3.out" }, 0.1);
+        tl.fromTo("#s1-sub", { opacity: 0, scaleX: 1.6 }, { opacity: 1, scaleX: 1, duration: 1.1, ease: "power2.out" }, 0.5);
+        tl.to("#s1-kanji", { scale: 1.08, duration: 0.7, ease: "power1.in" }, 1.3);
+        tl.to("#s1 .scn", { opacity: 0, duration: 0.12, ease: "none" }, 1.88);
+
+        // S2 — city
+        flash(2.0);
+        speedBurst(2.0, 0.6);
+        shake(2.0, 30);
+        tl.fromTo("#city-far", { scale: 1.02, transformOrigin: "50% 100%" }, { scale: 1.1, duration: 2, ease: "none" }, 2);
+        tl.fromTo("#city-near", { scale: 1.0, y: 80, transformOrigin: "50% 100%" }, { scale: 1.28, y: 0, duration: 2, ease: "power1.in" }, 2);
+        tl.fromTo("#s2-tag", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, 2.3);
+        tl.to("#s2-tag", { opacity: 0.25, duration: 0.05, repeat: 3, yoyo: true, ease: "none" }, 3.3);
+
+        // S3 — rapid cuts on the beat-and-a-half
+        ["#s3a", "#s3b", "#s3c", "#s3d"].forEach((id, i) => {
+          const t = 4 + i * 0.75;
+          flash(t, 1, 0.2);
+          shake(t, 34);
+          tl.fromTo(`${id} .slam span`, { scale: 2.6, skewX: -10, opacity: 0 }, { scale: 1, skewX: -10, opacity: 1, duration: 0.14, ease: "expo.out" }, t + 0.02);
+          tl.to(`${id} .slam span`, { scale: 1.08, duration: 0.55, ease: "none" }, t + 0.16);
+        });
+        tl.fromTo("#s3a .art", { scale: 1.25 }, { scale: 1.45, duration: 0.75, ease: "none" }, 4);
+        tl.fromTo("#hilt", { y: 120, rotation: -6 }, { y: -40, rotation: 2, duration: 0.75, ease: "power1.out" }, 4.75);
+        tl.fromTo("#glintBar", { attr: { x: -400 } }, { attr: { x: 1300 }, duration: 0.5, ease: "power2.inOut" }, 5.55);
+        tl.fromTo("#blade", { scale: 1.1, rotation: -3, transformOrigin: "50% 50%" }, { scale: 1.25, rotation: 1, duration: 0.75, ease: "none" }, 5.5);
+        tl.fromTo("#eye2", { scale: 1.6, filter: "hue-rotate(0deg) saturate(1)" }, { scale: 1.9, filter: "hue-rotate(45deg) saturate(1.6)", duration: 0.75, ease: "power1.in" }, 6.25);
+
+        // S4 — manga panels slam in
+        flash(7.0, 0.9, 0.25);
+        tl.fromTo("#p1", { x: -1100 }, { x: 0, duration: 0.28, ease: "expo.out" }, 7.0);
+        tl.fromTo("#p2", { x: 1100 }, { x: 0, duration: 0.28, ease: "expo.out" }, 7.5);
+        tl.fromTo("#p3", { x: -1100 }, { x: 0, duration: 0.28, ease: "expo.out" }, 8.0);
+        shake(7.0, 18);
+        shake(7.5, 18);
+        shake(8.0, 18);
+        tl.fromTo("#p1-eye", { scale: 1, filter: "hue-rotate(45deg) saturate(1.6)" }, { scale: 1.12, filter: "hue-rotate(45deg) saturate(1.6)", duration: 3, ease: "none" }, 7);
+        tl.fromTo("#p2-aura", { scale: 0.6, opacity: 0.4 }, { scale: 1.35, opacity: 1, duration: 2.5, ease: "power2.in" }, 7.5);
+        tl.fromTo("#p2-man", { y: 40 }, { y: 0, duration: 2.5, ease: "power1.out" }, 7.5);
+        tl.fromTo("#p3-kanji", { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.25, ease: "expo.out" }, 8.1);
+        tl.fromTo("#p3-en", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 8.4);
+        // Build tension: accelerating micro-shakes + zoom
+        tl.fromTo("#s4 .scn", { scale: 1 }, { scale: 1.06, duration: 1.4, ease: "power2.in" }, 8.6);
+        [9.0, 9.25, 9.5, 9.625, 9.75, 9.875].forEach((t, i) => shake(t, 8 + i * 4, 3));
+        flash(9.9, 0.6, 0.1);
+
+        // S5 — the drop
+        tl.fromTo("#flash", { opacity: 1 }, { opacity: 0, duration: 0.5, ease: "power3.out", immediateRender: false }, 10.0);
+        speedBurst(10.0, 1.4, 1);
+        shake(10.0, 60, 12);
+        ["#ring1", "#ring2", "#ring3"].forEach((r, i) => {
+          tl.fromTo(r, { scale: 0.1, opacity: 1 }, { scale: 2.6, opacity: 0, duration: 0.9, ease: "expo.out" }, 10.0 + i * 0.18);
+        });
+        tl.fromTo("#glitch", { scale: 2.4 }, { scale: 1, duration: 0.25, ease: "expo.out" }, 10.02);
+        tl.to("#glitch", { scale: 1.1, duration: 1.7, ease: "none" }, 10.27);
+        // RGB-split glitch: stepped offsets
+        const gT = [10.0, 10.08, 10.16, 10.3, 10.5, 10.62, 10.9, 11.0, 11.3, 11.42, 11.5, 11.7];
+        gT.forEach((t, i) => {
+          const big = i < 4 || i % 3 === 0;
+          const a = big ? 34 : 10;
+          tl.set("#gc", { x: R(-a, a), y: R(-a / 2, a / 2) }, t);
+          tl.set("#gm", { x: R(-a, a), y: R(-a / 2, a / 2) }, t);
+          tl.set("#gw", { x: big ? R(-12, 12) : 0, skewX: big ? R(-12, 12) : 0 }, t);
+        });
+        tl.set(["#gc", "#gm", "#gw"], { x: 0, y: 0, skewX: 0 }, 11.8);
+        // beat hits during the drop
+        [10.5, 11.0, 11.5].forEach((t) => {
+          flash(t, 0.35, 0.15);
+          shake(t, 20, 4);
+        });
+
+        // S6 — slash
+        flash(12.0, 0.8, 0.3);
+        tl.fromTo("#s6 .scn", { rotation: -3, scale: 1.08 }, { rotation: 3, scale: 1, duration: 5, ease: "none" }, 12);
+        tl.fromTo("#s6-kanji", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 1, ease: "power2.out" }, 12.1);
+        tl.fromTo("#s6-aura", { scale: 1.18 }, { scale: 0.96, duration: BEAT, repeat: 9, ease: "power2.out" }, 12);
+        tl.fromTo("#s6-man", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 12.0);
+        ["#slash1", "#slash2"].forEach((id, w) => {
+          const path = document.querySelector(id);
+          const len = path.getTotalLength();
+          const t = w === 0 ? 12.5 : 14.0;
+          tl.fromTo(path, { strokeDasharray: len, strokeDashoffset: len, opacity: 1 }, { strokeDashoffset: 0, duration: 0.18, ease: "power4.out" }, t);
+          tl.to(path, { opacity: 0, duration: 1.2, ease: "power2.in" }, t + 0.5);
+          flash(t + 0.05, 0.85, 0.3);
+          shake(t + 0.05, 44, 9);
+          speedBurst(t + 0.05, 0.5, 0.6);
+          sparkData
+            .filter((s) => s.wave === w)
+            .forEach((s) => {
+              const pt = path.getPointAtLength(len * s.u);
+              const rad = (s.ang * Math.PI) / 180;
+              tl.fromTo(
+                s.node,
+                { x: pt.x, y: pt.y, rotation: s.ang, opacity: 1, scaleX: 1.6 },
+                { x: pt.x + Math.cos(rad) * s.dist, y: pt.y + Math.sin(rad) * s.dist + 120, opacity: 0, scaleX: 0.3, duration: 0.9, ease: "power3.out", immediateRender: false },
+                t + 0.05
+              );
+            });
+        });
+        [15.0, 15.5, 16.0, 16.25, 16.5].forEach((t) => shake(t, 12, 3));
+        flash(16.5, 0.9, 0.4);
+        tl.to("#s6 .scn", { opacity: 0, duration: 0.15, ease: "none" }, 16.85);
+
+        // S7 — end card
+        flash(17.0, 0.7, 0.5);
+        tl.fromTo("#s7-title", { opacity: 0, scale: 1.3, scaleX: 1.5 }, { opacity: 1, scale: 1, scaleX: 1, duration: 0.9, ease: "expo.out" }, 17.05);
+        tl.fromTo("#s7-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power3.inOut" }, 17.4);
+        tl.fromTo("#s7-ep", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 17.7);
+        tl.fromTo("#s7-jp", { opacity: 0 }, { opacity: 1, duration: 0.8 }, 18.0);
+        tl.to("#s7-title", { textShadow: "0 0 80px #ff2fb4, 5px 0 0 rgba(255,47,180,0.8), -5px 0 0 rgba(53,242,255,0.8)", duration: 0.5, repeat: 2, yoyo: true, ease: "sine.inOut" }, 18.0);
+        tl.to("#fade", { opacity: 1, duration: 0.6, ease: "power1.in" }, 19.4);
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>

@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-24_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -21,6 +21,7 @@ _Last updated: 2026-09-21_
 
 - [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
 - [x] Register `council` in the marketplace manifest
+- [x] Build `videos/limit-break` HyperFrames anime edit (20s, 9:16, rendered + verified)
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
