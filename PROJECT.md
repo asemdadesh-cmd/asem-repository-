@@ -24,10 +24,10 @@ _Last updated: 2026-09-24_
 - **Target users:** The repository owner (NHT Estates) and any collaborator who
   runs Claude Code in this repo. End beneficiaries are the clients whose
   websites/landing pages get built through the skill.
-- **Apps in this repo:** `dessert-shop/` — **دفتر الصواني**, a mobile-first Arabic
-  (RTL) web app that tracks how many trays (صواني) each customer of a dessert shop
-  owes, what they're worth, and reminds the owner (weekly push + WhatsApp). Live on Vercel; full details in the *Dessert Shop Ledger* sections below and
-  in `dessert-shop/README.md`.
+- **Related apps (own repositories):** the dessert-shop tray ledger (**دفتر الصواني**)
+  lives in `asemdadesh-cmd/dessert-shop-ledger` (live: https://dessert-ledger.vercel.app).
+  It was briefly developed in `dessert-shop/` here and moved out on 2026-09-24; its
+  docs (PROJECT/TASKS/DECISIONS) now live in that repo.
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
   documentation (this file + TASKS.md + DECISIONS.md) being established now.
@@ -64,7 +64,6 @@ _Last updated: 2026-09-24_
   │               └── reference/
   │                   ├── checklist.md    # final pass/fail approval checklist
   │                   └── rewrite-guide.md # copywriting & conversion patterns
-  ├── dessert-shop/                   # Next.js app: dessert-shop tray ledger (see README inside)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -104,37 +103,13 @@ _Last updated: 2026-09-24_
 
 ## Database
 
-- **Plugins:** none.
-- **Dessert Shop Ledger** — Supabase Postgres 17, project `dessert-shop-ledger`
-  (ref `mthfvepxgrbqujqrafdy`, eu-west-2). Schema: `dessert-shop/db/schema.sql`
-  (idempotent); Supabase lockdown: `dessert-shop/db/supabase-hardening.sql`.
-  - `customers(id, name, phone, created_at)`
-  - `products(id, name unique ci, created_at)` — seeded with «بسبوسة»
-  - `transactions(id, customer_id → customers ON DELETE CASCADE, product_id →
-    products ON DELETE RESTRICT, kind take|return, quantity 1–1000, note ≤200,
-    occurred_at, created_at)`; indexes on (customer_id, occurred_at desc), product_id
-  - `login_attempts(ip, created_at)` — login throttle
-  - v2: `products.price_cents`, `transactions.unit_price_cents` (money in minor units;
-    price snapshotted per take), `settings` (single row: shop name, currency, country
-    code, overdue days, reminder weekday/enabled, last weekly send), `push_subscriptions`,
-    `reminder_log`, and view `take_outstanding` (security_invoker) that values
-    outstanding trays FIFO and gives the age of the oldest unreturned tray.
-  - Balance is **derived**: `SUM(take) − SUM(return)` per customer/product. Every
-    write runs in a transaction that locks the customer row and rejects any
-    change leaving a negative balance.
-  - Access: RLS on all tables, no anon/authenticated grants; app connects as
-    role `shop_app` via the Supavisor pooler in **session mode (port 5432)** —
-    transaction mode (6543) hangs when postgres.js pipelines parallel queries.
+- **Not applicable** for the plugins. (App databases are documented in each app's own repo.)
 
 ---
 
 ## APIs
 
-- **Dessert Shop Ledger:** no public API. Mutations are Next.js Server Actions
-  (`src/app/actions.ts`), each calling `requireAuth()`. `GET /api/health` →
-  `{ok:true}` when the DB is reachable (503 otherwise). `GET /api/cron/weekly` —
-  Vercel Cron (daily 07:00 UTC, `Authorization: Bearer CRON_SECRET`); sends the Web
-  Push weekly summary on the configured weekday, once per day.
+- **Not applicable.** No API is defined or served by this repository.
 - Endpoints / Authentication / Request & response examples / Error codes:
   _none yet._
 
@@ -142,9 +117,7 @@ _Last updated: 2026-09-24_
 
 ## Authentication & Permissions
 
-- **Application-level auth:** Dessert Shop Ledger uses a single owner password
-  (`APP_PASSWORD`) → HMAC-signed httpOnly cookie valid 90 days; changing the
-  password invalidates all sessions; 10 failed logins / 15 min / IP locks out.
+- **Application-level auth:** _none_ (no app in this repo).
 - **Repository access:** GitHub repo `asemdadesh-cmd/asem-repository-`.
   Development happens on branch `claude/agency-review-framework-3a8hk8`.
 - User roles / permission matrix / security model: _defined per website when one
@@ -154,10 +127,7 @@ _Last updated: 2026-09-24_
 
 ## Environment
 
-- **Required environment variables:** plugins — none. Dessert Shop Ledger
-  (set in Vercel): `DATABASE_URL`, `APP_PASSWORD`, `SESSION_SECRET`,
-  `APP_TIMEZONE`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`,
-  `CRON_SECRET` (see `dessert-shop/.env.example`).
+- **Required environment variables:** _none._
 - **Third-party services:** GitHub (hosting/version control); Claude Code (the
   agent that consumes the skill).
 - **Setup instructions:**
@@ -175,13 +145,6 @@ _Last updated: 2026-09-24_
 - **Deployment steps:** Commit and push to the working branch
   (`git push -u origin claude/agency-review-framework-3a8hk8`). The skill is
   "deployed" simply by being present in `.claude/skills/`.
-- **Dessert Shop Ledger:** Vercel project `dessert-shop-ledger` (team
-  asemdadesh-5431s-projects), Root Directory `dessert-shop`, region `lhr1`,
-  URL https://dessert-shop-ledger.vercel.app (pooler host: aws-0-eu-west-2, port 5432 — aws-1 returns "tenant not found"). Vercel SSO protection applies to
-  previews only; production relies on the app password. `vercel.json`'s
-  `ignoreCommand` skips builds when `dessert-shop/` is unchanged. Note: the
-  repo's default branch is `claude/agency-review-framework-3a8hk8`, so
-  production deploys of the app branch are triggered explicitly until merged.
 - **Hosting configuration:** _N/A for the plugins._ Websites built with the skill
   are hosted per-project (documented in this file when that happens).
 
@@ -212,6 +175,12 @@ _Last updated: 2026-09-24_
 ---
 
 ## Changelog
+
+- **2026-09-24** — Moved the dessert-shop app out of this repo into its own repository
+  `asemdadesh-cmd/dessert-shop-ledger` (history preserved) with its own Vercel project.
+  Retired the old Vercel project (now only redirects the old URL, ignores all builds) and set
+  `cardiff-spa-bookings` to build only its own branch, so projects sharing this repo no
+  longer fail each other's commits.
 
 - **2026-09-24** — Dessert shop **v2**: prices per tray (snapshotted per take, FIFO
   valuation), reminders (banner on take, Reminders screen with one-tap WhatsApp

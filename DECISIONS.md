@@ -8,6 +8,17 @@ _Last updated: 2026-09-24_
 
 ---
 
+### 2026-09-24 — One app per repository; Vercel projects build only their own code
+**Decision:** Apps live in their own repositories (dessert-shop → `dessert-shop-ledger`).
+Vercel projects still connected to this repo must skip builds that aren't theirs
+(`cardiff-spa-bookings` Ignored Build Step allows only its branch).
+**Why:** Every Vercel project connected to a repo builds every push to it; with apps in
+different folders/branches, each app's commits produced failing deployments for the others.
+The owner asked for separate repos from the start; the first attempt hit a GitHub
+integration 403 and fell back to a folder — that fallback was the wrong call.
+
+---
+
 ### 2026-09-24 — Supabase pooler: session mode (5432), not transaction mode (6543)
 **Decision:** Connect through Supavisor on port 5432 (session mode).
 **Why:** v2 pages run several queries in parallel; postgres.js pipelines them on a
