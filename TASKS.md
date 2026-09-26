@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-26_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -21,8 +21,13 @@ _Last updated: 2026-09-21_
 
 - [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
 - [x] Register `council` in the marketplace manifest
+- [x] Add `hyperframes-student-kit` as a submodule + install npm deps & FFmpeg
+- [x] Confirm HeyGen HyperFrames MCP connection (read tools)
 
 ## 🔄 In Progress
+- [ ] Run `npm run setup` + `npm test` in `hyperframes-student-kit/` and render
+      the demo (`npm run demo`)
+- [ ] First real edit: `/edit-video` on the owner's footage
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 

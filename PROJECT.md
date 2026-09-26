@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-26_
 
 ---
 
@@ -60,6 +60,8 @@ _Last updated: 2026-09-21_
   │               └── reference/
   │                   ├── checklist.md    # final pass/fail approval checklist
   │                   └── rewrite-guide.md # copywriting & conversion patterns
+  ├── hyperframes-student-kit/        # git submodule → nateherkai/hyperframes-student-kit
+  │                                   #   (video-editing kit: /edit-video, /short-form-edit, …)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -84,8 +86,14 @@ _Last updated: 2026-09-21_
   - `reference/rewrite-guide.md` — copywriting & conversion patterns.
   - README documenting purpose and usage.
   - Living documentation system (PROJECT.md / TASKS.md / DECISIONS.md).
+  - **Video editing workspace:** `hyperframes-student-kit/` (git submodule)
+    with 15 HyperFrames/GSAP editing skills (`/edit-video`,
+    `/short-form-edit`, `/cut-silences`, `/cut-mistakes`, `/motion-showreel`,
+    …), 406 motion-graphics cards and two scene templates. See the kit's own
+    `README.md` and `docs/WORKFLOW.md`.
 - **Features in progress**
   - Establishing auto-update discipline for the documentation files.
+  - Verifying the video kit end-to-end (`npm run setup`, `npm test`, demo render).
 - **Planned features**
   - Optional CLAUDE.md instruction (or hook) so docs update automatically on
     every meaningful change.
@@ -127,7 +135,21 @@ _Last updated: 2026-09-21_
 
 - **Required environment variables:** _none._
 - **Third-party services:** GitHub (hosting/version control); Claude Code (the
-  agent that consumes the skill).
+  agent that consumes the skill); **HeyGen HyperFrames** (MCP connector, used
+  read-only from Claude Code — see Known Issues); optional ElevenLabs Scribe /
+  OpenAI Whisper (transcription) and Kie.ai (generated assets) for the video kit.
+- **Video kit env vars:** set in `hyperframes-student-kit/.env` (created by
+  `npm run setup` from `.env.example`; gitignored). Only needed for the paid
+  services you choose, e.g. `ELEVENLABS_API_KEY`.
+- **Video kit setup** (needs Node 22+, Git, FFmpeg + ffprobe, Chrome/Chromium):
+  ```sh
+  git submodule update --init hyperframes-student-kit
+  cd hyperframes-student-kit
+  npm ci && npm run setup && npm test
+  npm run new-video -- my-video      # new project under video-projects/
+  ```
+  Then open Claude Code **inside `hyperframes-student-kit/`** (so its
+  `.claude/skills/` load) and run `/edit-video` on your footage.
 - **Setup instructions:**
   1. In Claude Code: `/plugin marketplace add asemdadesh-cmd/asem-repository-`
   2. `/plugin install agency-review@nht-skills`
@@ -153,6 +175,14 @@ _Last updated: 2026-09-21_
 - **Bugs:** None known.
 - **Technical debt:** Documentation currently updated manually; no automated
   enforcement that it stays in sync with changes.
+- **HyperFrames MCP from Claude Code:** HeyGen disables `compose` and
+  `render_video` for CLI/IDE agents; only the read tools (`list_projects`,
+  `get_project`, status) work. Editing from Claude Code therefore goes through
+  the kit's local skills + `npx hyperframes render`. Cloud compose/render works
+  from Claude.ai chat.
+- **Video kit size:** the submodule is ~394MB (bundled example footage). It is a
+  submodule, not vendored, so this repo stays small; clone with
+  `--recurse-submodules` only when you need it.
 - **Limitations:** None currently. `claude/agency-review-framework-3a8hk8` is
   the repository's **default branch** (the repo was empty when this branch was
   first pushed, so GitHub set it as default automatically — confirmed via
@@ -173,6 +203,12 @@ _Last updated: 2026-09-21_
 ---
 
 ## Changelog
+
+- **2026-09-26** — Added `hyperframes-student-kit/` as a **git submodule**
+  (upstream `nateherkai/hyperframes-student-kit` @ `ec112ff`) for HyperFrames
+  video editing. Installed its npm dependencies and FFmpeg in the cloud session.
+  Confirmed the HeyGen HyperFrames MCP connector is connected (2 existing
+  projects visible). `npm run setup` / `npm test` not yet run.
 
 - **2026-09-21** — Added the **`council` plugin**: a three-lens deliberation skill
   (Skeptic / Builder / Risk) for costly or hard-to-reverse decisions. Runs
