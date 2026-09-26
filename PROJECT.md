@@ -62,6 +62,8 @@ _Last updated: 2026-09-26_
   │                   └── rewrite-guide.md # copywriting & conversion patterns
   ├── hyperframes-student-kit/        # git submodule → nateherkai/hyperframes-student-kit
   │                                   #   (video-editing kit: /edit-video, /short-form-edit, …)
+  ├── videos/
+  │   └── bones-explainer/            # 59s HyperFrames explainer: source, VO, final MP4
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -91,6 +93,10 @@ _Last updated: 2026-09-26_
     `/short-form-edit`, `/cut-silences`, `/cut-mistakes`, `/motion-showreel`,
     …), 406 motion-graphics cards and two scene templates. See the kit's own
     `README.md` and `docs/WORKFLOW.md`.
+  - **`videos/bones-explainer/`** — 59 s 1080p motion-graphics explainer
+    ("How bones work and protect the body"): 6 scenes, local Kokoro TTS
+    voiceover (`bm_george`), synthesised music/SFX, burned-in captions,
+    −14 LUFS. Rebuild steps in its README.
 - **Features in progress**
   - Establishing auto-update discipline for the documentation files.
   - Verifying the video kit end-to-end (`npm run setup`, `npm test`, demo render).
@@ -180,6 +186,11 @@ _Last updated: 2026-09-26_
   `get_project`, status) work. Editing from Claude Code therefore goes through
   the kit's local skills + `npx hyperframes render`. Cloud compose/render works
   from Claude.ai chat.
+- **TTS in the cloud container:** `npx hyperframes tts` needs Python
+  `kokoro-onnx` + `soundfile`; installed into `/root/.venvs/hf-tts` and passed
+  via `HYPERFRAMES_PYTHON`. Container is ephemeral — reinstall per session.
+- **Network policy:** Google Drive / Dropbox downloads are blocked in this
+  cloud environment (403); allowlist the domains to pull footage.
 - **Video kit size:** the submodule is ~394MB (bundled example footage). It is a
   submodule, not vendored, so this repo stays small; clone with
   `--recurse-submodules` only when you need it.
@@ -203,6 +214,11 @@ _Last updated: 2026-09-26_
 ---
 
 ## Changelog
+
+- **2026-09-26** — Produced **`videos/bones-explainer/`**, a 59 s explainer on
+  how bones work and protect the body, built with HyperFrames + GSAP in the
+  kit (local Kokoro TTS, FFmpeg-synthesised pad/SFX, captions). Draft + final
+  rendered, frames/transitions reviewed, loudness normalised to −14 LUFS.
 
 - **2026-09-26** — Added `hyperframes-student-kit/` as a **git submodule**
   (upstream `nateherkai/hyperframes-student-kit` @ `ec112ff`) for HyperFrames

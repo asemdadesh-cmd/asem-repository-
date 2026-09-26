@@ -1,0 +1,141 @@
+{
+  "total": 58.86,
+  "scenes": [
+    {
+      "id": 1,
+      "start": 0,
+      "end": 8.03
+    },
+    {
+      "id": 2,
+      "start": 8.03,
+      "end": 22.7
+    },
+    {
+      "id": 3,
+      "start": 22.7,
+      "end": 30.73
+    },
+    {
+      "id": 4,
+      "start": 30.73,
+      "end": 44.91
+    },
+    {
+      "id": 5,
+      "start": 44.91,
+      "end": 50.83
+    },
+    {
+      "id": 6,
+      "start": 50.83,
+      "end": 58.86
+    }
+  ],
+  "lines": [
+    {
+      "scene": 1,
+      "n": "01",
+      "text": "Right now, two hundred and six bones are holding you together.",
+      "file": "assets/vo/l01.wav",
+      "start": 0.7,
+      "dur": 3.627
+    },
+    {
+      "scene": 1,
+      "n": "02",
+      "text": "And most of the time, you never even notice them.",
+      "file": "assets/vo/l02.wav",
+      "start": 4.627,
+      "dur": 3.051
+    },
+    {
+      "scene": 2,
+      "n": "03",
+      "text": "But bones aren't dry, dead sticks. They're living tissue.",
+      "file": "assets/vo/l03.wav",
+      "start": 8.478,
+      "dur": 3.541
+    },
+    {
+      "scene": 2,
+      "n": "04",
+      "text": "A hard outer shell of compact bone. A light honeycomb of spongy bone inside.",
+      "file": "assets/vo/l04.wav",
+      "start": 12.319,
+      "dur": 5.376
+    },
+    {
+      "scene": 2,
+      "n": "05",
+      "text": "And at the core, marrow, making billions of new blood cells every day.",
+      "file": "assets/vo/l05.wav",
+      "start": 17.995,
+      "dur": 4.352
+    },
+    {
+      "scene": 3,
+      "n": "06",
+      "text": "That design makes bone light, but incredibly tough. It takes several times your body weight with every running stride.",
+      "file": "assets/vo/l06.wav",
+      "start": 23.147,
+      "dur": 7.232
+    },
+    {
+      "scene": 4,
+      "n": "07",
+      "text": "Bones are also your built-in armour.",
+      "file": "assets/vo/l07.wav",
+      "start": 31.179,
+      "dur": 2.453
+    },
+    {
+      "scene": 4,
+      "n": "08",
+      "text": "Your skull encases your brain.",
+      "file": "assets/vo/l08.wav",
+      "start": 33.932,
+      "dur": 2.496
+    },
+    {
+      "scene": 4,
+      "n": "09",
+      "text": "Your ribcage shields your heart and lungs.",
+      "file": "assets/vo/l09.wav",
+      "start": 36.728,
+      "dur": 2.795
+    },
+    {
+      "scene": 4,
+      "n": "10",
+      "text": "And your spine guards the spinal cord, your body's main information highway.",
+      "file": "assets/vo/l10.wav",
+      "start": 39.823,
+      "dur": 4.736
+    },
+    {
+      "scene": 5,
+      "n": "11",
+      "text": "Even when a bone breaks, it rebuilds itself, bridging the gap with brand new bone.",
+      "file": "assets/vo/l11.wav",
+      "start": 45.359,
+      "dur": 5.12
+    },
+    {
+      "scene": 6,
+      "n": "12",
+      "text": "Strong. Light. Alive.",
+      "file": "assets/vo/l12.wav",
+      "start": 51.279,
+      "dur": 1.899
+    },
+    {
+      "scene": 6,
+      "n": "13",
+      "text": "Your skeleton. Protecting you, every single day.",
+      "file": "assets/vo/l13.wav",
+      "start": 53.478,
+      "dur": 3.179
+    }
+  ]
+}

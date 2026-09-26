@@ -1,0 +1,5 @@
+assets/music.wav
+assets/sfx.wav
+renders/*
+!renders/bones-explainer-final.mp4
+.hyperframes/

@@ -8,6 +8,19 @@ _Last updated: 2026-09-26_
 
 ---
 
+### 2026-09-26 — Local TTS + synthesised audio for the bones explainer
+**Decision:** Voice the explainer with the kit's local Kokoro-82M TTS
+(`bm_george`, British) and synthesise the music bed and SFX with FFmpeg rather
+than using ElevenLabs / stock music.
+**Why:** No API keys or paid services configured; HeyGen cloud `compose` is
+disabled from Claude Code; outbound hosts for stock audio are blocked. Local
+TTS is free, deterministic and re-generable line by line, which let scene and
+caption timing be derived exactly from per-line audio durations.
+**Trade-off:** Kokoro is less expressive than ElevenLabs; swapping the voice
+later only requires regenerating `assets/vo/` and re-running `build-audio.mjs`.
+
+---
+
 ### 2026-09-26 — Video kit as a git submodule, edited locally
 **Decision:** Bring in `nateherkai/hyperframes-student-kit` as a git submodule
 at `hyperframes-student-kit/` rather than copying its files into this repo, and

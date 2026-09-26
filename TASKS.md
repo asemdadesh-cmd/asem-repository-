@@ -23,11 +23,11 @@ _Last updated: 2026-09-26_
 - [x] Register `council` in the marketplace manifest
 - [x] Add `hyperframes-student-kit` as a submodule + install npm deps & FFmpeg
 - [x] Confirm HeyGen HyperFrames MCP connection (read tools)
+- [x] Produce `videos/bones-explainer` (59 s explainer, VO, captions, SFX)
 
 ## 🔄 In Progress
-- [ ] Run `npm run setup` + `npm test` in `hyperframes-student-kit/` and render
-      the demo (`npm run demo`)
-- [ ] First real edit: `/edit-video` on the owner's footage
+- [ ] Run `npm run setup` + `npm test` in `hyperframes-student-kit/`
+- [ ] Owner feedback on bones explainer (voice, pacing, style) → revise
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
@@ -35,6 +35,8 @@ _Last updated: 2026-09-26_
 - [ ] Dogfood `council` on one real decision and tune the round word limits
 
 ## 💤 Backlog
+- [ ] `/edit-video` on owner footage (`VID-20260115-WA0001.mp4`, Drive) —
+      parked by owner; needs Drive domains allowlisted
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
 - [ ] Create a `website-scaffold` skill for consistent starter structure
 - [ ] Add per-website deployment notes once a real site is built
