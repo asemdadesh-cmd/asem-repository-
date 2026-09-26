@@ -4,7 +4,36 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-09-26_
+
+---
+
+### 2026-09-26 — Local TTS + synthesised audio for the bones explainer
+**Decision:** Voice the explainer with the kit's local Kokoro-82M TTS
+(`bm_george`, British) and synthesise the music bed and SFX with FFmpeg rather
+than using ElevenLabs / stock music.
+**Why:** No API keys or paid services configured; HeyGen cloud `compose` is
+disabled from Claude Code; outbound hosts for stock audio are blocked. Local
+TTS is free, deterministic and re-generable line by line, which let scene and
+caption timing be derived exactly from per-line audio durations.
+**Trade-off:** Kokoro is less expressive than ElevenLabs; swapping the voice
+later only requires regenerating `assets/vo/` and re-running `build-audio.mjs`.
+
+---
+
+### 2026-09-26 — Video kit as a git submodule, edited locally
+**Decision:** Bring in `nateherkai/hyperframes-student-kit` as a git submodule
+at `hyperframes-student-kit/` rather than copying its files into this repo, and
+do video editing with the kit's local HyperFrames skills rather than the HeyGen
+MCP's cloud `compose`.
+**Why:** The kit is ~394MB (example footage) and third-party licensed; a
+submodule keeps this plugin repo small, preserves upstream history/licence, and
+lets us pull updates with `git submodule update --remote`. HeyGen disables
+`compose`/`render_video` for Claude Code clients, so local skills +
+`npx hyperframes render` are the only way to edit from Claude Code; the MCP
+stays useful for listing and viewing hosted projects.
+**Trade-off:** Clones need `--recurse-submodules`; Claude Code must be started
+inside the kit folder for its skills to load.
 
 ---
 
