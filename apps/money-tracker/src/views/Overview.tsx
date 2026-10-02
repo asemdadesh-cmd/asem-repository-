@@ -31,7 +31,7 @@ export function Overview({ month, setMonth, go }: { month: string; setMonth: (m:
       <header className="topbar">
         <div>
           <h1>{isNow ? 'This month' : monthLabel(month)}</h1>
-          <p className="sub">Every pound you keep is a pound working for you.</p>
+          <p className="sub">Every dinar you keep is a dinar working for you.</p>
         </div>
         <MonthSwitch month={month} onChange={setMonth} />
       </header>

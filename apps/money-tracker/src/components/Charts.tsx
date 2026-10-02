@@ -264,7 +264,7 @@ export function ProjectionChart({ data, currency }: { data: ProjectionPoint[]; c
         <path d={line('value')} fill="none" stroke="var(--series-growth)" strokeWidth="2" />
         <path d={line('contributed')} fill="none" stroke="var(--series-income)" strokeWidth="2" />
         {data.map((d, i) =>
-          i % step === 0 || i === n ? (
+          (i % step === 0 && n - i >= step * 0.6) || i === n ? (
             <text key={d.year} className="axis" x={x(i)} y={H - 8} textAnchor="middle">
               {d.year === 0 ? 'Now' : `${d.year}y`}
             </text>

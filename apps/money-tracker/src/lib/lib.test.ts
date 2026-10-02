@@ -21,17 +21,27 @@ const tx = (p: Partial<Transaction>): Transaction => ({
 describe('money', () => {
   it('parses user input into minor units', () => {
     expect(parseAmount('12.50')).toBe(1250);
-    expect(parseAmount('£1,234.5')).toBe(123450);
+    expect(parseAmount('LYD 1,234.5')).toBe(123450);
+    expect(parseAmount('د.ل 50')).toBe(5000);
     expect(parseAmount('0.1')).toBe(10);
     expect(parseAmount('0.29')).toBe(29);
+  });
+  it('accepts Arabic-Indic digits', () => {
+    expect(parseAmount('١٢٫٥')).toBe(1250);
+    expect(parseAmount('٢٬٥٠٠')).toBe(250000);
+    expect(parseAmount('۳۰')).toBe(3000);
+  });
+  it('formats Libyan dinars with at most 2 decimals', () => {
+    expect(formatMoney(123450, 'LYD')).toMatch(/LYD\s?1,234\.50/);
+    expect(formatMoney(5000, 'LYD')).toMatch(/LYD\s?50$/);
   });
   it('rejects invalid amounts', () => {
     for (const bad of ['', '.', '0', '-5', 'abc', '1.2.3']) expect(parseAmount(bad)).toBeNull();
   });
   it('formats with sign', () => {
-    expect(formatMoney(-1250, 'GBP')).toContain('12.50');
-    expect(formatMoney(-1250, 'GBP').startsWith('−')).toBe(true);
-    expect(formatMoney(1000, 'GBP', { signed: true }).startsWith('+')).toBe(true);
+    expect(formatMoney(-1250, 'LYD')).toContain('12.50');
+    expect(formatMoney(-1250, 'LYD').startsWith('−')).toBe(true);
+    expect(formatMoney(1000, 'LYD', { signed: true }).startsWith('+')).toBe(true);
   });
 });
 
@@ -75,7 +85,7 @@ describe('projection', () => {
   });
   it('compounds with interest', () => {
     const p = project(0, 10000, 6, 10).at(-1)!;
-    // £100/mo at 6% for 10y ≈ £16,388
+    // 100/mo at 6% for 10y ≈ 16,388
     expect(Math.round(p.value / 100)).toBe(16388);
   });
   it('finds months to target', () => {

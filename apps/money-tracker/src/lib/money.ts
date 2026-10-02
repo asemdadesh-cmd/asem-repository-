@@ -1,16 +1,17 @@
 export const CURRENCIES = [
-  { code: 'GBP', label: 'British pound (£)' },
+  { code: 'LYD', label: 'Libyan dinar (LYD · د.ل)' },
   { code: 'USD', label: 'US dollar ($)' },
   { code: 'EUR', label: 'Euro (€)' },
+  { code: 'TND', label: 'Tunisian dinar (TND)' },
+  { code: 'EGP', label: 'Egyptian pound (EGP)' },
+  { code: 'TRY', label: 'Turkish lira (TRY)' },
   { code: 'AED', label: 'UAE dirham (AED)' },
   { code: 'SAR', label: 'Saudi riyal (SAR)' },
-  { code: 'QAR', label: 'Qatari riyal (QAR)' },
-  { code: 'KWD', label: 'Kuwaiti dinar (KWD)' },
-  { code: 'EGP', label: 'Egyptian pound (EGP)' },
-  { code: 'JOD', label: 'Jordanian dinar (JOD)' },
-  { code: 'CAD', label: 'Canadian dollar (CA$)' },
-  { code: 'AUD', label: 'Australian dollar (A$)' },
+  { code: 'GBP', label: 'British pound (£)' },
 ];
+
+/** Default expected yearly growth (%) for savings projections — conservative, interest-free assumption. */
+export const DEFAULT_GROWTH = 3;
 
 const cache = new Map<string, Intl.NumberFormat>();
 function fmt(currency: string, compact: boolean, cents: boolean) {
@@ -44,11 +45,20 @@ export function formatMoney(
 }
 
 /**
- * Parse user input ("1,234.5", "£12", "12.345") into integer minor units.
+ * Parse user input ("1,234.5", "LYD 12", "12.345") into integer minor units.
  * Returns null for anything that isn't a positive, finite amount.
  */
 export function parseAmount(input: string): number | null {
-  const cleaned = input.replace(/[^\d.,-]/g, '').replace(/,/g, '');
+  const cleaned = input
+    // The dinar sign "د.ل" contains dots that must not be read as a decimal point.
+    .replace(/د\s*\.?\s*ل\.?/g, '')
+    // Arabic-Indic (٠-٩) and Persian (۰-۹) digits, Arabic decimal/thousands separators.
+    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+    .replace(/\u066B/g, '.')
+    .replace(/\u066C/g, ',')
+    .replace(/[^\d.,-]/g, '')
+    .replace(/,/g, '');
   if (!/^\d*\.?\d*$/.test(cleaned) || cleaned === '' || cleaned === '.') return null;
   const n = Number(cleaned);
   if (!Number.isFinite(n) || n <= 0 || n > 1e10) return null;

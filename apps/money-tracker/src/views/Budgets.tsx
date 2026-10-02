@@ -40,7 +40,7 @@ export function Budgets({ month, setMonth, toast }: { month: string; setMonth: (
       <header className="topbar">
         <div>
           <h1>Budgets</h1>
-          <p className="sub">Give every pound a job before you spend it.</p>
+          <p className="sub">Give every dinar a job before you spend it.</p>
         </div>
         <MonthSwitch month={month} onChange={setMonth} />
       </header>

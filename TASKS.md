@@ -29,6 +29,9 @@ _Last updated: 2026-10-02_
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
+- [x] Localise Stash for Libya (LYD, categories, sample data, Arabic digits)
+- [ ] Stash: Arabic UI with RTL layout (language toggle)
+- [ ] Stash: cash vs bank tracking (Libya's cash-liquidity reality)
 - [ ] Deploy Stash to Vercel (Root Directory `apps/money-tracker`)
 - [ ] Stash: recurring transactions (rent, salary, subscriptions)
 - [ ] Dogfood `council` on one real decision and tune the round word limits

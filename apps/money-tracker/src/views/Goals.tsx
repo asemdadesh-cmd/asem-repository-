@@ -34,7 +34,7 @@ export function Goals() {
             🛟
           </div>
           <h2>Start with an emergency fund</h2>
-          <p>Three months of essentials stops one bad week from becoming debt. Create it now and add to it every payday — pay yourself first.</p>
+          <p>Three months of essentials means a delayed salary or a cash shortage never forces you to borrow. Create it now and add to it every payday — pay yourself first.</p>
           <button type="button" className="btn btn-primary" onClick={() => setModal({ kind: 'new' })}>
             Create your first goal
           </button>

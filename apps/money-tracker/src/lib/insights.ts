@@ -1,6 +1,6 @@
 import { getCategory } from './categories';
 import { currentMonth, daysInMonth, shiftMonth } from './dates';
-import { formatMoney } from './money';
+import { DEFAULT_GROWTH, formatMoney } from './money';
 import { project } from './projection';
 import { byCategory, needsWants, totals } from './stats';
 import type { AppState } from './types';
@@ -93,12 +93,12 @@ export function insights(state: AppState, month: string): Insight[] {
   // Subscriptions → yearly + compounded cost
   const subs = cats.find((c) => c.id === 'subscriptions');
   if (subs && subs.amount >= 1000) {
-    const tenYears = project(0, subs.amount, 6, 10).at(-1)!.value;
+    const tenYears = project(0, subs.amount, DEFAULT_GROWTH, 10).at(-1)!.value;
     out.push({
       id: 'subs',
       tone: 'info',
       title: `Subscriptions cost you ${m(subs.amount * 12)} a year`,
-      body: `Invested instead, that's about ${m(tenYears)} in 10 years at 6%. Cancel the one you used least this month.`,
+      body: `Saved instead, that's about ${m(tenYears)} in 10 years at ${DEFAULT_GROWTH}% growth. Cancel the one you used least this month.`,
     });
   }
 

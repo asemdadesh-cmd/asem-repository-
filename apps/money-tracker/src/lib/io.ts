@@ -3,7 +3,7 @@ import { isValidISODate } from './dates';
 import { CURRENCIES } from './money';
 import type { AppState, Goal, Settings, Transaction } from './types';
 
-export const DEFAULT_SETTINGS: Settings = { currency: 'GBP', savingsTarget: 20, theme: 'system' };
+export const DEFAULT_SETTINGS: Settings = { currency: 'LYD', savingsTarget: 20, theme: 'system' };
 
 export const emptyState = (): AppState => ({
   version: 1,

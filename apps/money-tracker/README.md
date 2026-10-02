@@ -3,6 +3,10 @@
 A local-first money tracker that helps you **spend less and save more**: log income and
 spending, set budgets, fund savings goals, and see how your habits compound into wealth.
 
+- **Built for Libya:** Libyan dinar (LYD) by default, Libya-relevant categories
+  (generator, Libyana/Almadar top-ups, family support, zakat & sadaqah, weddings &
+  Eid), interest-free growth framing, and amount fields accept Arabic-Indic digits
+  (٠١٢٣…). Other currencies are available in Settings.
 - **No backend, no accounts, no env vars.** All data lives in the browser (`localStorage`).
 - **Stack:** Vite + React + TypeScript. Hand-rolled SVG charts (no chart library).
 

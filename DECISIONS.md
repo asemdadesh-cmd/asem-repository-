@@ -8,6 +8,19 @@ _Last updated: 2026-10-02_
 
 ---
 
+### 2026-10-02 — Stash targets Libya: LYD, interest-free framing, English UI first
+**Decision:** Default Stash to the Libyan dinar with Libya-specific categories and
+sample data; replace "investment return" with "expected yearly growth" at a
+conservative 3% default; accept Arabic-Indic digits in amount fields. Keep
+money stored as 1/100 units and display LYD with at most 2 decimals.
+**Why:** The owner is in Libya. Libyan banks operate interest-free (Law No. 1 of
+2013), so a "6% index fund return" was misleading; savers there use gold,
+Islamic products, property or small businesses. LYD's ISO minor unit is 1/1000
+(dirham), but dirhams are not used in daily prices, so 2-decimal display avoids
+noise like "LYD 12.500" without a data migration. Arabic keyboards on phones
+type ٠-٩, which the parser previously dropped. Trade-off: UI stays English for
+now; a full Arabic/RTL translation is planned as its own change.
+
 ### 2026-10-02 — Stash: local-first Vite SPA in its own folder
 **Decision:** Build the money tracker as a static Vite + React + TypeScript SPA
 in `apps/money-tracker/`, storing data in `localStorage` (integer minor units),

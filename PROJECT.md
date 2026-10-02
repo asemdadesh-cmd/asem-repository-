@@ -105,6 +105,9 @@ _Last updated: 2026-10-02_
 ## Apps
 
 ### Stash — Money Tracker (`apps/money-tracker/`)
+- **Market:** Libya — LYD default currency, Libya-specific categories and
+  sample data, interest-free (halal) growth framing with a conservative 3%
+  default, Arabic-Indic digit input. UI language: English (Arabic/RTL planned).
 - **What:** Local-first personal finance app — transactions, budgets, savings
   goals, insights ("next moves") and a compound-growth planner. Goal: help the
   user spend less and save more.
@@ -212,6 +215,13 @@ _Last updated: 2026-10-02_
 ---
 
 ## Changelog
+
+- **2026-10-02** — Localised **Stash for Libya**: LYD default currency (LYD first in the
+  list), categories for generator/electricity, mobile & internet, car & fuel,
+  family support, zakat & sadaqah, weddings & Eid; LYD sample data (Tripoli
+  salary, car/wedding/Umrah goals); Grow page reframed for interest-free saving
+  (gold, Islamic products, property) with a 3% default; amount inputs accept
+  Arabic-Indic digits and the "د.ل" sign.
 
 - **2026-10-02** — Added **Stash money tracker** in `apps/money-tracker/` (Vite + React +
   TS, local-first): overview with savings-rate + insights, transactions, budgets

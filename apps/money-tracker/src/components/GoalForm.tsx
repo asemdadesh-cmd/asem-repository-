@@ -6,7 +6,7 @@ import type { Goal } from '../lib/types';
 import { MoneyInput } from './MoneyInput';
 import { Sheet } from './Sheet';
 
-const EMOJIS = ['🛟', '🏡', '🏖️', '🚗', '🎓', '💍', '📈', '👶', '💻', '🎯'];
+const EMOJIS = ['🛟', '🏡', '🚗', '💍', '🕋', '🎓', '🪙', '👶', '💻', '🎯'];
 
 export function GoalForm({ initial, onClose }: { initial?: Goal; onClose: () => void }) {
   const { state, dispatch } = useStore();

@@ -177,7 +177,7 @@ function Welcome({ onStart, onSample }: { onStart: () => void; onSample: () => v
     <section className="welcome" aria-labelledby="welcome-h">
       <div>
         <h1 id="welcome-h">
-          Know where every pound goes. <em>Keep more of them.</em>
+          Know where every dinar goes. <em>Keep more of them.</em>
         </h1>
         <p className="lede" style={{ marginTop: 14 }}>
           Stash shows you what you earn, what you spend and what you keep — then tells you exactly where to cut so your savings grow. No sign-up. Your data stays on your device.
@@ -205,7 +205,7 @@ function Welcome({ onStart, onSample }: { onStart: () => void; onSample: () => v
         <li>
           <span aria-hidden="true">📈</span>
           <b>Watch it compound</b>
-          <span>See what today's small cuts become in 10, 20, 30 years.</span>
+          <span>See what today's small cuts become in 5, 10, 20 years — in Libyan dinars.</span>
         </li>
       </ul>
     </section>

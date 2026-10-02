@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ProjectionChart } from '../components/Charts';
 import { MoneyInput } from '../components/MoneyInput';
 import { currentMonth } from '../lib/dates';
-import { formatMoney, parseAmount, toInput } from '../lib/money';
+import { DEFAULT_GROWTH, formatMoney, parseAmount, toInput } from '../lib/money';
 import { monthsToTarget, project } from '../lib/projection';
 import { useStore } from '../lib/store';
 import { averageSaved, needsWants, totals } from '../lib/stats';
@@ -22,14 +22,14 @@ export function Grow() {
   const goalSaved = state.goals.reduce((s, g) => s + g.saved, 0);
   const [start, setStart] = useState(toInput(Math.round(goalSaved / 100) * 100) || '1000');
   const [monthly, setMonthly] = useState(toInput(Math.max(0, Math.round(avg / 100) * 100)) || '300');
-  const [rate, setRate] = useState('6');
+  const [rate, setRate] = useState(String(DEFAULT_GROWTH));
   const [years, setYears] = useState('20');
-  const [cut, setCut] = useState('25');
-  const [target, setTarget] = useState('1000000');
+  const [cut, setCut] = useState('50');
+  const [target, setTarget] = useState('100000');
 
   const s = parseAmount(start) ?? 0;
   const mo = parseAmount(monthly) ?? 0;
-  const r = clampNum(rate, 0, 20, 6);
+  const r = clampNum(rate, 0, 30, DEFAULT_GROWTH);
   const y = Math.round(clampNum(years, 1, 60, 20));
   const data = project(s, mo, r, y);
   const end = data[data.length - 1];
@@ -83,7 +83,7 @@ export function Grow() {
               <MoneyInput label="Starting with" currency={cur} value={start} onChange={setStart} />
               <MoneyInput label="Saving each month" currency={cur} value={monthly} onChange={setMonthly} />
               <label className="field">
-                <span>Yearly return (%)</span>
+                <span>Expected yearly growth (%)</span>
                 <input className="input num" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} />
               </label>
               <label className="field">
@@ -92,7 +92,8 @@ export function Grow() {
               </label>
             </div>
             <p className="muted small" style={{ marginTop: 12 }}>
-              Global stock index funds have historically returned around 5–7% a year after inflation, but nothing is guaranteed. This is an illustration, not financial advice.
+              Libyan banks don't pay interest, and cash under the mattress loses value to inflation. Libyan savers usually grow money through gold, Islamic
+              (murabaha / mudaraba) products, property or a small business. Growth here is an assumption, not a promise — an illustration, not financial advice.
             </p>
           </section>
           <section className="card" aria-labelledby="proj-h">
@@ -135,9 +136,9 @@ export function Grow() {
             <div className="card-head">
               <h2 id="cut-h">The small-cuts calculator</h2>
             </div>
-            <MoneyInput label="Cut this much per week (takeaways, coffees, impulse buys)" currency={cur} value={cut} onChange={setCut} />
+            <MoneyInput label="Cut this much per week (takeaways, coffee, cigarettes, impulse buys)" currency={cur} value={cut} onChange={setCut} />
             <p style={{ marginTop: 14, fontSize: '1.05rem' }}>
-              That's <b className="num">{m(cutMonthly)}</b> a month — worth <b className="num">{m(cutValue)}</b> in {y} years invested at {r}%.
+              That's <b className="num">{m(cutMonthly)}</b> a month — worth <b className="num">{m(cutValue)}</b> in {y} years growing at {r}% a year.
             </p>
           </section>
         </div>
@@ -149,7 +150,7 @@ export function Grow() {
               <span className="hint">Needs / wants / savings</span>
             </div>
             {[
-              { k: 'Needs', v: nw.needs, ideal: 50, hint: 'Rent, bills, groceries, transport' },
+              { k: 'Needs', v: nw.needs, ideal: 50, hint: 'Rent, bills, food, fuel, family' },
               { k: 'Wants', v: nw.wants, ideal: 30, hint: 'Eating out, shopping, fun' },
               { k: 'Savings', v: Math.max(0, t.saved), ideal: 20, hint: 'What you keep' },
             ].map((row) => {
