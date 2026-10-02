@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-02_
 
 ---
 
@@ -60,6 +60,7 @@ _Last updated: 2026-09-21_
   │               └── reference/
   │                   ├── checklist.md    # final pass/fail approval checklist
   │                   └── rewrite-guide.md # copywriting & conversion patterns
+  ├── CHATGPT-INSTRUCTIONS.ar.md      # Arabic UI/photo brief for ChatGPT (GitHub-connected)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -173,6 +174,11 @@ _Last updated: 2026-09-21_
 ---
 
 ## Changelog
+
+- **2026-10-02** — Added `CHATGPT-INSTRUCTIONS.ar.md`: Arabic (RTL) handoff brief so
+  ChatGPT, connected to this repo via GitHub, can finish website UI design and
+  photo work (design system, image sourcing/optimization, a11y, SEO, acceptance
+  checklist). Replaces the earlier Claude-built approach for UI/photos.
 
 - **2026-09-21** — Added the **`council` plugin**: a three-lens deliberation skill
   (Skeptic / Builder / Risk) for costly or hard-to-reverse decisions. Runs

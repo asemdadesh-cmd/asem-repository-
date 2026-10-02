@@ -4,9 +4,17 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-02_
 
 ---
+
+### 2026-10-02 — Hand UI/photo work to ChatGPT via an Arabic brief
+**Decision:** Add `CHATGPT-INSTRUCTIONS.ar.md` and let ChatGPT (connected to the
+repo through GitHub) own UI design and imagery.
+**Why:** Owner was unhappy with the Claude-produced result and prefers ChatGPT
+for visuals. Brief is Arabic/RTL-first, concrete (tokens, image budgets, a11y,
+acceptance checklist) so it can execute without clarifying questions.
+Trade-off: no repo-enforced checks, so the checklist in the brief is the gate.
 
 ### 2026-09-21 — Three lenses, not eighteen personas
 **Decision:** Build the `council` plugin around three functional lenses
