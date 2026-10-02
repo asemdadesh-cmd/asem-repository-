@@ -1,0 +1,447 @@
+<!doctype html>
+<!--
+  Northlight Studio: the sales site for the five demo sites. (Brand name is a placeholder: find and replace "Northlight".)
+  Grammar: split stage. A template site and a Northlight site are held side by side for the whole opening, with the
+  divider carrying the argument. The collapse is the ending of the pitch: the template column closes and the
+  winning column becomes the rest of the page.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Northlight Studio · Websites worth scrolling</title>
+<meta name="description" content="We build scroll-driven websites for small businesses: estate agents, restaurants, gyms, roasters and more. See five working demos.">
+<meta property="og:title" content="Northlight Studio · Websites worth scrolling">
+<meta property="og:description" content="Scroll-driven websites for small businesses. Five working demos, from an estate agent to a boxing gym.">
+<meta property="og:image" content="assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230A0C0F'/><path d='M16 6v20M6 16h20' stroke='%2362F0B0' stroke-width='3'/></svg>">
+<link rel="preload" href="assets/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Northlight Studio","description":"Scroll-driven websites for small businesses, in English and Arabic.","serviceType":["Web design","Web development"],"areaServed":"GB","knowsLanguage":["en","ar"]}</script>
+<link rel="stylesheet" href="assets/vendor/scrollcraft.css">
+<style>
+  :root {
+    --sc-canvas: #0A0C0F;
+    --sc-surface: #12151A;
+    --sc-ink: #EDEEF0;
+    --sc-ink-soft: #A0A8B2;
+    --sc-accent: #62F0B0;
+    --sc-accent-ink: #04120B;
+    --sc-font-display: "Bricolage Grotesque", system-ui, sans-serif;
+    --sc-font-text: "Geist", system-ui, sans-serif;
+    --sc-font-mono: "Geist Mono", ui-monospace, monospace;
+    --paper: #E8E6E1; --paper-ink: #1C1C1C; --paper-soft: #55524C;
+    --x: 50%;
+    --bar: 64px;
+  }
+  html { scroll-behavior: auto; }
+  .sc-display { font-weight: 600; letter-spacing: -.04em; }
+  .skip { position: fixed; left: 1rem; top: -4rem; z-index: 100; background: var(--sc-accent); color: var(--sc-accent-ink); padding: .8rem 1.2rem; border-radius: 8px; font-weight: 650; text-decoration: none; transition: top 160ms var(--sc-ease-out); }
+  .skip:focus { top: 1rem; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .cta { display: inline-flex; align-items: center; gap: .6rem; min-height: 48px; padding: 0 1.4rem; border-radius: 999px; background: var(--sc-accent); color: var(--sc-accent-ink); font: 650 1rem var(--sc-font-text); text-decoration: none; border: 0; cursor: pointer; white-space: nowrap; transition: transform 120ms var(--sc-ease-out), background 140ms var(--sc-ease-out); }
+  .cta:active { transform: scale(.97); }
+  @media (hover:hover) and (pointer:fine) { .cta:hover { background: #8bf6c6; } }
+  .cta svg { width: 16px; height: 16px; }
+  .link { color: var(--sc-ink); text-underline-offset: .3em; font-weight: 600; }
+
+  /* ---- bar: appears once the template column has closed ---- */
+  .bar { position: fixed; inset: 0 0 auto 0; z-index: 70; height: var(--bar); display: flex; align-items: center; gap: 2rem; padding-inline: var(--sc-gutter); background: color-mix(in oklab, var(--sc-canvas) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--sc-hairline); transform: translateY(-100%); transition: transform 320ms var(--sc-ease-out); }
+  .bar.on { transform: none; }
+  .mark { font: 650 1.1rem var(--sc-font-display); letter-spacing: -.03em; text-decoration: none; display: inline-flex; align-items: center; gap: .55rem; }
+  .mark i { width: 16px; height: 16px; position: relative; display: inline-block; }
+  .mark i::before, .mark i::after { content: ""; position: absolute; background: var(--sc-accent); }
+  .mark i::before { left: 7px; top: 0; width: 2px; height: 16px; } .mark i::after { top: 7px; left: 0; height: 2px; width: 16px; }
+  .bar nav { display: flex; gap: .2rem; margin-left: auto; }
+  .bar nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .85rem; color: var(--sc-ink-soft); text-decoration: none; font-size: .94rem; font-weight: 500; transition: color 140ms var(--sc-ease-out); }
+  @media (hover:hover) and (pointer:fine) { .bar nav a:hover { color: var(--sc-ink); } }
+  .bar .cta { min-height: 44px; padding: 0 1.15rem; font-size: .94rem; }
+  @media (max-width: 860px) { .bar nav { display: none; } .bar .cta { margin-left: auto; } .bar { gap: 1rem; } }
+  @media (max-width: 400px) { .bar { padding-inline: 1rem; } .bar .cta { padding: 0 .9rem; } }
+
+  /* ================= split stage ================= */
+  .split [data-sc-stage] {
+    --x: clamp(0%, calc(50% - (var(--sc-p, 0) - .85) * 340%), 50%);
+    background: var(--sc-canvas);
+  }
+  .pane { position: absolute; inset: 0; }
+  .pane--l { background: var(--paper); color: var(--paper-ink); clip-path: inset(0 calc(100% - var(--x)) 0 0); font-family: Arial, Helvetica, "Liberation Sans", sans-serif; }
+  .pane--r { clip-path: inset(0 0 0 var(--x)); background:
+      radial-gradient(60% 50% at 78% 38%, color-mix(in oklab, var(--sc-accent) 14%, transparent), transparent 70%), var(--sc-canvas); }
+  .col { position: absolute; top: 0; bottom: 0; }
+  .pane--l .col { left: 0; width: var(--x); }
+  .pane--r .col { left: var(--x); width: calc(100% - var(--x)); }
+  .beat { position: absolute; inset: calc(var(--bar) + 1rem) clamp(1.5rem, 4vw, 4.5rem) 8rem; display: grid; align-content: center; gap: 1rem; }
+  .pane--l .beat { right: clamp(1.5rem, 4vw, 4.5rem); }
+  .kicker { font: 600 .74rem var(--sc-font-mono); letter-spacing: .12em; text-transform: uppercase; }
+  .pane--l .kicker { color: var(--paper-soft); font-family: Arial, Helvetica, sans-serif; letter-spacing: .08em; }
+  .pane--r .kicker { color: var(--sc-accent); }
+  .beat h2 { margin: 0; text-wrap: balance; }
+  .beat.first h2 { font-size: clamp(2.6rem, 1rem + 6.2vw, 8.4rem) !important; line-height: .95 !important; }
+  .pane--l h2 { font: 700 clamp(1.9rem, 1rem + 3.3vw, 4.3rem)/1.05 Arial, Helvetica, "Liberation Sans", sans-serif; letter-spacing: -.01em; color: #2a2a2a; }
+  .pane--r h2 { font: 600 clamp(2.1rem, 1rem + 4vw, 5.4rem)/.98 var(--sc-font-display); letter-spacing: -.045em; }
+  .pane--r h2 em { font-style: normal; color: var(--sc-accent); }
+  .beat p { margin: 0; max-width: 34ch; font-size: clamp(1rem, .9rem + .45vw, 1.3rem); line-height: 1.45; text-wrap: pretty; }
+  .pane--l p { color: var(--paper-soft); }
+  .pane--r p { color: var(--sc-ink-soft); }
+  .pane--r .cta-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-top: .6rem; }
+
+  /* divider chrome */
+  .divider { position: absolute; top: 0; bottom: 0; left: var(--x); width: 0; z-index: 12; pointer-events: none; opacity: clamp(0, calc((.97 - var(--sc-p, 0)) * 40), 1); }
+  .divider::before { content: ""; position: absolute; top: 0; bottom: 0; left: -1px; width: 2px; background: var(--sc-accent); }
+  .divider__cap { position: absolute; left: 0; bottom: 6.5%; translate: -50% 0; display: grid; justify-items: center; gap: .7rem; width: max-content; opacity: clamp(0, calc((.9 - var(--sc-p, 0)) * 30), 1); }
+  .dots { display: flex; gap: .45rem; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: #5a5f66; display: block; transition: background 200ms var(--sc-ease-out), transform 200ms var(--sc-ease-out); }
+  .dots i.on { background: var(--sc-accent); transform: scale(1.35); }
+  .labels { display: flex; align-items: center; border-radius: 999px; overflow: hidden; font: 600 .78rem var(--sc-font-text); box-shadow: var(--sc-e2); }
+  .labels span { padding: .55rem 1rem; white-space: nowrap; }
+  .labels .a { background: var(--paper); color: var(--paper-ink); font-family: Arial, Helvetica, sans-serif; }
+  .labels .b { background: var(--sc-accent); color: var(--sc-accent-ink); }
+  .stagename { font: 600 .7rem var(--sc-font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--sc-ink-soft); background: var(--sc-canvas); padding: .25rem .6rem; border-radius: 4px; }
+
+  @media (max-width: 860px) {
+    .split [data-sc-stage] { --x: clamp(0%, calc(50% - (var(--sc-p, 0) - .85) * 340%), 50%); }
+    .pane--l { clip-path: inset(0 0 calc(100% - var(--x)) 0); }
+    .pane--r { clip-path: inset(var(--x) 0 0 0); }
+    .pane--l .col, .pane--r .col { left: 0; width: 100%; }
+    .beat { inset: auto; left: 1.25rem; right: 1.25rem; gap: .5rem; align-content: start; }
+    .pane--l .beat { top: calc(var(--bar) - 8px); height: 36svh; }
+    .pane--r .beat { top: calc(50svh + 1.4rem); height: 36svh; }
+    .pane--r .beat.end { top: calc(var(--x) + 3rem); height: auto; }
+    .pane--l h2 { font-size: clamp(1.4rem, 6vw, 2.1rem); } .pane--r h2 { font-size: clamp(1.55rem, 7vw, 2.4rem); }
+    .beat p { font-size: .96rem; max-width: none; }
+    .divider { top: var(--x); bottom: auto; left: 0; right: 0; width: auto; height: 0; }
+    .divider::before { top: -1px; bottom: auto; left: 0; right: 0; height: 2px; width: auto; }
+    .divider__cap { left: auto; right: 1rem; top: 0; bottom: auto; translate: 0 -50%; display: flex; gap: .6rem; align-items: center; opacity: 1; }
+    .labels span { padding: .4rem .7rem; font-size: .7rem; }
+    .dots { display: none; }
+    .stagename { display: none; }
+  }
+
+  /* ================= after the collapse: the winning column is the page ================= */
+  .wrap { max-width: 84rem; margin-inline: auto; padding-inline: var(--sc-gutter); }
+  .sect { padding-block: clamp(3.5rem, 7vw, 7rem); }
+  .sect h2 { font: 600 var(--sc-t-3xl)/.98 var(--sc-font-display); letter-spacing: -.045em; margin: 0; max-width: 16ch; text-wrap: balance; }
+  .sect h2 em { font-style: normal; color: var(--sc-accent); }
+  .sect .lead { font-size: var(--sc-t-lg); color: var(--sc-ink-soft); max-width: 44ch; margin: 1.4rem 0 0; line-height: 1.45; }
+
+  /* work */
+  .work__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(1.5rem, 4vw, 5rem); margin-top: clamp(2.5rem, 6vw, 5rem); align-items: start; }
+  .work__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--sc-hairline-strong); position: sticky; top: calc(var(--bar) + 1.5rem); }
+  .work__list li { border-bottom: 1px solid var(--sc-hairline-strong); }
+  .work__list button { width: 100%; text-align: left; background: none; border: 0; color: inherit; cursor: pointer; padding: 1.1rem 0; display: grid; gap: .25rem; min-height: 44px; transition: padding 200ms var(--sc-ease-out), color 160ms var(--sc-ease-out); color: var(--sc-ink-soft); }
+  .work__list button b { font: 600 clamp(1.4rem, 1.1rem + 1.2vw, 2.1rem)/1.05 var(--sc-font-display); letter-spacing: -.03em; color: var(--sc-ink-soft); transition: color 160ms var(--sc-ease-out); }
+  .work__list button span { font-size: .9rem; }
+  .work__list button[aria-pressed="true"] { color: var(--sc-ink); padding-left: 1rem; box-shadow: inset 2px 0 0 var(--sc-accent); }
+  .work__list button[aria-pressed="true"] b { color: var(--sc-ink); }
+  @media (hover:hover) and (pointer:fine) { .work__list button:hover b { color: var(--sc-ink); } }
+  .work__view { position: relative; }
+  .stagebox { position: relative; }
+  .browser { border-radius: 12px; overflow: hidden; background: #0f1216; border: 1px solid var(--sc-hairline-strong); box-shadow: var(--sc-e3); }
+  .browser__top { height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 12px; background: #161a20; border-bottom: 1px solid var(--sc-hairline); }
+  .browser__top i { width: 10px; height: 10px; border-radius: 50%; background: #2c323a; display: block; }
+  .browser__top span { margin-left: .8rem; font: 500 .72rem var(--sc-font-mono); color: var(--sc-ink-soft); background: #0f1216; padding: .15rem .8rem; border-radius: 999px; }
+  .browser__scr { position: relative; aspect-ratio: 16 / 10; background: #0f1216; }
+  .browser__scr img, .browser__scr video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0; transition: opacity 280ms var(--sc-ease-out); }
+  .browser__scr [data-on="1"] { opacity: 1; }
+  .phone { position: absolute; right: -2.2rem; bottom: -3rem; width: clamp(120px, 15vw, 190px); aspect-ratio: 390 / 844; border-radius: 26px; border: 6px solid #1b2027; background: #0f1216; box-shadow: var(--sc-e3), 0 0 0 1px var(--sc-hairline-strong); overflow: hidden; }
+  .phone img, .phone video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 280ms var(--sc-ease-out); }
+  .phone [data-on="1"] { opacity: 1; }
+  .work__meta { margin-top: 2rem; display: flex; gap: 1.5rem; align-items: start; justify-content: space-between; flex-wrap: wrap; padding-right: 8rem; }
+  .work__meta p { margin: 0; max-width: 46ch; color: var(--sc-ink-soft); font-size: 1.05rem; line-height: 1.5; }
+  .work__meta h3 { margin: 0 0 .4rem; font: 600 1.15rem var(--sc-font-text); display: flex; gap: .7rem; align-items: baseline; flex-wrap: wrap; }
+  .work__meta h3 small { font: 500 .78rem var(--sc-font-mono); color: var(--sc-accent); letter-spacing: .08em; text-transform: uppercase; }
+  .work__grid > * { min-width: 0; }
+  @media (max-width: 960px) {
+    .work__grid { grid-template-columns: minmax(0, 1fr); }
+    .work__list { position: static; display: flex; gap: .5rem; overflow-x: auto; border: 0; padding-bottom: .5rem; scrollbar-width: none; }
+    .work__list li { border: 1px solid var(--sc-hairline-strong); border-radius: 999px; flex: 0 0 auto; }
+    .work__list button { padding: .55rem 1rem; } .work__list button span { display: none; }
+    .work__list button b { font-size: 1rem; }
+    .work__list button[aria-pressed="true"] { padding-left: 1rem; box-shadow: none; background: var(--sc-accent); border-radius: 999px; }
+    .work__list button[aria-pressed="true"] b { color: var(--sc-accent-ink); }
+    .phone { right: .5rem; bottom: -2rem; width: 28vw; }
+    .work__meta { padding-right: 0; margin-top: 3rem; }
+  }
+
+  /* packages: a ledger, not cards */
+  .ledger { margin-top: clamp(2.5rem, 6vw, 5rem); border-top: 1px solid var(--sc-hairline-strong); }
+  .tier { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) minmax(0, 2fr); gap: 1rem clamp(1rem, 4vw, 4rem); padding: clamp(1.4rem, 3vw, 2.4rem) 0; border-bottom: 1px solid var(--sc-hairline-strong); align-items: baseline; }
+  .tier h3 { margin: 0; font: 600 var(--sc-t-2xl)/1 var(--sc-font-display); letter-spacing: -.04em; }
+  .tier p { margin: 0; color: var(--sc-ink-soft); font-size: 1.05rem; line-height: 1.5; max-width: 48ch; }
+  .tier p b { color: var(--sc-ink); font-weight: 600; }
+  .tier .price { font: 600 var(--sc-t-xl) var(--sc-font-display); letter-spacing: -.03em; justify-self: end; font-variant-numeric: tabular-nums; text-align: right; }
+  .tier .price small { display: block; font: 500 .74rem var(--sc-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--sc-ink-soft); margin-bottom: .3rem; }
+  .tier--hi h3 { color: var(--sc-accent); }
+  .incl { margin: 2rem 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: .6rem 1.8rem; color: var(--sc-ink-soft); font-size: .98rem; }
+  .incl li::before { content: "+"; color: var(--sc-accent); font-weight: 700; margin-right: .5rem; }
+  .note { margin-top: 1.4rem; font: 500 .78rem var(--sc-font-mono); color: var(--sc-ink-soft); letter-spacing: .02em; }
+  @media (max-width: 860px) { .tier { grid-template-columns: 1fr; } .tier .price { justify-self: start; text-align: left; } }
+
+  /* process */
+  .steps { margin: clamp(2.5rem, 6vw, 5rem) 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; counter-reset: s; border-top: 1px solid var(--sc-hairline-strong); }
+  .steps li { counter-increment: s; padding: 1.4rem 1.4rem 0 0; position: relative; }
+  .steps li::before { content: counter(s, decimal-leading-zero); font: 500 .8rem var(--sc-font-mono); color: var(--sc-accent); letter-spacing: .08em; display: block; margin-bottom: 3rem; }
+  .steps h3 { margin: 0 0 .5rem; font: 600 var(--sc-t-xl)/1.05 var(--sc-font-display); letter-spacing: -.035em; }
+  .steps p { margin: 0; color: var(--sc-ink-soft); font-size: 1rem; line-height: 1.5; max-width: 26ch; }
+  @media (max-width: 860px) { .steps { grid-template-columns: 1fr 1fr; row-gap: 2.4rem; } }
+  @media (max-width: 520px) { .steps { grid-template-columns: 1fr; } .steps li::before { margin-bottom: 1rem; } }
+
+  /* faq */
+  .faq { margin-top: clamp(2.5rem, 6vw, 4rem); border-top: 1px solid var(--sc-hairline-strong); max-width: 60rem; }
+  .faq details { border-bottom: 1px solid var(--sc-hairline-strong); }
+  .faq summary { list-style: none; cursor: pointer; min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; font: 600 clamp(1.1rem, 1rem + .5vw, 1.4rem) var(--sc-font-text); padding: .6rem 0; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font: 400 1.6rem var(--sc-font-mono); color: var(--sc-accent); transition: transform 200ms var(--sc-ease-out); }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details p { margin: 0 0 1.4rem; max-width: 56ch; color: var(--sc-ink-soft); font-size: 1.05rem; line-height: 1.55; }
+
+  /* contact */
+  .contact { background: var(--sc-surface); border-top: 1px solid var(--sc-hairline); }
+  .contact__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(2rem, 6vw, 7rem); align-items: start; }
+  .form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .form input, .form textarea, .form select { width: 100%; min-width: 0; }
+  .form label { display: grid; gap: .4rem; font: 600 .82rem var(--sc-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .form input, .form textarea, .form select { min-height: 52px; border-radius: 10px; border: 1px solid var(--sc-hairline-strong); background: var(--sc-canvas); color: var(--sc-ink); padding: .8rem 1rem; font: 500 1.05rem var(--sc-font-text); text-transform: none; letter-spacing: 0; transition: border-color 140ms var(--sc-ease-out); }
+  .form textarea { min-height: 120px; resize: vertical; }
+  .form input:focus, .form textarea:focus, .form select:focus { outline: 2px solid var(--sc-accent); outline-offset: 2px; border-color: transparent; }
+  .form .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form .msg { min-height: 1.4em; font: 500 .9rem var(--sc-font-text); color: var(--sc-ink); }
+  .form .msg.err { color: #ff9b8a; }
+  .contact aside { color: var(--sc-ink-soft); display: grid; gap: 1.2rem; max-width: 36ch; }
+  .contact aside strong { color: var(--sc-ink); font-weight: 600; }
+  .contact__grid > * { min-width: 0; }
+  @media (max-width: 860px) { .contact__grid { grid-template-columns: minmax(0, 1fr); } .form .two { grid-template-columns: minmax(0, 1fr); } }
+  .ar-line { font-family: "Cairo", system-ui, sans-serif; direction: rtl; color: var(--sc-ink); font-size: 1.15rem; }
+  footer.foot { padding: 2rem var(--sc-gutter) 3rem; color: var(--sc-ink-soft); font-size: .86rem; display: flex; gap: 1rem 3rem; flex-wrap: wrap; justify-content: space-between; border-top: 1px solid var(--sc-hairline); }
+  footer.foot a { color: var(--sc-ink); }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#work">Skip to the work</a>
+<span data-sc-progress aria-hidden="true"></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<header class="bar" id="bar">
+  <a class="mark" href="#top" aria-label="Northlight Studio, top of page"><i aria-hidden="true"></i>Northlight</a>
+  <nav aria-label="Sections"><a href="#work">Work</a><a href="#packages">Packages</a><a href="#process">Process</a><a href="#faq">Questions</a></nav>
+  <a class="cta" href="#contact">Start your site</a>
+</header>
+
+<main id="top">
+
+  <h1 class="sr">Same business, different first impression. Northlight Studio builds scroll-driven websites for small businesses.</h1>
+
+  <!-- the split -->
+  <section class="split" data-sc-act="pin" data-sc-span="7.6" aria-label="A template site compared with a Northlight site">
+    <div data-sc-stage>
+
+      <div class="pane pane--l">
+        <div class="col">
+          <div class="beat first" data-sc-cue="0 0.19 0 0.025"><span class="kicker">The template site</span><h2 aria-hidden="true">Same business.</h2><p>A theme, three stock photos and a contact form nobody fills in.</p></div>
+          <div class="beat" data-sc-cue="0.17 0.38 0.025 0.025"><span class="kicker">Five seconds in</span><h2>They skim, shrug, and go back to Google.</h2><p>A static page asks nothing of the visitor, so it gets nothing back.</p></div>
+          <div class="beat" data-sc-cue="0.36 0.57 0.025 0.025"><span class="kicker">On a phone</span><h2>The desktop page, squeezed.</h2><p>Tiny links, sideways pinching, a menu you need a magnifier for.</p></div>
+          <div class="beat" data-sc-cue="0.55 0.76 0.025 0.025"><span class="kicker">Enquiries</span><h2>A form at the very bottom.</h2><p>Visitors have to find it, trust it and fill in nine fields.</p></div>
+          <div class="beat" data-sc-cue="0.74 0.865 0.025 0.04"><span class="kicker">Ownership</span><h2>Rented, often.</h2><p>A monthly fee to the builder, and their logo in your footer.</p></div>
+        </div>
+      </div>
+
+      <div class="pane pane--r">
+        <div class="col">
+          <div class="beat first" data-sc-cue="0 0.19 0 0.025"><span class="kicker">The Northlight site</span><h2 aria-hidden="true">Different <em>first impression.</em></h2><p>Built around your trade, your town and the customer you want more of.</p></div>
+          <div class="beat" data-sc-cue="0.17 0.38 0.025 0.025"><span class="kicker">Five seconds in</span><h2>They scroll, because the page <em>answers.</em></h2><p>Something moves when they do. That is the difference between looking and staying.</p></div>
+          <div class="beat" data-sc-cue="0.36 0.57 0.025 0.025"><span class="kicker">On a phone</span><h2>Composed for <em>the thumb.</em></h2><p>Every phone screen is designed on its own. Big targets, quick to load.</p></div>
+          <div class="beat" data-sc-cue="0.55 0.76 0.025 0.025"><span class="kicker">Enquiries</span><h2>One action, <em>where it matters.</em></h2><p>Call, book or message in a tap, with the same label every time it appears.</p></div>
+          <div class="beat" data-sc-cue="0.74 0.865 0.025 0.04"><span class="kicker">Ownership</span><h2>Yours. <em>All of it.</em></h2><p>You get the files. Host them anywhere, hand them to any developer.</p></div>
+          <div class="beat end" data-sc-cue="0.86 1 0.05 0"><span class="kicker">Northlight Studio</span><h2>Let’s build <em>yours.</em></h2><p>Tell us what you do. We’ll show you how it could feel.</p><div class="cta-row"><a class="cta" href="#contact">Start your site</a><a class="link" href="#work">See the work</a></div></div>
+        </div>
+      </div>
+
+      <div class="divider" aria-hidden="true">
+        <div class="divider__cap">
+          <div class="dots" id="dots"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="labels"><span class="a">Template site</span><span class="b">Northlight site</span></div>
+          <span class="stagename" id="stagename">First look</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- work -->
+  <section class="sect" id="work" aria-labelledby="work-h">
+    <div class="wrap">
+      <h2 id="work-h" data-sc-in>Five sites. Five trades. <em>No templates.</em></h2>
+      <p class="lead" data-sc-in>Each one is a working demo for a business that does not exist yet. Open them on your phone and scroll.</p>
+      <div class="work__grid">
+        <ol class="work__list" id="worklist"></ol>
+        <div class="work__view">
+          <div class="stagebox">
+            <div class="browser">
+              <div class="browser__top" aria-hidden="true"><i></i><i></i><i></i><span id="url">northlight.studio/demos</span></div>
+              <div class="browser__scr" id="scr"></div>
+            </div>
+            <div class="phone" id="phone" aria-hidden="true"></div>
+          </div>
+          <div class="work__meta">
+            <div><h3 id="w-name">Haldane &amp; Rowe <small id="w-trade">Estate agent</small></h3><p id="w-desc"></p></div>
+            <a class="cta" id="w-link" href="demos/haldane-rowe/">Open the live demo <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- packages -->
+  <section class="sect" id="packages" aria-labelledby="pk-h">
+    <div class="wrap">
+      <h2 id="pk-h" data-sc-in>Pick how far <em>you want to go.</em></h2>
+      <div class="ledger" data-sc-in>
+        <div class="tier"><h3>One page</h3><p><b>One scroll-driven page.</b> Home, services and contact in a single, fast, mobile-first page. Right for a trade that needs to be found and called.</p><div class="price"><small>from</small>£490</div></div>
+        <div class="tier tier--hi"><h3>Signature</h3><p><b>Up to five pages and one custom interaction</b> built for your business: a calculator, a menu, a booking nudge. Bilingual English and Arabic if you need it.</p><div class="price"><small>from</small>£1,290</div></div>
+        <div class="tier"><h3>Custom</h3><p><b>Something that behaves like your product.</b> Larger sites, shops and tools, scoped after a short call.</p><div class="price"><small>quoted</small>Ask</div></div>
+      </div>
+      <ul class="incl" data-sc-in><li>Designed for phones first</li><li>Contact form and click-to-call</li><li>Google Business and basic SEO set-up</li><li>The files are yours</li></ul>
+      <p class="note">Placeholder prices. Set your own before publishing.</p>
+    </div>
+  </section>
+
+  <!-- process -->
+  <section class="sect" id="process" aria-labelledby="pr-h">
+    <div class="wrap">
+      <h2 id="pr-h" data-sc-in>Four steps. <em>No surprises.</em></h2>
+      <ol class="steps" data-sc-in data-sc-stagger="70">
+        <li><h3>Brief</h3><p>A short call about your business, your customers and what a good enquiry looks like.</p></li>
+        <li><h3>Preview</h3><p>You see your homepage moving, on a phone and a laptop, before anything else is built.</p></li>
+        <li><h3>Build</h3><p>The rest of the site, your real words and photos, and a test on real devices.</p></li>
+        <li><h3>Launch</h3><p>Your domain, your hosting, your files. We stay on call for the first weeks.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- faq -->
+  <section class="sect" id="faq" aria-labelledby="fq-h">
+    <div class="wrap">
+      <h2 id="fq-h" data-sc-in>Fair <em>questions.</em></h2>
+      <div class="faq" data-sc-in>
+        <details><summary>Will it work on a phone?</summary><p>Yes, and that is where we start. Each phone screen is composed on its own rather than shrunk from the desktop version.</p></details>
+        <details><summary>Do you build in Arabic?</summary><p>Yes. Full right-to-left layouts with proper Arabic type, switchable with English on the same page. The Tannour demo shows how it reads.</p></details>
+        <details><summary>Do I own the site?</summary><p>You do. We hand over the files and set hosting up on your own account, so you are never tied to us or to a monthly builder fee.</p></details>
+        <details><summary>Can I change the text myself?</summary><p>Text and prices live in plain, labelled places, and we show you where. For anything bigger, send us a message.</p></details>
+        <details><summary>I already have a website. Can you replace it?</summary><p>Yes. We rebuild it on the same domain and keep your existing pages and Google listing in mind, so you do not start from zero.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- contact -->
+  <section class="sect contact" id="contact" aria-labelledby="ct-h">
+    <div class="wrap contact__grid">
+      <div class="sc-stack" data-sc-in>
+        <h2 id="ct-h" class="sc-display" style="font-size:var(--sc-t-3xl);line-height:.98;letter-spacing:-.045em;max-width:12ch">Tell us <em style="font-style:normal;color:var(--sc-accent)">what you do.</em></h2>
+        <aside>
+          <p>A few lines is plenty. We reply with a first idea of how your site could move, usually within a working day.</p>
+          <p class="ar-line" lang="ar">نصمم مواقع بالعربية والإنجليزية.</p>
+        </aside>
+      </div>
+      <form class="form" id="form" novalidate data-sc-in>
+        <div class="two"><label>Your name<input name="name" autocomplete="name" required></label><label>Business<input name="biz" autocomplete="organization"></label></div>
+        <label>Email<input name="email" type="email" autocomplete="email" required></label>
+        <label>What do you need?<select name="need"><option>A new website</option><option>Replace my current website</option><option>A bilingual English and Arabic site</option><option>Something with a calculator or booking</option><option>Not sure yet</option></select></label>
+        <label>Anything we should know<textarea name="msg" placeholder="Your trade, your town, who your best customers are."></textarea></label>
+        <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap"><button class="cta" type="submit">Start your site</button><span class="msg" id="msg" role="status"></span></div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <span>Northlight Studio. The five demo sites are concepts for fictional businesses; names, addresses, prices and listings are samples.</span>
+  <span>The form opens your email app. Nothing is sent from this page.</span>
+</footer>
+
+<script src="assets/vendor/scrollcraft.js"></script>
+<script>
+var CONTACT = "hello@northlight.example";     // replace before going live
+var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+var clamp = function(v,a,b){ return Math.max(a, Math.min(b, v)); };
+
+/* ============ the divider's own state: which beat of the argument is on ============ */
+var NAMES = ["First look", "Five seconds", "On a phone", "Enquiries", "Ownership"], EDGES = [0, 0.18, 0.37, 0.56, 0.75, 0.86];
+var act = document.querySelector(".split"), dots = [].slice.call(document.querySelectorAll("#dots i")), stagename = document.getElementById("stagename"), bar = document.getElementById("bar");
+var lastBeat = -1;
+function onFrame(){
+  var v = parseFloat(getComputedStyle(act).getPropertyValue("--sc-p")); var p = isNaN(v) ? 0 : v;
+  var b = 0; for (var i = 0; i < 5; i++) if (p >= EDGES[i]) b = i;
+  if (b !== lastBeat){ lastBeat = b; dots.forEach(function(d, i){ d.classList.toggle("on", i === b); }); stagename.textContent = NAMES[b]; }
+  var past = p >= 0.93 || (act.getBoundingClientRect().bottom < innerHeight * 0.6);
+  bar.classList.toggle("on", past);
+  requestAnimationFrame(onFrame);
+}
+requestAnimationFrame(onFrame);
+
+/* ============ work: five real demos, real captures ============ */
+var WORK = [
+  { slug:"haldane-rowe", name:"Haldane & Rowe", trade:"Estate agent", desc:"Six homes drawn as one continuous street. Each house is surveyed, built and lit as it scrolls into view, and a shortlist travels with the valuation request." },
+  { slug:"altura", name:"Altura", trade:"Coffee roaster", desc:"Scroll runs a real roast, bean colour, drum and curve included. Stop it where you like your coffee and the range and the order follow." },
+  { slug:"iron-round", name:"Iron Round", trade:"Boxing gym", desc:"The whole page is one three-minute round, and the clock only runs while you scroll. The last ten seconds take over the screen." },
+  { slug:"tannour", name:"Tannour", trade:"Restaurant, English and Arabic", desc:"The name at poster scale, walked into as you scroll, with a true right-to-left Arabic mode and a menu set as typography." },
+  { slug:"sundial", name:"Sundial", trade:"Solar installer", desc:"The page is the product: a roof estimator you can change while scrolling, with every figure computed from a labelled sample model." }
+];
+var list = document.getElementById("worklist"), scr = document.getElementById("scr"), phone = document.getElementById("phone");
+var vids = [];
+WORK.forEach(function(w, i){
+  var li = document.createElement("li"); li.innerHTML = '<button type="button" data-i="'+i+'" aria-pressed="'+(i===0)+'"><b>'+w.name+'</b><span>'+w.trade+'</span></button>'; list.appendChild(li);
+  var d = document.createElement("div"); d.style.display = "contents";
+  d.innerHTML = '<img src="assets/work/'+w.slug+'-d.webp" width="1280" height="800" alt="" data-k="d'+i+'" loading="lazy"><video data-k="dv'+i+'" muted loop playsinline preload="none" poster="assets/work/'+w.slug+'-d.webp" aria-hidden="true"></video>';
+  scr.appendChild(d);
+  var m = document.createElement("div"); m.style.display = "contents";
+  m.innerHTML = '<img src="assets/work/'+w.slug+'-m.webp" width="390" height="844" alt="" data-k="m'+i+'" loading="lazy"><video data-k="mv'+i+'" muted loop playsinline preload="none" poster="assets/work/'+w.slug+'-m.webp" aria-hidden="true"></video>';
+  phone.appendChild(m);
+});
+function show(i){
+  WORK.forEach(function(w, k){
+    var on = k === i;
+    var di = scr.querySelector('[data-k="d'+k+'"]'), dv = scr.querySelector('[data-k="dv'+k+'"]'), mi = phone.querySelector('[data-k="m'+k+'"]'), mv = phone.querySelector('[data-k="mv'+k+'"]');
+    di.dataset.on = on ? "1" : "0"; mi.dataset.on = on ? "1" : "0";
+    [[dv, "d"], [mv, "m"]].forEach(function(pair){
+      var v = pair[0]; if (!v) return;
+      if (on && !reduced){
+        if (!v.dataset.ready){ v.src = "assets/work/" + w.slug + "-" + pair[1] + ".mp4"; v.dataset.ready = "1"; v.addEventListener("loadeddata", function(){ if (v.dataset.want === "1") v.dataset.on = "1"; }); }
+        v.dataset.want = "1"; var pr = v.play(); if (pr && pr.catch) pr.catch(function(){});
+        if (v.readyState >= 2) v.dataset.on = "1";
+      } else { v.dataset.want = "0"; v.dataset.on = "0"; v.pause(); }
+    });
+  });
+  document.querySelectorAll("#worklist button").forEach(function(b){ b.setAttribute("aria-pressed", String(+b.dataset.i === i)); });
+  var w = WORK[i];
+  document.getElementById("w-name").firstChild.nodeValue = w.name + " ";
+  document.getElementById("w-trade").textContent = w.trade; document.getElementById("w-desc").textContent = w.desc;
+  document.getElementById("w-link").href = "demos/" + w.slug + "/"; document.getElementById("url").textContent = "northlight.studio/demos/" + w.slug;
+}
+list.addEventListener("click", function(e){ var b = e.target.closest("button"); if (b) show(+b.dataset.i); });
+show(0);
+
+/* ============ anchors + form ============ */
+document.addEventListener("click", function(e){
+  var a = e.target.closest('a[href^="#"]'); if (!a) return;
+  var id = a.getAttribute("href").slice(1), t = id === "top" ? document.body : document.getElementById(id); if (!t) return;
+  e.preventDefault(); window.scrollTo({ top: id === "top" ? 0 : t.getBoundingClientRect().top + scrollY - (id === "top" ? 0 : 0), behavior: reduced ? "auto" : "smooth" });
+});
+document.getElementById("form").addEventListener("submit", function(e){
+  e.preventDefault();
+  var f = e.target, msg = document.getElementById("msg");
+  if (!f.name.value.trim()){ msg.className = "msg err"; msg.textContent = "Add your name."; f.name.focus(); return; }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.value.trim())){ msg.className = "msg err"; msg.textContent = "Add an email we can reply to."; f.email.focus(); return; }
+  msg.className = "msg"; msg.textContent = "Opening your email app. If nothing opens, write to " + CONTACT + ".";
+  var body = "Name: " + f.name.value + "\nBusiness: " + f.biz.value + "\nEmail: " + f.email.value + "\nNeed: " + f.need.value + "\n\n" + f.msg.value + "\n";
+  location.href = "mailto:" + CONTACT + "?subject=" + encodeURIComponent("New website enquiry") + "&body=" + encodeURIComponent(body);
+});
+
+ScrollCraft.mount(document.body);
+</script>
+</body>
+</html>

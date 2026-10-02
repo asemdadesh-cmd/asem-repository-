@@ -4,9 +4,26 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-02_
 
 ---
+
+### 2026-10-02 — Sell the sites with six different grammars, and keep the art procedural
+**Decision:** Build the sales site and the five demos as six *structurally different* scroll-craft grammars
+(split stage, gallery, filmic, cutlist, typographic poster, live surface) instead of one shared template with six
+palettes. Draw all artwork as original SVG / canvas / CSS rather than stock or generated photos. Vendor the
+scroll-craft engine unmodified. Keep every site a single static HTML file with relative paths and no third-party
+runtime requests.
+**Why:** The point of the product is "not a template", and scroll-craft's own finding is that re-skinning one
+skeleton looks like a template; the fingerprint gate (6 of 6 dimensions differ between every pair) enforces that.
+Each demo shows a different thing a client can buy: a catalogue, a story, an energy brand, a bilingual brand, a tool.
+The sandbox had no image-generation key and blocked stock hosts, which turned out to be an advantage: procedural art
+is licence-free, tiny, resolution-independent and cannot misrepresent a real place or person. Static, self-hosted
+output means free hosting, no monthly bill for clients, and nothing that breaks when a CDN does. Trade-offs:
+no photography (a premium tier could add it via kie.ai), `mailto:` forms instead of a backend, and the engine
+being unmodified means bespoke behaviour lives in each page's own JS.
+**Also:** Brand name "Northlight" and all prices are placeholders; demos are `noindex` and labelled fictional; no
+testimonials or statistics are invented anywhere.
 
 ### 2026-09-21 — Three lenses, not eighteen personas
 **Decision:** Build the `council` plugin around three functional lenses

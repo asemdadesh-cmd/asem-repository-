@@ -1,0 +1,259 @@
+<!doctype html>
+<!--
+  Tannour: concept site for a wood-fired Levantine restaurant (fictional brand, sample menu and prices).
+  Grammar: typographic poster. Type is the imagery. No photography, no scrims, no cards.
+  Signature move: the Arabic wordmark is walked into. Scroll scales the word about the loop of the waw until that
+  loop is the oven mouth and the page goes dark. The reading language (English / Arabic, LTR / RTL) can be switched
+  at any time without losing the place.
+-->
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tannour · Wood-fired Levantine kitchen · تنّور</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Concept site: a wood-fired Levantine restaurant. Bilingual, English and Arabic, with the name set at poster scale.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%238E2A14'/><circle cx='16' cy='17' r='6' fill='none' stroke='%23F3E8D4' stroke-width='3'/></svg>">
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../assets/vendor/scrollcraft.css">
+<style>
+  :root {
+    --sc-canvas: #8E2A14;
+    --sc-surface: #A33620;
+    --sc-ink: #F3E8D4;
+    --sc-ink-soft: #E7D2B6;
+    --sc-accent: #F2B632;
+    --sc-accent-ink: #1B1410;
+    --sc-font-display: "Reem Kufi", "Cairo", system-ui, sans-serif;
+    --sc-font-text: "Cairo", system-ui, sans-serif;
+    --sc-font-mono: "Cairo", system-ui, sans-serif;
+    --brick: #8E2A14; --ink: #17180F; --bone: #F1E6CF; --saffron: #F2B632;
+    --ox: 28%; --oy: 52%;
+  }
+  html { scroll-behavior: auto; }
+  body { font-family: var(--sc-font-text); font-weight: 400; }
+  .sc-grain { opacity: .05; }
+  :lang(ar) { letter-spacing: 0 !important; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* ---- quiet controls only: no nav bar on a poster ---- */
+  .ctl { position: fixed; z-index: 70; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: center; padding: .9rem var(--sc-gutter); pointer-events: none; mix-blend-mode: normal; }
+  .ctl > * { pointer-events: auto; }
+  .ctl a, .ctl button { color: var(--ctl, var(--sc-ink)); font: 600 .95rem var(--sc-font-text); background: none; border: 0; cursor: pointer; text-decoration: underline; text-underline-offset: .28em; min-height: 44px; padding: 0 .4rem; }
+  .ctl button { text-decoration: none; border: 1px solid currentColor; border-radius: 999px; padding: 0 1.1rem; transition: background 140ms var(--sc-ease-out), color 140ms var(--sc-ease-out); }
+  @media (hover:hover) and (pointer:fine) { .ctl button:hover { background: var(--ctl, var(--sc-ink)); color: var(--ctlbg, var(--brick)); } }
+  .ctl button:active { transform: scale(.97); }
+
+  /* ---- 1 · hero ---- */
+  .hero [data-sc-stage] { display: grid; place-items: center; align-content: center; }
+  .hero__poster { text-align: center; line-height: .8; transform-origin: var(--ox) var(--oy); transform: scale(calc(1 + var(--sc-p, 0) * var(--sc-p, 0) * 9)); }
+  .hero h1 { margin: 0; display: grid; justify-items: center; gap: clamp(.5rem, 2vw, 2rem); font-weight: 700; }
+  .ar-word { font-family: var(--sc-font-display); font-size: min(40vw, 62svh); line-height: 1.02; font-weight: 700; letter-spacing: 0; color: var(--sc-ink); display: block; direction: rtl; }
+  .lat-word { font-family: var(--sc-font-display); font-weight: 500; font-size: clamp(1.6rem, 6.4vw, 6.6rem); letter-spacing: .3em; margin-right: -.3em; text-transform: uppercase; color: var(--sc-ink); }
+  .hero .tag { margin: clamp(.8rem, 2vh, 1.6rem) 0 0; font-size: clamp(.95rem, .85rem + .5vw, 1.3rem); color: var(--sc-ink-soft); letter-spacing: .02em; }
+  .hero__fade { position: absolute; inset: 0; background: var(--ink); pointer-events: none; opacity: clamp(0, calc((var(--sc-p, 0) - .82) * 6), 1); z-index: 5; }
+  @media (max-width: 860px) { .ar-word { font-size: min(70vw, 52svh); } .lat-word { font-size: 8.6vw; } }
+
+  /* ---- 2 · statement ---- */
+  .statement { padding: clamp(5rem, 14vw, 12rem) var(--sc-gutter); display: grid; align-content: center; min-height: 80svh; }
+  .statement p { margin: 0; font: 700 clamp(2.2rem, 1rem + 5.6vw, 6.6rem)/1.08 var(--sc-font-display); letter-spacing: -.02em; max-width: 18ch; text-wrap: balance; color: var(--bone); }
+  .statement p em { font-style: normal; color: var(--saffron); }
+  .statement .rule { display: block; height: 3px; width: min(30vw, 20rem); background: var(--saffron); margin-top: 2.4rem; }
+
+  /* ---- 3 · the four ---- */
+  .four [data-sc-stage] { display: grid; place-items: center; text-align: center; }
+  .el { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 1rem; padding: 4rem var(--sc-gutter) 3rem; }
+  .el .arw { font: 700 min(50vw, 66svh)/.92 var(--sc-font-display); letter-spacing: 0; color: var(--bone); direction: rtl; }
+  .el .enw { margin-top: 1.2rem; font: 500 clamp(1.4rem, 5vw, 5.4rem)/1 var(--sc-font-display); letter-spacing: .34em; margin-right: -.34em; text-transform: uppercase; color: var(--saffron); }
+  .el p { margin: .4rem 0 0; font-size: clamp(1rem, .9rem + .5vw, 1.4rem); max-width: 34ch; color: var(--sc-ink-soft); }
+  @media (max-width: 860px) { .el .arw { font-size: min(62vw, 44svh); } }
+
+  /* ---- 4 · the menu, as type ---- */
+  .menu { background: var(--bone); color: var(--ink); --sc-ink: #17180F; --sc-ink-soft: #4a3f33; padding: clamp(4rem, 9vw, 9rem) var(--sc-gutter); }
+  .menu h2 { font: 700 clamp(3rem, 1rem + 9vw, 10rem)/.9 var(--sc-font-display); letter-spacing: -.02em; margin: 0 0 clamp(1.5rem, 4vw, 4rem); color: var(--brick); }
+  .menu h2 span { display: block; font-size: .38em; letter-spacing: .02em; color: var(--ink); margin-top: .35em; font-family: var(--sc-font-text); font-weight: 600; }
+  .course { margin-top: clamp(2rem, 5vw, 5rem); }
+  .course > h3 { font: 600 clamp(1rem, .9rem + .4vw, 1.3rem) var(--sc-font-text); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); margin: 0 0 .9rem; padding-bottom: .9rem; border-bottom: 3px solid var(--ink); display: flex; justify-content: space-between; gap: 1rem; }
+  .row { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) auto; gap: .2rem clamp(1rem, 3vw, 3rem); align-items: baseline; padding: .9rem 0 1rem; border-bottom: 1px solid color-mix(in oklab, var(--ink) 25%, transparent); }
+  .row h4 { margin: 0; font: 700 clamp(1.9rem, 1rem + 3.6vw, 4.6rem)/1 var(--sc-font-display); letter-spacing: -.01em; color: var(--ink); }
+  .row h4 .alt { display: block; font-size: .56em; color: var(--brick); margin-top: .1em; font-weight: 600; }
+  .row p { margin: 0; font-size: clamp(.95rem, .88rem + .35vw, 1.2rem); color: var(--sc-ink-soft); max-width: 34ch; }
+  .row .pr { font: 700 clamp(1.3rem, 1rem + 1.2vw, 2.1rem) var(--sc-font-display); font-variant-numeric: tabular-nums; }
+  .sample { margin-top: 2rem; font-size: .9rem; color: var(--sc-ink-soft); }
+  @media (max-width: 860px) { .row { grid-template-columns: 1fr auto; } .row p { grid-column: 1 / -1; } }
+
+  /* ---- 5 · come hungry ---- */
+  .hungry { background: var(--brick); }
+  .hungry [data-sc-stage] { display: grid; place-items: center; text-align: center; }
+  .hungry .big { font: 700 min(15vw, 28svh)/.9 var(--sc-font-display); letter-spacing: -.03em; color: var(--bone); transform: scale(calc(.9 + var(--sc-p, 0) * 3.2)); opacity: clamp(0, calc((1 - var(--sc-p, 0)) * 3.5), 1); display: grid; gap: .1em; }
+  .hungry .big .a { font-size: 1.1em; direction: rtl; letter-spacing: 0; color: var(--saffron); }
+  .hungry__cut { position: absolute; inset: 0; background: var(--ink); pointer-events: none; opacity: clamp(0, calc((var(--sc-p, 0) - .55) * 3), 1); }
+  .hungry .after { position: absolute; left: 0; right: 0; bottom: 18%; padding-inline: var(--sc-gutter); text-align: center; font-size: clamp(1rem, .9rem + .5vw, 1.4rem); color: var(--sc-ink-soft); }
+
+  /* ---- 6 · the quiet close ---- */
+  .close { background: var(--ink); color: var(--bone); padding: clamp(5rem, 12vw, 9rem) var(--sc-gutter) 3rem; min-height: 70svh; display: grid; align-content: space-between; gap: 4rem; --sc-ink: #F3E8D4; --sc-ink-soft: #CDBDA3; }
+  .close dl { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 18rem)); gap: 2rem 3rem; font-size: .95rem; }
+  .close dt { font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--sc-ink-soft); margin-bottom: .3rem; font-weight: 600; }
+  .close dd { margin: 0; line-height: 1.55; }
+  .close .reserve { font-size: 1rem; }
+  .close .reserve a { color: var(--saffron); text-underline-offset: .3em; text-decoration-thickness: 1px; font-weight: 600; }
+  .close .reserve a:focus-visible { outline-color: var(--saffron); }
+  .close small { display: block; color: var(--sc-ink-soft); font-size: .78rem; margin-top: 1rem; line-height: 1.5; max-width: 62ch; }
+  @media (max-width: 860px) { .close dl { grid-template-columns: 1fr; } }
+
+  /* RTL mode */
+  html[dir="rtl"] .row p, html[dir="rtl"] .statement p { text-align: start; }
+  html[dir="rtl"] .statement p { font-family: var(--sc-font-display); line-height: 1.25; }
+  html[dir="rtl"] .menu h2 span, html[dir="rtl"] .course > h3 { letter-spacing: 0; }
+
+  @media (prefers-reduced-motion: reduce) { .hero__poster, .hungry .big { transform: none !important; } .hungry .big { opacity: 1 !important; } .hero__fade, .hungry__cut { display: none; } }
+</style>
+</head>
+<body>
+
+<span data-sc-progress aria-hidden="true" style="background:var(--saffron)"></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<div class="ctl" id="ctl">
+  <a href="#visit" data-i18n data-ar="احجز طاولة">Reserve a table</a>
+  <button type="button" id="lang" aria-label="Switch language between English and Arabic" lang="ar">عربي</button>
+</div>
+
+<main id="top">
+
+  <!-- 1 · the name, at poster scale -->
+  <section class="hero" data-sc-act="pin" data-sc-span="2.6" data-sc-drift="#8E2A14">
+    <div data-sc-stage>
+      <div class="hero__poster" id="poster">
+        <h1><span class="ar-word" id="arword" lang="ar" dir="rtl">تنّور</span><span class="lat-word">Tannour</span></h1>
+        <p class="tag" data-i18n data-ar="مطبخ شامي على نار الحطب">Wood-fired Levantine kitchen</p>
+      </div>
+      <div class="hero__fade" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- 2 · one sentence -->
+  <section class="statement" data-sc-act="flow" data-sc-drift="#17180F">
+    <p data-sc-in data-i18n data-ar="نطبخ قريبًا من النار، بلا استعجال، كما اعتدنا دائمًا.">Cooked close to the fire, without hurry, <em>the way it has always been done.</em></p>
+    <span class="rule" data-sc-reveal="left" data-sc-reveal-at="0.28 0.5" aria-hidden="true"></span>
+  </section>
+
+  <!-- 3 · four words -->
+  <section class="four" data-sc-act="pin" data-sc-span="4.4" data-sc-drift="#17180F" aria-label="Fire, bread, smoke, salt">
+    <div data-sc-stage>
+      <div class="el" data-sc-cue="0 0.26 0 0.08"><span class="arw" lang="ar">نار</span><span class="enw">Fire</span><p data-i18n data-ar="خشب البلوط والزيتون، يُشعل عند الظهيرة.">Oak and olive wood, lit at noon.</p></div>
+      <div class="el" data-sc-cue="0.25 0.5 0.06 0.06"><span class="arw" lang="ar">خبز</span><span class="enw">Bread</span><p data-i18n data-ar="عجين يرتاح طوال الليل، يُلصق على جدار التنّور.">Dough rested overnight, slapped on the wall of the oven.</p></div>
+      <div class="el" data-sc-cue="0.49 0.74 0.06 0.06"><span class="arw" lang="ar">دخان</span><span class="enw">Smoke</span><p data-i18n data-ar="لحم وجاج يُقلَّب فوق الجمر.">Lamb and chicken, turned over the coals.</p></div>
+      <div class="el" data-sc-cue="0.73 1 0.06 0"><span class="arw" lang="ar">ملح</span><span class="enw">Salt</span><p data-i18n data-ar="ليمون وسمّاق وزعتر، ويدٌ تعرف متى تتوقف.">Lemon, sumac, za’atar, and a hand that knows when to stop.</p></div>
+    </div>
+  </section>
+
+  <!-- 4 · the menu is the page -->
+  <section class="menu" id="menu" aria-labelledby="menu-h">
+    <h2 id="menu-h" data-sc-in><span class="mh" data-i18n data-ar="القائمة" style="display:inline;font-size:1em;color:inherit;font-family:inherit;font-weight:inherit">The menu</span><span data-i18n data-ar="مثال تجريبي. الأسعار تقديرية." >Sample menu. Prices are placeholders.</span></h2>
+
+    <div class="course" data-sc-in>
+      <h3><span data-i18n data-ar="للبداية">To start</span><span lang="ar">للبداية</span></h3>
+      <div class="row"><h4>Hummus<span class="alt" lang="ar">حمّص</span></h4><p data-i18n data-ar="حمّص دافئ، طحينة، زيت زيتون.">Warm chickpeas, tahini, olive oil.</p><span class="pr">£7</span></div>
+      <div class="row"><h4>Moutabal<span class="alt" lang="ar">متبّل</span></h4><p data-i18n data-ar="باذنجان مدخّن، طحينة، رمّان.">Smoked aubergine, tahini, pomegranate.</p><span class="pr">£8</span></div>
+      <div class="row"><h4>Fattoush<span class="alt" lang="ar">فتّوش</span></h4><p data-i18n data-ar="خبز مقرمش، سمّاق، بقلة، فجل.">Crisp bread, sumac, purslane, radish.</p><span class="pr">£9</span></div>
+    </div>
+
+    <div class="course" data-sc-in>
+      <h3><span data-i18n data-ar="من التنّور">From the oven</span><span lang="ar">من التنّور</span></h3>
+      <div class="row"><h4>Khubz<span class="alt" lang="ar">خبز</span></h4><p data-i18n data-ar="خبز يُلصق على جدار التنّور، للمشاركة.">Bread slapped on the oven wall, to share.</p><span class="pr">£4</span></div>
+      <div class="row"><h4>Shish taouk<span class="alt" lang="ar">شيش طاووق</span></h4><p data-i18n data-ar="دجاج بالثوم والليمون، مع التوم.">Garlic and lemon chicken, toum.</p><span class="pr">£17</span></div>
+      <div class="row"><h4>Lamb kafta<span class="alt" lang="ar">كفتة</span></h4><p data-i18n data-ar="لحم غنم، بقدونس، بصل، خبز.">Lamb, parsley, onion, flatbread.</p><span class="pr">£19</span></div>
+      <div class="row"><h4>Sea bream<span class="alt" lang="ar">سمك</span></h4><p data-i18n data-ar="سمكة كاملة على الجمر، طرطور.">Whole fish charred over embers, tarator.</p><span class="pr">£26</span></div>
+    </div>
+
+    <div class="course" data-sc-in>
+      <h3><span data-i18n data-ar="للختام">To finish</span><span lang="ar">للختام</span></h3>
+      <div class="row"><h4>Knafeh<span class="alt" lang="ar">كنافة</span></h4><p data-i18n data-ar="جبن دافئ، سميد، قطر بماء الزهر.">Warm cheese, semolina, orange blossom syrup.</p><span class="pr">£9</span></div>
+      <div class="row"><h4>Mint tea<span class="alt" lang="ar">شاي بالنعناع</span></h4><p data-i18n data-ar="نعناع طازج وقليل من السكر.">Fresh mint, a little sugar.</p><span class="pr">£4</span></div>
+    </div>
+  </section>
+
+  <!-- 5 · the push -->
+  <section class="hungry" data-sc-act="pin" data-sc-span="2.2" data-sc-drift="#8E2A14" aria-label="Come hungry">
+    <div data-sc-stage>
+      <div class="big" aria-hidden="true"><span class="a" lang="ar">تعال جائعًا</span><span>Come hungry.</span></div>
+      <div class="hungry__cut" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- 6 · the quiet close -->
+  <section class="close" id="visit" aria-labelledby="visit-h">
+    <h2 id="visit-h" class="sr" data-i18n data-ar="زيارة">Visit</h2>
+    <dl>
+      <div><dt data-i18n data-ar="العنوان">Where</dt><dd>12 Example Street<br>Northtown</dd></div>
+      <div><dt data-i18n data-ar="الدوام">When</dt><dd data-i18n data-ar="من الثلاثاء إلى الأحد، من الخامسة مساءً. تُشعل النار عند الظهيرة.">Tuesday to Sunday, from five. The fire is lit at noon.</dd></div>
+      <div><dt data-i18n data-ar="الحجز">Tables</dt><dd data-i18n data-ar="نحجز لثمانية أشخاص كحد أقصى. الباقي على الطاولة المشتركة.">Booked for up to eight. Walk-ins sit at the long table.</dd></div>
+    </dl>
+    <div>
+      <p class="reserve"><a href="#" id="reserve" data-i18n data-ar="احجز طاولة">Reserve a table</a></p>
+      <small data-i18n data-ar="تنّور موقع تجريبي لعلامة خيالية. العنوان والأسعار والأوقات أمثلة. يفتح الرابط تطبيق البريد، ولا يُرسل شيء من هذه الصفحة.">Tannour is a concept site for a fictional restaurant. Address, prices and hours are samples. The link opens your email app; nothing is sent from this page.</small>
+    </div>
+  </section>
+
+</main>
+
+<script src="../../assets/vendor/scrollcraft.js"></script>
+<script>
+var CONTACT = "tables@tannour.example";   // replace before going live
+var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- language switch: English LTR <-> Arabic RTL, without losing the place ---------- */
+var i18n = [].slice.call(document.querySelectorAll("[data-i18n]"));
+i18n.forEach(function(el){ el.dataset.en = el.innerHTML; });
+function setLang(l){
+  var ar = l === "ar";
+  document.documentElement.lang = l; document.documentElement.dir = ar ? "rtl" : "ltr";
+  i18n.forEach(function(el){ el.innerHTML = ar ? el.dataset.ar : el.dataset.en; });
+  var b = document.getElementById("lang"); b.textContent = ar ? "English" : "عربي"; b.setAttribute("lang", ar ? "en" : "ar");
+  try { localStorage.setItem("tannour-lang", l); } catch(e){}
+}
+document.getElementById("lang").addEventListener("click", function(){
+  var y = scrollY; setLang(document.documentElement.lang === "ar" ? "en" : "ar"); scrollTo(0, y);
+});
+try { var sv = localStorage.getItem("tannour-lang"); if (sv === "ar") setLang("ar"); } catch(e){}
+
+/* ---------- walk into the waw: transform origin = the loop of the letter ---------- */
+function setOrigin(){
+  var w = document.getElementById("arword"), poster = document.getElementById("poster");
+  var tn = w.firstChild; if (!tn || tn.nodeType !== 3) return;
+  var s = tn.nodeValue, idx = s.indexOf("و");              // waw
+  if (idx < 0) return;
+  var r = document.createRange(); r.setStart(tn, idx); r.setEnd(tn, idx + 1);
+  var b = r.getBoundingClientRect(), pb = poster.getBoundingClientRect();
+  // the loop of a Kufi waw sits in the upper-left of its glyph box; aim there
+  var x = b.left + b.width * 0.5 - pb.left, y = b.top + b.height * 0.5 - pb.top;
+  poster.style.setProperty("--ox", (x / pb.width * 100).toFixed(1) + "%");
+  poster.style.setProperty("--oy", (y / pb.height * 100).toFixed(1) + "%");
+}
+document.fonts.ready.then(setOrigin); addEventListener("resize", setOrigin);
+
+/* ---------- control colours follow the ground ---------- */
+var ctl = document.getElementById("ctl");
+var menuEl = document.getElementById("menu");
+function ctlColour(){
+  var r = menuEl.getBoundingClientRect();
+  var onBone = r.top < 40 && r.bottom > 40;
+  ctl.style.setProperty("--ctl", onBone ? "#17180F" : "#F3E8D4");
+  ctl.style.setProperty("--ctlbg", onBone ? "#F1E6CF" : "#8E2A14");
+}
+addEventListener("scroll", ctlColour, { passive:true }); ctlColour();
+
+/* ---------- reserve ---------- */
+document.getElementById("reserve").addEventListener("click", function(e){
+  e.preventDefault();
+  location.href = "mailto:" + CONTACT + "?subject=" + encodeURIComponent("Table request") + "&body=" + encodeURIComponent("Hello Tannour,\n\nI'd like to book a table.\n\nName:\nDate and time:\nGuests:\n");
+});
+document.querySelector('.ctl a[href="#visit"]').addEventListener("click", function(e){
+  e.preventDefault(); document.getElementById("visit").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+});
+
+ScrollCraft.mount(document.body);
+</script>
+</body>
+</html>

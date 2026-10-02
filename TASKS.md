@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-02_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -22,14 +22,27 @@ _Last updated: 2026-09-21_
 - [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
 - [x] Register `council` in the marketplace manifest
 
+- [x] Install scroll-craft (vendored engine in `web/assets/vendor/`, MIT licence kept)
+- [x] Build 5 demo sites in 5 industries / 5 grammars (`web/demos/`)
+- [x] Build the Northlight Studio sales site (`web/index.html`) with real demo captures
+- [x] Capture portfolio stills + scroll clips; verify desktop / phone / reduced motion
+- [x] Write launch kit (`marketing/LAUNCH-KIT.md`)
+
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
+- [ ] Owner: choose the real brand name, domain, prices; replace `*.example` contacts
+- [ ] Owner: test all six sites on a real iPhone and an Android phone
+- [ ] Owner: deploy `web/` (Netlify / Vercel / Cloudflare Pages) and add the link to the launch kit
+- [ ] Owner: open the Facebook Page and Instagram per `marketing/LAUNCH-KIT.md`
+- [ ] Swap `mailto:` forms for a real form endpoint (Formspree / Netlify Forms)
+- [ ] Add a first real case study + testimonial to the sales site once a client says yes
 - [ ] Dogfood `council` on one real decision and tune the round word limits
 
 ## 💤 Backlog
-- [ ] Add an `examples/` or `sites/` directory for generated website outputs
+- [ ] Generate photographic assets (kie.ai) for a premium tier of demos
+- [ ] Arabic-first version of the sales site
 - [ ] Create a `website-scaffold` skill for consistent starter structure
 - [ ] Add per-website deployment notes once a real site is built

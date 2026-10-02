@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-02_
 
 ---
 
@@ -17,6 +17,11 @@ _Last updated: 2026-09-21_
   the **`agency-review` plugin/skill** — a reusable skill that turns Claude into
   an elite web-agency review board for building and shipping websites. Packaged
   as a plugin so it installs **globally** and works in every project.
+- **Second deliverable (2026-10-02): `web/`** — a **website-selling kit**: five
+  demo sites in five industries plus the sales site that presents them (placeholder
+  brand "Northlight Studio"), all built on the MIT **scroll-craft** engine
+  (github.com/nateherkai/scroll-craft). `marketing/LAUNCH-KIT.md` covers the
+  Facebook/Instagram launch, pricing, outreach scripts and first-client plan.
 - **Business goals:** Let the owner produce premium, production-ready websites
   on demand without re-pasting a long review framework each time. Raise the
   quality bar (design, copy, UX, SEO, accessibility, performance, security) of
@@ -24,21 +29,28 @@ _Last updated: 2026-09-21_
 - **Target users:** The repository owner (NHT Estates) and any collaborator who
   runs Claude Code in this repo. End beneficiaries are the clients whose
   websites/landing pages get built through the skill.
-- **Current status:** ✅ Active. The `agency-review` skill is implemented and
-  pushed on branch `claude/agency-review-framework-3a8hk8`. Living
-  documentation (this file + TASKS.md + DECISIONS.md) being established now.
+- **Current status:** ✅ Active. The `agency-review` skill is implemented. The
+  `web/` sites (sales site + 5 demos) are built and verified locally on branch
+  `ccr-32febd4a-ojhoey`; **not yet deployed** (see Deployment).
 
 ---
 
 ## Architecture
 
-- **System architecture:** No runtime application. This is a
-  **configuration/knowledge repository** consumed by the Claude Code agent. The
-  "logic" lives in Markdown skill files that Claude loads on demand.
+- **System architecture:** Two parts. (1) A **configuration/knowledge
+  repository** consumed by the Claude Code agent (the plugins; logic lives in
+  Markdown skill files). (2) **`web/`: static websites** with no backend, no build
+  step and no dependencies at runtime. Each page is one HTML file with inline CSS
+  and JS, driven by the vendored scroll-craft engine (`assets/vendor/`), which
+  reads `data-sc-*` attributes and publishes scroll progress as `--sc-p`.
 - **Technology stack:**
   - Claude Code skills (Markdown + YAML frontmatter)
   - Git / GitHub for versioning
-  - No build system, package manager, database, or server (yet)
+  - `web/`: HTML, CSS, vanilla JS; scroll-craft engine 0.3.x (MIT); self-hosted
+    OFL fonts; original SVG/canvas/CSS artwork (no photos, no stock, no AI images)
+  - Optional dev tooling in `web/tools/` (Playwright, axe-core, ffmpeg); not needed
+    to run or deploy
+  - No database, API or server
 - **Folder structure:**
   ```
   .
@@ -60,6 +72,15 @@ _Last updated: 2026-09-21_
   │               └── reference/
   │                   ├── checklist.md    # final pass/fail approval checklist
   │                   └── rewrite-guide.md # copywriting & conversion patterns
+  ├── web/                            # static sites (publish this folder as-is)
+  │   ├── index.html                  # Northlight Studio sales site (split-stage grammar)
+  │   ├── demos/{haldane-rowe,altura,iron-round,tannour,sundial}/index.html
+  │   ├── assets/{vendor,fonts,work}/ # engine, fonts, real screenshots + clips of the demos
+  │   ├── tools/                      # capture + verification scripts (optional)
+  │   ├── _headers, robots.txt        # security/cache headers, crawl rules
+  │   ├── README.md                   # run, deploy, go-live checklist, client customisation
+  │   └── BRIEFS-AND-FINGERPRINTS.md  # briefs, feeling curves, fingerprint gate
+  ├── marketing/LAUNCH-KIT.md         # Facebook/Instagram/outreach/pricing kit
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -84,6 +105,22 @@ _Last updated: 2026-09-21_
   - `reference/rewrite-guide.md` — copywriting & conversion patterns.
   - README documenting purpose and usage.
   - Living documentation system (PROJECT.md / TASKS.md / DECISIONS.md).
+  - **Sales site** (`web/index.html`): split-stage pitch (template vs Northlight)
+    that collapses into work, packages, process, FAQ and a contact form; the work
+    section plays real clips of each demo with a phone frame.
+  - **Haldane & Rowe** (estate agent, gallery): six homes drawn as one street;
+    each is surveyed, built and lit on arrival; shortlist travels with the
+    valuation request.
+  - **Altura** (coffee roaster, filmic): layered SVG mountain descent, altimeter,
+    scroll-run roast with Drop button that carries the roast level to the range
+    and the order.
+  - **Iron Round** (boxing gym, cutlist): the page is one 3-minute round whose
+    clock counts down with scroll; last 10 seconds take over the screen.
+  - **Tannour** (restaurant, typographic poster): Arabic name at poster scale
+    zoomed about the waw; English/Arabic switch with true RTL; menu as type.
+  - **Sundial** (solar installer, live surface): working roof estimator on a
+    labelled sample model; scroll plays the build while all controls stay live.
+  - **Launch kit** (`marketing/LAUNCH-KIT.md`).
 - **Features in progress**
   - Establishing auto-update discipline for the documentation files.
 - **Planned features**
@@ -125,15 +162,19 @@ _Last updated: 2026-09-21_
 
 ## Environment
 
-- **Required environment variables:** _none._
+- **Required environment variables:** _none._ (`web/tools/` scripts accept
+  `CHROME` for the browser path.)
 - **Third-party services:** GitHub (hosting/version control); Claude Code (the
-  agent that consumes the skill).
+  agent that consumes the skill). `web/` uses **none** at runtime: no CDN, no
+  analytics, no external fonts.
 - **Setup instructions:**
   1. In Claude Code: `/plugin marketplace add asemdadesh-cmd/asem-repository-`
   2. `/plugin install agency-review@nht-skills`
   3. The skill is now available in **every** project; trigger it by asking to
      build/design a website, or invoke `/agency-review` explicitly. Update later
      with `/plugin marketplace update nht-skills`.
+  4. To run the sites: `python3 -m http.server 4500 --directory web` and open
+     http://localhost:4500 (use a server, not `file://`).
 
 ---
 
@@ -143,14 +184,31 @@ _Last updated: 2026-09-21_
 - **Deployment steps:** Commit and push to the working branch
   (`git push -u origin claude/agency-review-framework-3a8hk8`). The skill is
   "deployed" simply by being present in `.claude/skills/`.
-- **Hosting configuration:** _N/A for the repo._ Websites built with the skill
-  are hosted per-project (documented in this file when that happens).
+- **Hosting configuration:** `web/` is a plain static folder. Publish `web/` as the
+  site root on Netlify, Vercel, Cloudflare Pages or GitHub Pages (all paths are
+  relative; no build command). `_headers` carries CSP/nosniff/referrer headers for
+  Netlify and Cloudflare Pages; translate to `vercel.json` on Vercel. **Nothing is
+  deployed yet**: publishing makes the fictional demos public, so it is a
+  deliberate owner step. Details in `web/README.md`.
 
 ---
 
 ## Known Issues
 
-- **Bugs:** None known.
+- **Bugs:** None known after the 2026-10-02 verification pass (see Changelog).
+- **Web: placeholders to replace before going live:** brand name "Northlight",
+  `CONTACT` addresses (`*.example`), package prices, the demos' fictional
+  addresses/prices/hours. All marked in the source and listed in `web/README.md`.
+- **Web: forms are `mailto:` composers.** They open the visitor's email app and
+  never claim success; there is no backend, so no leads are stored. Swap in
+  Formspree/Netlify Forms/your own endpoint to receive submissions.
+- **Web: not verified on real devices.** Headless Chromium cannot reproduce a real
+  iPhone (autoplay policy, Low Power Mode, touch scrolling). Test on a phone
+  before showing clients. The sales-site clips are muted `<video>` with posters.
+- **Web: portfolio images/clips must be re-captured** (`web/tools/stills.mjs`,
+  `clips.mjs`) whenever a demo's look changes.
+- **Web: no photography.** All art is original SVG/canvas/CSS. Image generation
+  (kie.ai key) and stock access were unavailable in the build sandbox.
 - **Technical debt:** Documentation currently updated manually; no automated
   enforcement that it stays in sync with changes.
 - **Limitations:** None currently. `claude/agency-review-framework-3a8hk8` is
@@ -173,6 +231,17 @@ _Last updated: 2026-09-21_
 ---
 
 ## Changelog
+
+- **2026-10-02** — Installed **scroll-craft** (nateherkai/scroll-craft, MIT) and built
+  **`web/`**: the Northlight Studio sales site plus five demos (Haldane & Rowe,
+  Altura, Iron Round, Tannour, Sundial), each a different scroll-craft grammar
+  with its own signature interaction; `marketing/LAUNCH-KIT.md`; `web/tools/`.
+  Verification: scroll-craft harness on all six sites at desktop, phone (390×844)
+  and reduced motion (no dead scroll; contrast clear; one headline at 4.4:1 on a
+  large display line only on the pre-fix build, since fixed); axe-core clean at
+  sampled scroll positions; scripted checks of 16 controls pass. Applied the
+  `agency-review` pass (SEO meta/JSON-LD, headers, skip link, reduced-motion,
+  noindex on fictional demos). Not deployed.
 
 - **2026-09-21** — Added the **`council` plugin**: a three-lens deliberation skill
   (Skeptic / Builder / Risk) for costly or hard-to-reverse decisions. Runs
