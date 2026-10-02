@@ -37,6 +37,7 @@ Publish the `web/` folder as-is. Netlify, Vercel, Cloudflare Pages and GitHub Pa
 
 - **Netlify / Cloudflare Pages:** publish directory `web`, no build command. `_headers` is picked up automatically.
 - **Vercel:** framework "Other", output directory `web`. Translate `_headers` into `vercel.json` if you want the headers.
+- `web/vercel.json` carries the same security headers for Vercel (set the project Root Directory to `web`).
 - A root `netlify.toml` sets `publish = "web"` (and hides `/tools`), so connecting this repo to Netlify needs no settings.
 - A Netlify site named `northlight-studio-demos` has been created on the owner's account; it has no deploy yet (see PROJECT.md). Publishing makes the demos public, so it is a deliberate step.
 
