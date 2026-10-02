@@ -130,6 +130,12 @@
   }
   @media (max-height: 620px) and (min-width: 861px) { .roast .sc-body { display: none; } }
 
+  .beds { position: absolute; inset: 0; z-index: 0; pointer-events: none; -webkit-mask-image: linear-gradient(100deg, #000 0%, rgba(0,0,0,.7) 38%, rgba(0,0,0,.12) 62%, transparent 80%); mask-image: linear-gradient(100deg, #000 0%, rgba(0,0,0,.7) 38%, rgba(0,0,0,.12) 62%, transparent 80%); }
+  .beds img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+  .beds::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--sc-canvas) 0%, transparent 28%, transparent 72%, var(--sc-canvas) 100%); }
+  .roast .left, .roast .right { position: relative; z-index: 1; }
+  @media (max-width: 860px) { .beds { -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.5) 45%, transparent 75%); mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.5) 45%, transparent 75%); } }
+
   /* ---- 5 · range (pan) ---- */
   .range [data-sc-stage] { display: grid; align-content: center; }
   .rail { padding: 5rem 0 2rem var(--sc-gutter); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
@@ -248,6 +254,11 @@
   <!-- 4 · SUBSTANCE + PEAK: the roast -->
   <section class="roast" id="roast" data-sc-act="pin" data-sc-span="5.2" data-sc-drift="#16100B">
     <div data-sc-stage>
+      <div class="beds" aria-hidden="true">
+        <img id="bed-g" src="../../assets/gen/altura/beans-green.webp" width="1536" height="1024" alt="" decoding="async">
+        <img id="bed-m" src="../../assets/gen/altura/beans-medium.webp" width="1536" height="1024" alt="" decoding="async">
+        <img id="bed-d" src="../../assets/gen/altura/beans-dark.webp" width="1536" height="1024" alt="" decoding="async">
+      </div>
       <div class="left">
         <canvas id="drum" width="900" height="900" role="img" aria-label="Cross-section of a roasting drum. The beans change from green to brown as you scroll."></canvas>
         <div class="temp" aria-hidden="true">
@@ -563,9 +574,13 @@ function roastP(){
 }
 var lastLevel = null;
 function fmtTime(t){ var s = Math.round(t*TOTAL_S), m = Math.floor(s/60); s = s % 60; return (m<10?"0":"") + m + ":" + (s<10?"0":"") + s; }
+var bedG = document.getElementById("bed-g"), bedM = document.getElementById("bed-m"), bedD = document.getElementById("bed-d");
+function sstep(a, b, x){ var u = clamp((x - a)/(b - a), 0, 1); return u*u*(3-2*u); }
 function updateRoast(now){
   var t = dropped ? dropped.t : roastP();
   T_now = t;
+  var toM = sstep(0.26, 0.62, t), toD = sstep(0.74, 0.95, t);
+  bedG.style.opacity = (0.8 * (1 - toM)).toFixed(3); bedM.style.opacity = (0.8 * toM * (1 - toD)).toFixed(3); bedD.style.opacity = (0.8 * toD).toFixed(3);
   var Tc = profile(t);
   document.getElementById("t-time").textContent = fmtTime(t);
   document.getElementById("t-temp").innerHTML = Math.round(Tc) + "&nbsp;°C";

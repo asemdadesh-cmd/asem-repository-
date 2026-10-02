@@ -8,6 +8,15 @@ _Last updated: 2026-10-02_
 
 ---
 
+### 2026-10-02 — Generate photographic stills by rendering them locally
+**Decision:** Produce photographic-looking assets with three.js rendered in headless Chromium (`web/tools/render`) instead of
+using a paid or hosted image generator.
+**Why:** The owner asked for a free solution. ChatGPT Plus has no API access, Gamma charged 70 credits for a single
+image, and the sandbox network blocks every image host (Gamma CDN, Unsplash, Canva), so hosted generation could not be used
+anyway. Local rendering needs only npm packages, costs nothing, is deterministic (one seed gives matching frames for
+crossfades) and licence-free. Trade-off: it suits objects that can be modelled (beans, roofs, bags, terrain), not faces,
+food or arbitrary scenes. Only Altura uses photographic stills because the other grammars forbid or do not need photography.
+
 ### 2026-10-02 — Sell the sites with six different grammars, and keep the art procedural
 **Decision:** Build the sales site and the five demos as six *structurally different* scroll-craft grammars
 (split stage, gallery, filmic, cutlist, typographic poster, live surface) instead of one shared template with six

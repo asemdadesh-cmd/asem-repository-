@@ -75,8 +75,8 @@ _Last updated: 2026-10-02_
   ├── web/                            # static sites (publish this folder as-is)
   │   ├── index.html                  # Northlight Studio sales site (split-stage grammar)
   │   ├── demos/{haldane-rowe,altura,iron-round,tannour,sundial}/index.html
-  │   ├── assets/{vendor,fonts,work}/ # engine, fonts, real screenshots + clips of the demos
-  │   ├── tools/                      # capture + verification scripts (optional)
+  │   ├── assets/{vendor,fonts,work,gen}/ # engine, fonts, demo screenshots + clips, rendered stills
+  │   ├── tools/                      # capture + verification scripts, render/ (3D stills) (optional)
   │   ├── _headers, robots.txt        # security/cache headers, crawl rules
   │   ├── README.md                   # run, deploy, go-live checklist, client customisation
   │   └── BRIEFS-AND-FINGERPRINTS.md  # briefs, feeling curves, fingerprint gate
@@ -207,8 +207,11 @@ _Last updated: 2026-10-02_
   before showing clients. The sales-site clips are muted `<video>` with posters.
 - **Web: portfolio images/clips must be re-captured** (`web/tools/stills.mjs`,
   `clips.mjs`) whenever a demo's look changes.
-- **Web: no photography.** All art is original SVG/canvas/CSS. Image generation
-  (kie.ai key) and stock access were unavailable in the build sandbox.
+- **Web: almost no photography, by design.** Altura's roast act uses three photographic-looking
+  bean stills **rendered locally** with three.js (`web/tools/render`, free, offline;
+  `web/assets/gen/altura/`). Everything else is original SVG/canvas/CSS. External image
+  generation (ChatGPT, Gamma, Canva) and stock downloads (Unsplash) are blocked by the build
+  sandbox's network allowlist; allowing `images.unsplash.com` would unlock free stock photos.
 - **Technical debt:** Documentation currently updated manually; no automated
   enforcement that it stays in sync with changes.
 - **Limitations:** None currently. `claude/agency-review-framework-3a8hk8` is
@@ -232,6 +235,11 @@ _Last updated: 2026-10-02_
 
 ## Changelog
 
+- **2026-10-02 (later)** — Added a free, offline image pipeline: `web/tools/render` renders
+  three.js scenes in headless Chromium. First use: three matching coffee-bean stills
+  (green / medium / dark) that crossfade behind Altura's roast as the roast progresses.
+  Re-verified Altura (harness desktop/phone/reduced, axe, interaction tests) and
+  re-captured its portfolio assets.
 - **2026-10-02** — Installed **scroll-craft** (nateherkai/scroll-craft, MIT) and built
   **`web/`**: the Northlight Studio sales site plus five demos (Haldane & Rowe,
   Altura, Iron Round, Tannour, Sundial), each a different scroll-craft grammar

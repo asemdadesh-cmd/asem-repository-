@@ -27,12 +27,15 @@ _Last updated: 2026-10-02_
 - [x] Build the Northlight Studio sales site (`web/index.html`) with real demo captures
 - [x] Capture portfolio stills + scroll clips; verify desktop / phone / reduced motion
 - [x] Write launch kit (`marketing/LAUNCH-KIT.md`)
+- [x] Free offline image pipeline (`web/tools/render`) + bean stills in Altura's roast act
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
+- [ ] Optional: allow `images.unsplash.com` in the environment network settings, then add free stock photos where a grammar allows photography
+- [ ] Optional: more rendered stills (cherry branch, coffee bags, solar roof) via `web/tools/render`
 - [ ] Owner: choose the real brand name, domain, prices; replace `*.example` contacts
 - [ ] Owner: test all six sites on a real iPhone and an Android phone
 - [ ] Owner: deploy `web/` (Netlify / Vercel / Cloudflare Pages) and add the link to the launch kit

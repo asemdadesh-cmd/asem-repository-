@@ -15,6 +15,7 @@ web/
 │   ├── vendor/                 scrollcraft.js / .css (MIT, from github.com/nateherkai/scroll-craft; do not edit)
 │   ├── fonts/                  Self-hosted OFL fonts + fonts.css
 │   ├── work/                   Real screenshots + scroll-through clips of each demo (used by the sales site)
+│   ├── gen/altura/             Bean stills rendered locally with three.js (see tools/render)
 │   └── og.jpg                  Social share image
 ├── _headers                    Security + cache headers (Netlify / Cloudflare Pages format)
 ├── robots.txt
