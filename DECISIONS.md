@@ -8,6 +8,15 @@ _Last updated: 2026-10-02_
 
 ---
 
+### 2026-10-02 — One repository per deliverable; guard deploys with a pre-deploy check
+**Decision:** Every site or app gets its own repo (root = deployable, `main` = production, host config at root). This tooling repo is
+not linked to a host. Deploys are preceded by `predeploy.mjs`.
+**Why:** This repo accumulated unrelated apps on separate branches and in subfolders, and two Vercel projects are linked to it with an
+unset Root Directory, so each push builds both projects, builds target the wrong folder, and production (`main`) holds no app. The
+owner's instinct (a repo per build) is right: it removes branch/folder ambiguity, gives each project its own history and
+environment, and makes the Vercel setup a two-click import. Trade-off: a repo must be created by the owner (the Claude GitHub
+connection cannot create repos), and old projects need their Vercel settings fixed by hand.
+
 ### 2026-10-02 — Generate photographic stills by rendering them locally
 **Decision:** Produce photographic-looking assets with three.js rendered in headless Chromium (`web/tools/render`) instead of
 using a paid or hosted image generator.

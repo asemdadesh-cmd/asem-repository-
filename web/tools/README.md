@@ -12,6 +12,7 @@ node stills.mjs                                        # re-capture assets/work/
 node clips.mjs [slug]                                  # re-record assets/work/*.mp4 scroll-through clips (needs ffmpeg with libx264)
 node interact.mjs                                      # scripted checks of every control on all six sites
 node axe.mjs                                           # axe-core accessibility scan at several scroll positions
+node predeploy.mjs ..                                 # pre-deploy check: missing/wrong-case files, bad vercel.json, secrets, big files
 node shoot.mjs --url http://localhost:4500/ --out lab  # scroll-craft harness: dead scroll, cue peaks, contrast (MIT, from scroll-craft)
 ```
 

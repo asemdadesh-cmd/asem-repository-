@@ -208,6 +208,12 @@ _Last updated: 2026-10-02_
 - **Web: not verified on real devices.** Headless Chromium cannot reproduce a real
   iPhone (autoplay policy, Low Power Mode, touch scrolling). Test on a phone
   before showing clients. The sales-site clips are muted `<video>` with posters.
+- **Deploys (Vercel) were flaky: cause and fix.** This repo is a multi-project repo: unrelated apps sit on separate
+  branches and in `apps/<name>`, `main` has none of them, and two Vercel projects (`cardiff-spa-bookings`,
+  `dessert-shop-ledger`, Root Directory unset) are linked to it, so every push on any branch triggers both. Fix: one repo per
+  deliverable, root = deployable, `main` = production, host config at root (rules in `CLAUDE.md`). Run
+  `web/tools/predeploy.mjs` before deploying. Existing Vercel projects still need their Root Directory / Production Branch
+  corrected in the Vercel dashboard (the MCP connection cannot change them).
 - **Web: portfolio images/clips must be re-captured** (`web/tools/stills.mjs`,
   `clips.mjs`) whenever a demo's look changes.
 - **Web: almost no photography, by design.** Altura's roast act uses three photographic-looking
@@ -238,6 +244,9 @@ _Last updated: 2026-10-02_
 
 ## Changelog
 
+- **2026-10-02 (deploy)** — Investigated recurring slow/failed Vercel deploys (see Known Issues), added
+  `web/vercel.json`, `web/tools/predeploy.mjs` and a Deploying section in `CLAUDE.md`. Netlify site `northlight-studio-demos`
+  created but empty; Vercel MCP and GitHub repo creation are permission-blocked.
 - **2026-10-02 (later)** — Added a free, offline image pipeline: `web/tools/render` renders
   three.js scenes in headless Chromium. First use: three matching coffee-bean stills
   (green / medium / dark) that crossfade behind Altura's roast as the roast progresses.
