@@ -4,9 +4,22 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-02_
 
 ---
+
+### 2026-10-02 — Stash: local-first Vite SPA in its own folder
+**Decision:** Build the money tracker as a static Vite + React + TypeScript SPA
+in `apps/money-tracker/`, storing data in `localStorage` (integer minor units),
+with its own lockfile and `vercel.json`. Charts are hand-rolled SVG.
+**Why:** The brief was "deploys to Vercel with no trouble". A static build with
+no backend, no env vars and no auth has nothing to misconfigure; the folder is
+self-contained so Vercel only needs Root Directory set. Local-first also means
+financial data never leaves the device (no privacy/compliance surface). Vite
+over Next.js: no server features needed, smaller and simpler. SVG charts over a
+chart library: three simple charts didn't justify ~100KB+ of JS. Trade-off: no
+multi-device sync and data loss if browser storage is cleared — mitigated with
+JSON backup/restore; cloud sync is in the backlog.
 
 ### 2026-09-21 — Three lenses, not eighteen personas
 **Decision:** Build the `council` plugin around three functional lenses

@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-02_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -21,15 +21,21 @@ _Last updated: 2026-09-21_
 
 - [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
 - [x] Register `council` in the marketplace manifest
+- [x] Build **Stash** money tracker (`apps/money-tracker/`) — Vercel-ready,
+      tests + build passing
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
+- [ ] Deploy Stash to Vercel (Root Directory `apps/money-tracker`)
+- [ ] Stash: recurring transactions (rent, salary, subscriptions)
 - [ ] Dogfood `council` on one real decision and tune the round word limits
 
 ## 💤 Backlog
+- [ ] Stash: optional cloud sync / accounts (e.g. Supabase) for multi-device use
+- [ ] Stash: offline service worker (full PWA)
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
 - [ ] Create a `website-scaffold` skill for consistent starter structure
 - [ ] Add per-website deployment notes once a real site is built
