@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-02_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -22,12 +22,16 @@ _Last updated: 2026-09-21_
 - [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
 - [x] Register `council` in the marketplace manifest
 
+- [x] Write Arabic ChatGPT handoff brief for UI design + photos
+
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
 - [ ] Dogfood `council` on one real decision and tune the round word limits
+
+- [ ] ChatGPT: build/redesign the website UI and photos per `CHATGPT-INSTRUCTIONS.ar.md`
 
 ## 💤 Backlog
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
