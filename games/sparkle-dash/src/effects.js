@@ -15,6 +15,7 @@ export class Particles {
     this.mesh.setColorAt(0, _c.set(0xffffff));
     this.p = Array.from({ length: MAX }, () => ({ life: 0, max: 1, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, size: 0.1, g: 10, spin: 0 }));
     this.next = 0;
+    this.hot = false;      // true while any particle may be alive
     this.reduced = false;
     for (let i = 0; i < MAX; i++) {
       _d.position.set(0, -50, 0);
@@ -29,6 +30,7 @@ export class Particles {
     const i = this.next;
     this.next = (this.next + 1) % MAX;
     Object.assign(this.p[i], { life, max: life, x, y, z, vx, vy, vz, size, g: gravity });
+    this.hot = true;
     this.mesh.setColorAt(i, _c.set(color));
     this.mesh.instanceColor.needsUpdate = true;
   }
@@ -62,7 +64,9 @@ export class Particles {
   }
 
   update(dt, worldSpeed) {
+    if (!this.hot) return;
     const p = this.p;
+    let alive = 0;
     for (let i = 0; i < MAX; i++) {
       const q = p[i];
       if (q.life <= 0) {
@@ -75,6 +79,7 @@ export class Particles {
         }
         continue;
       }
+      alive++;
       q.life -= dt;
       q.vy -= q.g * dt;
       q.x += q.vx * dt;
@@ -88,5 +93,6 @@ export class Particles {
       this.mesh.setMatrixAt(i, _d.matrix);
     }
     this.mesh.instanceMatrix.needsUpdate = true;
+    if (alive === 0) this.hot = false;     // that pass cleared the last matrices; sleep until the next spawn
   }
 }

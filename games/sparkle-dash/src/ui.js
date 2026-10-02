@@ -5,6 +5,20 @@ import { MAX_HEARTS } from './config.js';
 const $ = (id) => document.getElementById(id);
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+/**
+ * Restart a CSS animation WITHOUT forcing a synchronous layout (the usual `void el.offsetWidth`
+ * trick costs several ms on phones and shows up as a dropped frame at 120 Hz). The stylesheet
+ * defines two identical keyframes ("x" and "x2"); swapping between their classes restarts it.
+ */
+function restartAnim(el, a, b) {
+  if (el.classList.contains(a)) {
+    el.classList.replace(a, b);
+  } else {
+    el.classList.remove(b);
+    el.classList.add(a);
+  }
+}
+
 function icon(id, cls) {
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('class', cls);
@@ -32,6 +46,12 @@ export class UI {
     this.lastStars = -1;
     this.puEls = new Map();
     this.toastT = 0;
+    // hot-path elements, looked up once
+    this.elDist = $('hud-dist');
+    this.elStars = $('hud-stars');
+    this.elStarPill = document.querySelector('.pill-stars');
+    this.elToast = $('toast');
+    this.elCount = $('countdown');
 
     $('btn-play').addEventListener('click', () => h.onPlay());
     $('btn-prev').addEventListener('click', () => h.onChar(-1));
@@ -44,6 +64,8 @@ export class UI {
     $('btn-home').addEventListener('click', () => h.onHome());
     $('btn-mute').addEventListener('click', () => h.onMute());
     $('btn-mute-pause').addEventListener('click', () => h.onMute());
+    $('btn-gfx').addEventListener('click', () => h.onQuality());
+    $('btn-fps').addEventListener('click', () => h.onFps());
     for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => h.onDifficulty(b.dataset.diff));
   }
 
@@ -106,6 +128,26 @@ export class UI {
     p.textContent = m ? 'Sound: Off' : 'Sound: On';
   }
 
+  setQuality(mode) {
+    const b = $('btn-gfx');
+    const name = { auto: 'Auto', smooth: 'Smooth', sharp: 'Sharp' }[mode];
+    b.textContent = `Graphics: ${name}`;
+    b.setAttribute('aria-label', `Graphics quality: ${name}. Smooth is fastest, Sharp is crispest.`);
+  }
+
+  setFpsToggle(on) {
+    const b = $('btn-fps');
+    b.textContent = `FPS meter: ${on ? 'On' : 'Off'}`;
+    b.setAttribute('aria-pressed', String(on));
+    if (!on) this.setFps('');
+  }
+
+  setFps(text) {
+    const el = $('fps');
+    el.hidden = !text;
+    if (text) el.textContent = text;
+  }
+
   // ---- HUD ----
 
   setHearts(n, max = MAX_HEARTS, popLast = false) {
@@ -128,20 +170,15 @@ export class UI {
   setDistance(m) {
     if (m === this.lastDist) return;
     this.lastDist = m;
-    $('hud-dist').textContent = m;
+    this.elDist.textContent = m;
   }
 
   setStars(n, bump = false) {
     if (n !== this.lastStars) {
       this.lastStars = n;
-      $('hud-stars').textContent = n;
+      this.elStars.textContent = n;
     }
-    if (bump) {
-      const p = document.querySelector('.pill-stars');
-      p.classList.remove('bump');
-      void p.offsetWidth;
-      p.classList.add('bump');
-    }
+    if (bump) restartAnim(this.elStarPill, 'bump', 'bump2');
   }
 
   setPowerups(list) {
@@ -170,22 +207,18 @@ export class UI {
   clearPowerups() { this.setPowerups([]); }
 
   toast(text) {
-    const t = $('toast');
+    const t = this.elToast;
     t.textContent = text;
-    t.classList.remove('show');
-    void t.offsetWidth;
-    t.classList.add('show');
+    restartAnim(t, 'show', 'show2');
     clearTimeout(this.toastT);
-    this.toastT = setTimeout(() => t.classList.remove('show'), 2150);
+    this.toastT = setTimeout(() => t.classList.remove('show', 'show2'), 2150);
     this.announce(text);
   }
 
   countdown(text) {
-    const c = $('countdown');
+    const c = this.elCount;
     c.textContent = text;
-    c.classList.remove('show');
-    void c.offsetWidth;
-    c.classList.add('show');
+    restartAnim(c, 'show', 'show2');
   }
 
   combo(n) {

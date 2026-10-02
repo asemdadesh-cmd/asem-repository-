@@ -13,6 +13,9 @@ import { Particles } from './effects.js';
 import { AudioEngine } from './audio.js';
 import { bindInput } from './input.js';
 import { UI } from './ui.js';
+import { PerfGovernor, qualityLevels } from './perf.js';
+import { makePickup, propBakeTasks } from './props.js';
+import { toonVC } from './gfx.js';
 
 const params = new URLSearchParams(location.search);
 const SEED = params.has('seed') ? Number(params.get('seed')) >>> 0 : (Math.random() * 4294967296) >>> 0;
@@ -44,6 +47,8 @@ class Game {
       onRestart: () => { this.audio.click(); this.startRun(); },
       onHome: () => { this.audio.click(); this.goHome(); },
       onMute: () => this.toggleMute(),
+      onQuality: () => this.cycleQuality(),
+      onFps: () => this.toggleFps(),
       onDifficulty: (d) => { this.audio.unlock(); this.audio.click(); this.diff = d; save.set({ difficulty: d }); this.refreshTitle(); },
     });
 
@@ -60,19 +65,40 @@ class Game {
     this.camLook = new THREE.Vector3(0, 1, 0);
     this.camFov = 55;
     this.hudT = 0;
-    this.frames = 0;
-    this.frameAcc = 0;
     this.autopilot = false;
     this.god = false;
-    this.prLevels = [...new Set([Math.min(devicePixelRatio || 1, 2), 1.5, 1.25, 1, 0.85])].filter((p) => p <= Math.min(devicePixelRatio || 1, 2)).sort((a, b) => b - a);
-    this.prIdx = 0;
-    this.perfGrace = 150;          // frames to ignore while shaders compile and scenery bakes
+
+    // Frame-rate handling: resolution steps, governor (see perf.js), optional FPS meter.
+    this.quality = save.data.quality;
+    this.showFps = save.data.showFps || params.has('fps');
+    this.fps = { frames: 0, acc: 0, worst: 0, t: 0 };
+    this.applyQuality();
+
+    // Everything that could cause a mid-run hitch (baking meshes, first GPU upload) is done
+    // one item per frame while idle on the title / countdown, never during play.
+    this.warmTasks = [
+      ...['magnet', 'shield', 'dash', 'heart'].map((t) => () => makePickup(t)),
+      ...this.world.decorBakeTasks(),
+      ...propBakeTasks(),
+    ];
+    this.warmObj = null;
+
+    // reused every frame so the hot path allocates nothing
+    this.frameCb = (t) => this.frame(t);
+    this.pp = { x: 0, y: 0 };
+    this.playOpts = { mode: 'play', speed: 0, flags: { shield: false, magnet: false, dash: false } };
+    this.fxPos = new THREE.Vector3();
+    this.gotStars = 0;
+    this.onStarCb = (pos) => this.onStarCollected(pos);
+    this.onPickupCb = (e) => this.onPickup(e);
 
     this.resetRunState();
     this.world.resetDecor(0);
     this.previewChar(false);
     this.refreshTitle();
     this.ui.setMuted(save.data.muted);
+    this.ui.setQuality(this.quality);
+    this.ui.setFpsToggle(this.showFps);
     this.ui.setHearts(3, 3);
     this.layout();
     this.snapCamera();
@@ -97,7 +123,7 @@ class Game {
     addEventListener('keydown', (e) => this.menuKeys(e));
 
     this.last = performance.now();
-    requestAnimationFrame((t) => this.frame(t));
+    requestAnimationFrame(this.frameCb);
   }
 
   // ---- setup helpers -------------------------------------------------------
@@ -108,6 +134,33 @@ class Game {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+  }
+
+  /** (Re)build the resolution steps + governor for the current Graphics mode. */
+  applyQuality() {
+    this.prLevels = qualityLevels(window.devicePixelRatio || 1, this.quality);
+    this.prIdx = 0;
+    this.perf = new PerfGovernor({ levels: this.prLevels.length, onStepDown: (l) => { this.prIdx = l; this.layout(); } });
+    this.perf.reset(performance.now());
+    this.layout();
+  }
+
+  cycleQuality() {
+    this.audio.unlock();
+    this.audio.click();
+    const order = ['auto', 'smooth', 'sharp'];
+    this.quality = order[(order.indexOf(this.quality) + 1) % order.length];
+    save.set({ quality: this.quality });
+    this.applyQuality();
+    this.ui.setQuality(this.quality);
+  }
+
+  toggleFps() {
+    this.audio.unlock();
+    this.audio.click();
+    this.showFps = !this.showFps;
+    save.set({ showFps: this.showFps });
+    this.ui.setFpsToggle(this.showFps);
   }
 
   resetRunState() {
@@ -373,6 +426,15 @@ class Game {
     if (this.hearts <= 0) this.endRun();
   }
 
+  onStarCollected(pos) {
+    this.gotStars++;
+    this.stars++;
+    this.combo++;
+    this.comboT = 1.5;
+    this.audio.star(this.combo - 1);
+    this.particles.burst(pos, '#ffe27a', 6, 3.5, 0.11, 0.45, 8);
+  }
+
   onPickup(e) {
     const p = new THREE.Vector3(e.x, e.y, 0);
     this.particles.burst(p, '#ffffff', 16, 5, 0.13, 0.6, 5);
@@ -439,13 +501,49 @@ class Game {
   // ---- per-frame ---------------------------------------------------------------------
 
   frame(now) {
-    requestAnimationFrame((t) => this.frame(t));
-    const raw = (now - this.last) / 1000;
+    requestAnimationFrame(this.frameCb);
+    const rawMs = now - this.last;
     this.last = now;
-    const dt = Math.min(Math.max(raw, 0), 0.05);
-    this.watchPerformance(raw);
+    const dt = Math.min(Math.max(rawMs / 1000, 0), 0.05);
+    // don't judge performance while the pre-warm queue is still baking (those frames are deliberately lumpy)
+    const warming = this.warmTasks.length > 0 && this.state !== 'playing';
+    if (!document.hidden && this.state !== 'paused' && !warming) this.perf.sample(rawMs, now);
     this.update(dt);
+    this.warmStep();
     this.renderer.render(this.scene, this.camera);
+    if (this.showFps) this.fpsTick(rawMs, now);
+    else if (this.fps.frames) { this.fps.frames = 0; this.ui.setFps(''); }
+  }
+
+  /**
+   * Bake / upload one scenery or prop variant per idle frame. The item is drawn once at
+   * sub-pixel size inside the view so its buffers reach the GPU now, not mid-run.
+   */
+  warmStep() {
+    if (this.warmObj) {
+      this.scene.remove(this.warmObj);
+      this.warmObj = null;
+    }
+    if (!this.warmTasks.length || this.state === 'playing' || this.state === 'paused') return;
+    const r = this.warmTasks.shift()();
+    const obj = r.isBufferGeometry ? new THREE.Mesh(r, toonVC) : r;
+    obj.traverse((o) => { o.frustumCulled = false; });
+    obj.scale.setScalar(0.001);
+    obj.position.set(0, 1, 1);
+    this.scene.add(obj);
+    this.warmObj = obj;
+  }
+
+  fpsTick(rawMs, now) {
+    const f = this.fps;
+    f.frames++;
+    f.acc += rawMs;
+    if (rawMs < 250 && rawMs > f.worst) f.worst = rawMs;
+    if (now - f.t < 500) return;
+    const avg = f.acc / f.frames;
+    const info = this.renderer.info.render;
+    this.ui.setFps(`${Math.round(1000 / avg)} fps · ${avg.toFixed(1)} ms · worst ${Math.round(f.worst)} ms\n${this.prLevels[this.prIdx]}× res · display ≈${Math.round(this.perf.refreshHz)} Hz · ${info.calls} calls`);
+    f.frames = 0; f.acc = 0; f.worst = 0; f.t = now;
   }
 
   update(dt) {
@@ -524,16 +622,23 @@ class Game {
     if (DEBUG && this.autopilot) this.runBot();
 
     // player
-    this.player.update(dt, { mode: 'play', speed: this.speed, flags: { shield: this.shield, magnet: this.magnetT > 0, dash: this.dashT > 0 } });
+    const opts = this.playOpts;
+    opts.speed = this.speed;
+    opts.flags.shield = this.shield;
+    opts.flags.magnet = this.magnetT > 0;
+    opts.flags.dash = this.dashT > 0;
+    this.player.update(dt, opts);
     const flicker = this.invT > 0 && this.dashT <= 0 && !this.reduced && Math.floor(this.invT / 0.17) % 2 === 0;
     this.player.char.root.visible = !flicker;
     if (this.player.landed) {
       this.audio.land();
-      this.particles.burst(new THREE.Vector3(this.player.x, 0.1, 0.2), '#ffffff', 6, 3, 0.1, 0.35, 2);
+      this.particles.burst(this.fxPos.set(this.player.x, 0.1, 0.2), '#ffffff', 6, 3, 0.1, 0.35, 2);
     }
 
     // world props
-    const pp = { x: this.player.x, y: this.player.y };
+    const pp = this.pp;
+    pp.x = this.player.x;
+    pp.y = this.player.y;
     const magnetR = this.dashT > 0 ? 11 : this.magnetT > 0 ? 7.5 : 0;
     this.spawner.update(dt, this.traveled, this.speed, d.gapMul, pp, magnetR);
 
@@ -544,17 +649,11 @@ class Game {
     }
     if (this.state !== 'playing') return;       // that bonk may have ended the run
 
-    let got = 0;
-    this.spawner.collectStars(pp, (pos) => {
-      got++;
-      this.stars++;
-      this.combo++;
-      this.comboT = 1.5;
-      this.audio.star(this.combo - 1);
-      this.particles.burst(pos, '#ffe27a', 6, 3.5, 0.11, 0.45, 8);
-    });
+    this.gotStars = 0;
+    this.spawner.collectStars(pp, this.onStarCb);
+    const got = this.gotStars;
     if (got) this.ui.combo(this.combo);
-    this.spawner.collectPickups(this.traveled, pp, (e) => this.onPickup(e));
+    this.spawner.collectPickups(this.traveled, pp, this.onPickupCb);
 
     // trails
     this.dustT -= dt;
@@ -604,31 +703,31 @@ class Game {
     const portrait = Math.max(0, 1.25 - aspect);
     const showcase = this.state === 'title' || this.state === 'over' || this.state === 'transition' && !this.spawner.enabled;
     const px = this.player.x;
-    let pos, look, fov;
+    let tx, ty, tz, lx, ly, lz, fov;
     if (showcase) {
-      pos = [px * 0.5, 2.1 + portrait * 0.5, 5.6 + portrait * 3.2];
-      look = [px * 0.5, 1.0 - portrait * 0.2, 0];
+      tx = px * 0.5; ty = 2.1 + portrait * 0.5; tz = 5.6 + portrait * 3.2;
+      lx = px * 0.5; ly = 1.0 - portrait * 0.2; lz = 0;
       // results card takes the bottom of a portrait screen: lift the hero into the top part
-      if (this.state === 'over' && portrait > 0) look[1] -= portrait * 3.4;
+      if (this.state === 'over' && portrait > 0) ly -= portrait * 3.4;
       fov = 48 + portrait * 22;
       if (aspect >= 1.25 && this.state !== 'transition') {
         // landscape: slide the hero to the left third, the UI card owns the right
-        const shift = Math.tan((fov * Math.PI) / 360) * pos[2] * aspect * 0.46;
-        pos[0] += shift;
-        look[0] += shift;
+        const shift = Math.tan((fov * Math.PI) / 360) * tz * aspect * 0.46;
+        tx += shift;
+        lx += shift;
       }
     } else {
-      pos = [px * 0.55, 4.7 + portrait * 1.4, 8.6 + portrait * 2.4];
-      look = [px * 0.3, 1.2, -9];
+      tx = px * 0.55; ty = 4.7 + portrait * 1.4; tz = 8.6 + portrait * 2.4;
+      lx = px * 0.3; ly = 1.2; lz = -9;
       fov = 58 + portrait * 34 + Math.min(7, Math.max(0, this.speed - 10) * 0.5) + (this.dashT > 0 ? 9 : 0);
     }
     const k = snap ? 1 : 1 - Math.exp(-dt * (this.state === 'playing' ? 7 : 3.6));
-    this.camPos.x += (pos[0] - this.camPos.x) * k;
-    this.camPos.y += (pos[1] - this.camPos.y) * k;
-    this.camPos.z += (pos[2] - this.camPos.z) * k;
-    this.camLook.x += (look[0] - this.camLook.x) * k;
-    this.camLook.y += (look[1] - this.camLook.y) * k;
-    this.camLook.z += (look[2] - this.camLook.z) * k;
+    this.camPos.x += (tx - this.camPos.x) * k;
+    this.camPos.y += (ty - this.camPos.y) * k;
+    this.camPos.z += (tz - this.camPos.z) * k;
+    this.camLook.x += (lx - this.camLook.x) * k;
+    this.camLook.y += (ly - this.camLook.y) * k;
+    this.camLook.z += (lz - this.camLook.z) * k;
     this.camFov += (fov - this.camFov) * k;
 
     this.shake = Math.max(0, this.shake - dt * 2.4);
@@ -638,24 +737,6 @@ class Game {
     if (Math.abs(this.camera.fov - this.camFov) > 0.02) {
       this.camera.fov = this.camFov;
       this.camera.updateProjectionMatrix();
-    }
-  }
-
-  // ---- adaptive quality ------------------------------------------------------------------
-
-  watchPerformance(rawDt) {
-    if (document.hidden || this.state === 'paused' || rawDt > 0.25) return;
-    if (this.perfGrace > 0) { this.perfGrace--; return; }
-    this.frames++;
-    this.frameAcc += rawDt;
-    if (this.frames >= 90) {
-      const avg = this.frameAcc / this.frames;
-      this.frames = 0;
-      this.frameAcc = 0;
-      if (avg > 1 / 38 && this.prIdx < this.prLevels.length - 1) {
-        this.prIdx++;
-        this.layout();
-      }
     }
   }
 
@@ -703,7 +784,12 @@ class Game {
 function boot() {
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas: $('game'), antialias: true, powerPreference: 'high-performance' });
+    renderer = new THREE.WebGLRenderer({
+      canvas: $('game'),
+      antialias: (window.devicePixelRatio || 1) < 1.75,   // dense phone screens hide jaggies; MSAA there is wasted bandwidth
+      powerPreference: 'high-performance',
+      stencil: false,
+    });
   } catch {
     $('nowebgl').hidden = false;
     $('screen-title').hidden = true;

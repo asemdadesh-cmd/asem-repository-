@@ -132,8 +132,8 @@ const lerp = (a, b, k) => a + (b - a) * k;
  * t = seconds, k = run-cycle speed factor
  */
 export function animateCharacter(c, t, dt, mode, k = 1) {
-  const [footL, footR] = c.feet;
-  const [armL, armR] = c.arms;
+  const footL = c.feet[0], footR = c.feet[1];
+  const armL = c.arms[0], armR = c.arms[1];
   const s = Math.sin(t * 11 * k);
   const cs = Math.cos(t * 11 * k);
   let bob = 0;
@@ -177,7 +177,10 @@ export function animateCharacter(c, t, dt, mode, k = 1) {
   armL.rotation.z = -armSplay;
   armR.rotation.z = armSplay;
 
-  for (const e of c.ears) e.pivot.rotation.x = lerp(e.pivot.rotation.x, earPitch, Math.min(1, dt * 18));
+  for (let i = 0; i < c.ears.length; i++) {
+    const p = c.ears[i].pivot;
+    p.rotation.x = lerp(p.rotation.x, earPitch, Math.min(1, dt * 18));
+  }
 
   if (c.tail) {
     c.tail.rotation.y = Math.sin(t * (mode === 'run' ? 8 : 3.5)) * 0.4;
@@ -188,5 +191,6 @@ export function animateCharacter(c, t, dt, mode, k = 1) {
   c.blinkT -= dt;
   const blink = c.blinkT < 0.12 && c.blinkT > 0 ? 0.1 : 1;
   if (c.blinkT <= 0) c.blinkT = 2 + Math.random() * 2.5;
-  for (const e of c.eyes) e.scale.y = blink;
+  c.eyes[0].scale.y = blink;
+  c.eyes[1].scale.y = blink;
 }

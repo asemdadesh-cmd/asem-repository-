@@ -181,6 +181,8 @@ _Last updated: 2026-10-02_
 - **Bugs:** None known.
 - **Technical debt:** Documentation currently updated manually; no automated
   enforcement that it stays in sync with changes.
+- **Sparkle Dash 120 Hz:** CPU side verified (≈0.03 ms/frame, no baking hitches); GPU cost and
+  whether the browser grants 120 Hz (iOS Safari caps rAF at 60 by default) are unverified on real devices.
 - **Sparkle Dash:** not yet playtested on real phones/tablets or by children
   (verified in headless Chromium with software GL: gameplay logic, layouts at
   desktop / portrait phone / landscape phone, axe-core, seeded bot runs of ~4–5 km
@@ -225,6 +227,13 @@ _Last updated: 2026-10-02_
   only `localStorage` (best score, lifetime stars, selected friend, settings).
 
 ## Changelog
+
+- **2026-10-02** — Sparkle Dash **high-frame-rate pass** (target: 120 Hz phones): refresh-rate-aware
+  governor (`src/perf.js`, unit-tested), pre-baking/pre-uploading all scenery during idle
+  (removed 4–20 ms mid-run hitches), zero-reflow HUD animations (a star pickup used to force a
+  layout, up to 13 ms), MSAA off + capped resolution on dense screens, idle particle/blend
+  skipping, hot-loop allocation trims, pause-menu Graphics (Auto/Smooth/Sharp) and FPS meter.
+  Not measured on real phone hardware.
 
 - **2026-10-02** — Added **Sparkle Dash**, a playable 3D kids' game in
   `games/sparkle-dash/` (Three.js endless runner: 4 worlds, 4 friends, power-ups,

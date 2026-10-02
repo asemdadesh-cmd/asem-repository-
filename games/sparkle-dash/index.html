@@ -42,6 +42,7 @@
       <button id="btn-pause" class="icon-btn" type="button" aria-label="Pause"><svg class="ico" aria-hidden="true"><use href="#i-pause"/></svg></button>
     </div>
   </div>
+  <div id="fps" class="fps" aria-hidden="true" hidden></div>
   <div id="powerups" class="powerups" aria-hidden="true"></div>
   <div id="combo" class="combo" aria-hidden="true"></div>
   <div id="toast" class="toast" aria-hidden="true"></div>
@@ -97,7 +98,11 @@
       <h2 id="pause-title">Paused</h2>
       <div class="btn-col">
         <button id="btn-resume" class="btn btn-play" type="button">Keep going!</button>
-        <button id="btn-mute-pause" class="btn btn-secondary" type="button" aria-pressed="false">Sound: On</button>
+        <div class="btn-grid">
+          <button id="btn-mute-pause" class="btn btn-secondary btn-sm" type="button" aria-pressed="false">Sound: On</button>
+          <button id="btn-fps" class="btn btn-secondary btn-sm" type="button" aria-pressed="false">FPS meter: Off</button>
+          <button id="btn-gfx" class="btn btn-secondary btn-sm btn-wide" type="button">Graphics: Auto</button>
+        </div>
         <button id="btn-restart" class="btn btn-secondary" type="button">Start over</button>
         <button id="btn-quit" class="btn btn-secondary" type="button">Home</button>
       </div>

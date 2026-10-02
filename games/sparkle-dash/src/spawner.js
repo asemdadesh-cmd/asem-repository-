@@ -334,7 +334,8 @@ export class Spawner {
 
   /** First obstacle the player (x, feet-height y) is overlapping, or null. */
   hitObstacle(traveled, player) {
-    for (const e of this.obstacles) {
+    for (let i = 0; i < this.obstacles.length; i++) {
+      const e = this.obstacles[i];
       if (e.knocked) continue;
       const z = traveled - e.s;
       if (Math.abs(z) > e.halfD + 0.3) continue;

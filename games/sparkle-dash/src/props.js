@@ -57,11 +57,15 @@ function buildBlobBody(biomeIdx, variant) {
 }
 
 /** One draw call for the monster + one for its shadow. The body mesh is wobbled by the spawner. */
-export function makeBlob(biomeIdx, variant = 0) {
+export function blobGeometry(biomeIdx, variant) {
   const key = `${biomeIdx}:${variant}`;
   if (!bakedBlobs.has(key)) bakedBlobs.set(key, bakeGroup(buildBlobBody(biomeIdx, variant)));
+  return bakedBlobs.get(key);
+}
+
+export function makeBlob(biomeIdx, variant = 0) {
   const g = new THREE.Group();
-  const body = new THREE.Mesh(bakedBlobs.get(key), toonVC);
+  const body = new THREE.Mesh(blobGeometry(biomeIdx, variant), toonVC);
   g.add(body);
   g.userData.body = body;
   g.add(makeShadow(1.5));
@@ -87,12 +91,29 @@ function buildHurdle(biomeIdx) {
   return g;
 }
 
-export function makeHurdle(biomeIdx) {
+export function hurdleGeometry(biomeIdx) {
   if (!bakedHurdles.has(biomeIdx)) bakedHurdles.set(biomeIdx, bakeGroup(buildHurdle(biomeIdx)));
+  return bakedHurdles.get(biomeIdx);
+}
+
+export function makeHurdle(biomeIdx) {
   const g = new THREE.Group();
-  g.add(new THREE.Mesh(bakedHurdles.get(biomeIdx), toonVC));
+  g.add(new THREE.Mesh(hurdleGeometry(biomeIdx), toonVC));
   g.add(makeShadow(1.3));
   return g;
+}
+
+/**
+ * Every obstacle geometry as a bake task. The game runs these one per frame while idle
+ * (title / countdown) so nothing is ever baked, or uploaded to the GPU, mid-run.
+ */
+export function propBakeTasks() {
+  const tasks = [];
+  for (let b = 0; b < BIOMES.length; b++) {
+    tasks.push(() => hurdleGeometry(b));
+    for (let v = 0; v < 3; v++) tasks.push(() => blobGeometry(b, v));
+  }
+  return tasks;
 }
 
 // ---- power-up bubbles ----------------------------------------------------

@@ -7,7 +7,8 @@
     "build": "node build.mjs",
     "watch": "node build.mjs --watch",
     "serve": "npx http-server . -p 8080 -c-1",
-    "test": "node tests/course-fairness.mjs"
+    "test": "node tests/perf-governor.mjs",
+    "test:course": "node tests/course-fairness.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",

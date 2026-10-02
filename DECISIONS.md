@@ -8,6 +8,17 @@ _Last updated: 2026-10-02_
 
 ---
 
+### 2026-10-02 — Sparkle Dash: target the display's refresh rate, remove hitches before averages
+**Decision:** Add a refresh-aware governor that only steps resolution down; pre-bake and pre-upload
+all meshes while idle; restart CSS animations without forced layout; MSAA off when DPR ≥ 1.75;
+default resolution cap 1.75× (user override: Graphics Auto/Smooth/Sharp + FPS meter).
+**Why:** At 120 Hz the budget is 8.3 ms and a single 5–15 ms spike is a visible stutter, while
+average cost was already tiny (0.03 ms). Profiling found the spikes: lazy mesh baking and a forced
+reflow per collected star. The old fixed "<38 fps" rule would never have reacted at 90 fps on a
+120 Hz panel. Resolution is the one lever that cuts GPU cost without changing gameplay. Trade-off:
+slightly softer image than native DPR on 3× phones; the governor never steps back up (avoids
+oscillation), so Sharp mode is manual.
+
 ### 2026-10-02 — Sparkle Dash: bake props and instance repeats to cut draw calls
 **Decision:** Each scenery piece, blob and hurdle is merged into **one** mesh
 with per-vertex colours (`bakeGroup` in `gfx.js`, geometry cached per variant);

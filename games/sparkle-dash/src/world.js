@@ -23,6 +23,7 @@ export class World {
     this.decorCursor = 0;
     this.biome = 0;
     this.space = 0;
+    this.settled = true;     // colours have reached the target biome: skip per-frame blending
 
     this.targets = BIOMES.map((b) => Object.fromEntries(COLOR_KEYS.map((k) => [k, new THREE.Color(b[k])])));
     this.cur = Object.fromEntries(COLOR_KEYS.map((k) => [k, this.targets[0][k].clone()]));
@@ -38,6 +39,7 @@ export class World {
     this.buildSky();
     this.buildGround(maxAnisotropy);
     this.buildSkyClouds();
+    this.apply();
   }
 
   buildSky() {
@@ -159,10 +161,12 @@ export class World {
 
   /** Switch which world we're heading to. instant=true snaps (used on restart). */
   setBiome(i, instant = false) {
+    if (i !== this.biome) this.settled = false;
     this.biome = i;
     if (instant) {
       for (const k of COLOR_KEYS) this.cur[k].copy(this.targets[i][k]);
       this.space = BIOMES[i].space;
+      this.settled = true;
       this.apply();
     }
   }
@@ -201,14 +205,28 @@ export class World {
   }
 
   /** One scenery piece = one draw call: build once per (world, kind, variant), then reuse the merged geometry. */
-  makeDecor(biome, kind, variant) {
+  decorGeometry(biome, kind, variant) {
     const key = `${biome}:${kind}:${variant}`;
     let g = this.decorGeos.get(key);
     if (!g) {
       g = bakeGroup(DECOR[biome][kind](this.rng));
       this.decorGeos.set(key, g);
     }
-    return new THREE.Mesh(g, toonVC);
+    return g;
+  }
+
+  makeDecor(biome, kind, variant) {
+    return new THREE.Mesh(this.decorGeometry(biome, kind, variant), toonVC);
+  }
+
+  /** Every scenery variant as a bake task, current world first (see props.propBakeTasks). */
+  decorBakeTasks() {
+    const tasks = [];
+    for (let i = 0; i < DECOR.length; i++) {
+      const b = (this.biome + i) % DECOR.length;
+      for (let k = 0; k < DECOR[b].length; k++) for (let v = 0; v < 3; v++) tasks.push(() => this.decorGeometry(b, k, v));
+    }
+    return tasks;
   }
 
   apply() {
@@ -229,12 +247,24 @@ export class World {
   }
 
   update(dt, traveled) {
-    // colour blend towards the active biome
-    const k = 1 - Math.exp(-dt * BLEND_RATE);
-    const tgt = this.targets[this.biome];
-    for (const key of COLOR_KEYS) this.cur[key].lerp(tgt[key], k);
-    this.space += (BIOMES[this.biome].space - this.space) * k;
-    this.apply();
+    // colour blend towards the active biome (nothing to do once settled)
+    if (!this.settled) {
+      const k = 1 - Math.exp(-dt * BLEND_RATE);
+      const tgt = this.targets[this.biome];
+      let gap = Math.abs(BIOMES[this.biome].space - this.space);
+      for (const key of COLOR_KEYS) {
+        const c = this.cur[key];
+        c.lerp(tgt[key], k);
+        gap = Math.max(gap, Math.abs(c.r - tgt[key].r), Math.abs(c.g - tgt[key].g), Math.abs(c.b - tgt[key].b));
+      }
+      this.space += (BIOMES[this.biome].space - this.space) * k;
+      if (gap < 0.002) {
+        for (const key of COLOR_KEYS) this.cur[key].copy(tgt[key]);
+        this.space = BIOMES[this.biome].space;
+        this.settled = true;
+      }
+      this.apply();
+    }
 
     // scroll textures by distance (never accumulates drift)
     this.trackTex.offset.y = (traveled / TRACK_TILE) % 1;
@@ -253,7 +283,8 @@ export class World {
       }
     }
 
-    for (const c of this.skyClouds) {
+    for (let i = 0; i < this.skyClouds.length; i++) {
+      const c = this.skyClouds[i];
       c.position.x += c.userData.drift * dt;
       if (c.position.x > 150) c.position.x = -150;
     }

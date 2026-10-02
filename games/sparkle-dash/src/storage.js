@@ -10,6 +10,8 @@ const defaults = () => ({
   difficulty: 'easy',
   muted: false,
   tutorialDone: false,
+  quality: 'auto',     // Graphics: auto | smooth | sharp
+  showFps: false,
 });
 
 function load() {
@@ -25,6 +27,8 @@ function load() {
       difficulty: p.difficulty === 'normal' ? 'normal' : 'easy',
       muted: !!p.muted,
       tutorialDone: !!p.tutorialDone,
+      quality: ['auto', 'smooth', 'sharp'].includes(p.quality) ? p.quality : 'auto',
+      showFps: !!p.showFps,
     };
   } catch {
     return d;

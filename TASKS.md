@@ -28,6 +28,7 @@ _Last updated: 2026-10-02_
 - [x] Synthesised music/SFX (no audio assets), strict CSP, self-hosted font
 - [x] Performance pass: baked meshes + instancing (≈430 → ≈120 draw calls)
 - [x] Accessibility pass: axe-core clean, reduced-motion, focus management
+- [x] 120 Hz pass: governor, pre-warm, no-reflow HUD, Graphics modes, FPS meter
 - [x] Course-fairness regression test (`npm test` in the game folder)
 
 ## 🔄 In Progress
@@ -37,6 +38,7 @@ _Last updated: 2026-10-02_
 ## ⬜ Planned
 - [ ] Playtest Sparkle Dash on real phones/tablets and with children; tune
       speeds, hit-forgiveness and unlock thresholds from what you see
+- [ ] Open Sparkle Dash with `?fps` on the target 120 Hz phone; if < 110 fps pick Graphics: Smooth and report numbers
 - [ ] Verify audio unlock + frame rate on iOS Safari and a low-end Android
 - [ ] Deploy Sparkle Dash (GitHub Pages or Vercel) and add the URL to PROJECT.md
 - [ ] Dogfood `council` on one real decision and tune the round word limits

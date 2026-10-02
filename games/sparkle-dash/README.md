@@ -39,7 +39,8 @@ abruptly and never feel punishing: you get a spin, a short slow-down and
 npm install
 npm run build        # src/ + three.js  ->  dist/game.js (single classic script)
 npm run watch        # rebuild on change
-npm test             # course-fairness regression (needs: npm i --no-save playwright)
+npm test             # frame-rate governor unit tests (plain Node)
+npm run test:course  # course-fairness bot runs (needs: npm i --no-save playwright)
 ```
 
 `dist/game.js` is **committed** so the game runs straight from a checkout or any
@@ -63,8 +64,9 @@ src/
   input.js     keyboard, swipe/tap, on-screen buttons
   ui.js        DOM screens, HUD, toasts
   gfx.js       shared geometry/materials, mesh baking helpers
+  perf.js      frame-rate governor + resolution steps (unit-tested)
   storage.js   guarded localStorage (best score, stars, character, settings)
-tests/         course-fairness regression
+tests/         perf-governor unit tests, course-fairness regression
 ```
 
 ### Tweaking
@@ -82,13 +84,31 @@ tests/         course-fairness regression
 * `?debug` — exposes `window.__sparkle.game` with `simulate(seconds)` (fast-forward
   without rendering), `skipTo(metres)`, `autopilot = true`, `god = true`.
 
+## High frame rates (60 / 90 / 120 Hz)
+
+The game runs on `requestAnimationFrame`, so it renders at whatever rate your
+browser gives it; all motion is time-based, so 120 fps plays at the same speed as 60.
+
+* **Budget:** ~120 draw calls, ~100k triangles, MSAA off on dense phone screens,
+  resolution capped (Auto 1.75×). Average CPU cost is ~0.03 ms/frame.
+* **No hitches:** every scenery/obstacle mesh is baked and uploaded to the GPU one-per-frame
+  on the title/countdown, never mid-run. HUD animations restart without forced layout.
+* **Governor (`src/perf.js`):** detects the display's refresh rate and lowers resolution
+  if the average frame time is clearly above that target. It only ever steps down.
+* **Pause menu → Graphics:** Auto / Smooth (fastest, 1.25×) / Sharp (crispest, 2.5×).
+  **FPS meter** shows fps, frame time, worst frame, resolution, detected Hz and draw calls
+  (or open the page with `?fps`).
+* **Browser caveat:** Android Chrome runs 120 Hz natively. iPhone Safari may cap pages at
+  60 fps unless the "Prefer Page Rendering Updates near 60fps" feature flag is off
+  (Settings → Safari → Advanced → Feature Flags). Battery-saver modes also cap refresh.
+
 ## Under the hood
 
 * **Rendering:** Three.js, toon-shaded primitives only. Scenery, obstacles and
   scrolling are cheap by design: each prop is *baked into one mesh* (vertex colours),
   stars are one instanced mesh, particles are one instanced mesh, the track
   scrolls via texture offset. ~120 draw calls and ~100k triangles on screen; the
-  pixel ratio drops automatically on slow devices.
+  pixel ratio drops automatically on slow devices (see *High frame rates*).
 * **Accessibility:** fully keyboard playable, labelled controls and dialogs with
   focus management, screen-reader announcements for lives/levels, `prefers-reduced-motion`
   (no camera shake/blinking, fewer particles), sound toggle, no flashing > 3 Hz,

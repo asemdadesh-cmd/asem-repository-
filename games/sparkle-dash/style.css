@@ -197,6 +197,7 @@ button:focus-visible {
 .heart.lost { fill: #e5deef; stroke: #b8abd1; }
 .heart.pop { animation: heart-pop 0.5s; }
 @keyframes heart-pop { 0% { transform: scale(1); } 40% { transform: scale(1.6); } 100% { transform: scale(1); } }
+@keyframes heart-pop2 { 0% { transform: scale(1); } 40% { transform: scale(1.6); } 100% { transform: scale(1); } }
 
 .pill {
   display: inline-flex; align-items: baseline; gap: 4px;
@@ -212,6 +213,7 @@ button:focus-visible {
 .pill-stars { align-items: center; }
 .pill-stars .ico { color: #f5b800; stroke: #b87a00; width: 1.2em; height: 1.2em; }
 .pill-stars.bump .ico { animation: heart-pop 0.25s; }
+.pill-stars.bump2 .ico { animation: heart-pop2 0.25s; }
 
 .powerups { position: fixed; top: calc(max(10px, env(safe-area-inset-top)) + 58px); left: 50%; transform: translateX(-50%); display: flex; gap: 12px; pointer-events: none; }
 .pu {
@@ -247,7 +249,15 @@ button:focus-visible {
   opacity: 0; pointer-events: none;
 }
 .toast.show { animation: toast 2.1s ease-out forwards; }
+.toast.show2 { animation: toast2 2.1s ease-out forwards; }
 @keyframes toast {
+  0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); }
+  12% { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
+  20% { transform: translate(-50%, 0) scale(1); }
+  80% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -24px) scale(1); }
+}
+@keyframes toast2 {
   0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); }
   12% { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
   20% { transform: translate(-50%, 0) scale(1); }
@@ -264,7 +274,14 @@ button:focus-visible {
   opacity: 0; pointer-events: none;
 }
 .countdown.show { animation: count 0.7s ease-out forwards; }
+.countdown.show2 { animation: count2 0.7s ease-out forwards; }
 @keyframes count {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+  25% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+}
+@keyframes count2 {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
   25% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   80% { opacity: 1; }
@@ -319,6 +336,19 @@ button:focus-visible {
 @keyframes card-in { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .btn-col { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 18px; }
 .btn-col .btn { width: 100%; max-width: 300px; }
+.btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 300px; }
+.btn-grid .btn { max-width: none; }
+.btn-sm { font-size: 1rem; min-height: 48px; padding: 0.6em 0.8em; }
+.btn-wide { grid-column: 1 / -1; }
+
+/* optional FPS / frame-time readout (pause menu -> FPS meter, or ?fps) */
+.fps {
+  position: fixed; left: max(8px, env(safe-area-inset-left)); top: calc(max(10px, env(safe-area-inset-top)) + 54px);
+  padding: 4px 10px; border-radius: 10px;
+  background: rgba(20, 10, 50, 0.78); color: #fff;
+  font: 600 12px/1.35 ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  white-space: pre; pointer-events: none; z-index: 5;
+}
 
 .rating { display: flex; justify-content: center; gap: 6px; margin: 4px 0 10px; }
 .rating .ico { width: 64px; height: 64px; fill: #e5deef; stroke: #b8abd1; stroke-width: 1.2; }
@@ -395,6 +425,8 @@ button:focus-visible {
   .card p { margin: 4px 0; font-size: 0.95rem; }
   .card { width: min(92vw, 560px); }
   .btn-col { flex-direction: row; flex-wrap: wrap; justify-content: center; margin-top: 8px; gap: 10px; }
+  .btn-grid { display: contents; }
+  .btn-wide { grid-column: auto; }
   .btn-col .btn { min-width: 0; width: auto; flex: 1 1 40%; max-width: none; padding: 0.6em 1em; }
   .btn { min-height: 46px; font-size: 1.05rem; }
   .pu { width: 44px; height: 44px; }
@@ -404,6 +436,6 @@ button:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  .countdown.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  .toast.show, .toast.show2 { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  .countdown.show, .countdown.show2 { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
