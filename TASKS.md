@@ -38,7 +38,7 @@ _Last updated: 2026-10-02_
 - [ ] Optional: more rendered stills (cherry branch, coffee bags, solar roof) via `web/tools/render`
 - [ ] Owner: choose the real brand name, domain, prices; replace `*.example` contacts
 - [ ] Owner: test all six sites on a real iPhone and an Android phone
-- [ ] Owner: deploy `web/` (Netlify / Vercel / Cloudflare Pages) and add the link to the launch kit
+- [ ] Deploy `web/` to the empty Netlify site `northlight-studio-demos` (allow `netlify-mcp.netlify.app` + `api.netlify.com` in env network settings, or link the repo in Netlify), then add the live URL to the launch kit
 - [ ] Owner: open the Facebook Page and Instagram per `marketing/LAUNCH-KIT.md`
 - [ ] Swap `mailto:` forms for a real form endpoint (Formspree / Netlify Forms)
 - [ ] Add a first real case study + testimonial to the sales site once a client says yes

@@ -1,0 +1,10 @@
+# Publish the static sites in web/. No build step.
+[build]
+  publish = "web"
+
+# Dev scripts live in web/tools and are not part of the site.
+[[redirects]]
+  from = "/tools/*"
+  to = "/index.html"
+  status = 404
+  force = true

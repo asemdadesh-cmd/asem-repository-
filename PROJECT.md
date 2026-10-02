@@ -188,8 +188,11 @@ _Last updated: 2026-10-02_
   site root on Netlify, Vercel, Cloudflare Pages or GitHub Pages (all paths are
   relative; no build command). `_headers` carries CSP/nosniff/referrer headers for
   Netlify and Cloudflare Pages; translate to `vercel.json` on Vercel. **Nothing is
-  deployed yet**: publishing makes the fictional demos public, so it is a
-  deliberate owner step. Details in `web/README.md`.
+  deployed yet.** A Netlify site `northlight-studio-demos` (id 3638fc0b-dd9d-4ee5-894a-1973ebcb4c97,
+  https://northlight-studio-demos.netlify.app) exists and is empty: the Netlify MCP upload needs
+  `netlify-mcp.netlify.app` (and likely `api.netlify.com`) allowed in the Claude environment's network
+  settings. Alternative with no sandbox access: link the GitHub repo in Netlify (root `netlify.toml`
+  already sets publish dir `web`). Details in `web/README.md`.
 
 ---
 
