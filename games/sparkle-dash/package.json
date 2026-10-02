@@ -1,0 +1,17 @@
+{
+  "name": "sparkle-dash",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sparkle Dash — a 3D endless runner for kids, built with Three.js",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "serve": "npx http-server . -p 8080 -c-1",
+    "test": "node tests/perf-governor.mjs",
+    "test:course": "node tests/course-fairness.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "three": "^0.186.1"
+  }
+}

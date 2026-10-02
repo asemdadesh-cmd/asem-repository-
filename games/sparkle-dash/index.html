@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sparkle Dash – a 3D running game for kids</title>
+  <meta name="description" content="Run, jump and collect stars in Sparkle Dash, a colourful 3D running game for kids. Pick a cute friend and race through candy, cloud, space and beach worlds.">
+  <meta name="theme-color" content="#ff9ad5">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'none'">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- icon sprite -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.4l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.4l-6 3.4 1.3-6.7-5-4.7 6.8-.8z" stroke-linejoin="round" stroke-width="1.2"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.2S3.6 16 2 10.6C1 7 3.2 4 6.5 4c2.2 0 3.9 1.2 5.5 3.3C13.6 5.2 15.3 4 17.5 4 20.8 4 23 7 22 10.6 20.4 16 12 21.2 12 21.2z" stroke-linejoin="round" stroke-width="1.2"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="5.5" y="4.5" width="4.5" height="15" rx="1.8"/><rect x="14" y="4.5" width="4.5" height="15" rx="1.8"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M3.5 9.5v5h3.8l5 4.2V5.3l-5 4.2z" stroke-linejoin="round" stroke-width="1.2"/><path d="M15.8 8.8a4.8 4.8 0 0 1 0 6.4M18.6 6a8.6 8.6 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M3.5 9.5v5h3.8l5 4.2V5.3l-5 4.2z" stroke-linejoin="round" stroke-width="1.2"/><path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M14.5 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9.5 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M5 14.5l7-7 7 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-magnet" viewBox="0 0 24 24"><path d="M5 20v-8a7 7 0 0 1 14 0v8" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="butt"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2.8l8 2.8v6.2c0 4.8-3.3 8.2-8 9.6-4.7-1.4-8-4.8-8-9.6V5.6z" stroke-linejoin="round" stroke-width="1.4"/></symbol>
+    <symbol id="i-rainbow" viewBox="0 0 24 24"><path d="M2.5 19a9.5 9.5 0 0 1 19 0M6.5 19a5.5 5.5 0 0 1 11 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+  </svg>
+
+  <main>
+  <!-- 3D stage: all touch gestures are read from here -->
+  <div id="stage" class="stage">
+    <canvas id="game" aria-label="Sparkle Dash 3D game scene" role="img"></canvas>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hud" hidden>
+    <div id="hearts" class="hearts" role="img" aria-label="Hearts"></div>
+    <div class="pill pill-score" aria-label="Distance"><span id="hud-dist">0</span><small>m</small></div>
+    <div class="hud-right">
+      <div class="pill pill-stars" aria-label="Stars collected"><svg class="ico ico-star" aria-hidden="true"><use href="#i-star"/></svg><span id="hud-stars">0</span></div>
+      <button id="btn-pause" class="icon-btn" type="button" aria-label="Pause"><svg class="ico" aria-hidden="true"><use href="#i-pause"/></svg></button>
+    </div>
+  </div>
+  <div id="fps" class="fps" aria-hidden="true" hidden></div>
+  <div id="powerups" class="powerups" aria-hidden="true"></div>
+  <div id="combo" class="combo" aria-hidden="true"></div>
+  <div id="toast" class="toast" aria-hidden="true"></div>
+  <div id="countdown" class="countdown" aria-hidden="true"></div>
+  <div id="hint" class="hint" hidden>
+    <span class="hint-kbd">← → to move &nbsp;·&nbsp; ↑ or Space to jump</span>
+    <span class="hint-touch">Swipe to move &nbsp;·&nbsp; Tap to jump</span>
+  </div>
+
+  <!-- touch buttons -->
+  <div id="touch" class="touch" hidden>
+    <div class="touch-group">
+      <button id="t-left" class="tbtn" type="button" aria-label="Move left"><svg class="ico" aria-hidden="true"><use href="#i-left"/></svg></button>
+      <button id="t-right" class="tbtn" type="button" aria-label="Move right"><svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></button>
+    </div>
+    <button id="t-jump" class="tbtn tbtn-jump" type="button" aria-label="Jump"><svg class="ico" aria-hidden="true"><use href="#i-up"/></svg></button>
+  </div>
+
+  <!-- Title -->
+  <section id="screen-title" class="screen" aria-labelledby="game-title">
+    <div class="top-row">
+      <button id="btn-mute" class="icon-btn" type="button" aria-pressed="false" aria-label="Sound on"><svg class="ico" aria-hidden="true"><use id="mute-use" href="#i-sound"/></svg></button>
+    </div>
+    <div class="title-block">
+      <h1 id="game-title" class="logo" aria-label="Sparkle Dash">
+        <span class="logo-line" aria-hidden="true"><span>S</span><span>p</span><span>a</span><span>r</span><span>k</span><span>l</span><span>e</span></span>
+        <span class="logo-line logo-line-2" aria-hidden="true"><span>D</span><span>a</span><span>s</span><span>h</span></span>
+      </h1>
+      <p class="tagline">Run, jump &amp; collect all the stars!</p>
+    </div>
+    <div class="bottom-panel">
+      <div class="char-picker" role="group" aria-label="Choose your friend">
+        <button id="btn-prev" class="arrow-btn" type="button" aria-label="Previous friend"><svg class="ico" aria-hidden="true"><use href="#i-left"/></svg></button>
+        <div class="char-info">
+          <div id="char-name" class="char-name">Bunny</div>
+          <div id="char-note" class="char-note">&nbsp;</div>
+        </div>
+        <button id="btn-next" class="arrow-btn" type="button" aria-label="Next friend"><svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></button>
+      </div>
+      <div class="seg" role="radiogroup" aria-label="Difficulty">
+        <button type="button" role="radio" aria-checked="true" data-diff="easy">Easy</button>
+        <button type="button" role="radio" aria-checked="false" data-diff="normal">Normal</button>
+      </div>
+      <button id="btn-play" class="btn btn-play" type="button">PLAY!</button>
+      <p class="stats-line"><span id="stat-best">Best 0</span><span class="dot" aria-hidden="true">•</span><span id="stat-stars">0 stars</span></p>
+      <p class="how"><span class="hint-kbd">Arrow keys or WASD to move &nbsp;·&nbsp; Space to jump</span><span class="hint-touch">Swipe to move &nbsp;·&nbsp; Tap to jump</span></p>
+    </div>
+  </section>
+
+  <!-- Pause -->
+  <section id="screen-pause" class="screen screen-center" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title">
+    <div class="card">
+      <h2 id="pause-title">Paused</h2>
+      <div class="btn-col">
+        <button id="btn-resume" class="btn btn-play" type="button">Keep going!</button>
+        <div class="btn-grid">
+          <button id="btn-mute-pause" class="btn btn-secondary btn-sm" type="button" aria-pressed="false">Sound: On</button>
+          <button id="btn-fps" class="btn btn-secondary btn-sm" type="button" aria-pressed="false">FPS meter: Off</button>
+          <button id="btn-gfx" class="btn btn-secondary btn-sm btn-wide" type="button">Graphics: Auto</button>
+        </div>
+        <button id="btn-restart" class="btn btn-secondary" type="button">Start over</button>
+        <button id="btn-quit" class="btn btn-secondary" type="button">Home</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="screen-over" class="screen screen-center" hidden role="dialog" aria-modal="true" aria-labelledby="over-title">
+    <div class="card card-over">
+      <h2 id="over-title">Great run!</h2>
+      <div id="over-rating" class="rating" role="img" aria-label="Rating"></div>
+      <div class="over-stats">
+        <div class="tile-score"><span id="over-score">0</span><small>score</small></div>
+        <div><span id="over-dist">0</span><small>metres</small></div>
+        <div><span id="over-stars">0</span><small>stars</small></div>
+      </div>
+      <p id="over-best" class="best-line"></p>
+      <p id="over-unlock" class="unlock" hidden></p>
+      <div class="btn-col">
+        <button id="btn-again" class="btn btn-play" type="button">Play again</button>
+        <button id="btn-home" class="btn btn-secondary" type="button">Home</button>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <div id="curtain" class="curtain" aria-hidden="true"></div>
+  <div id="live" class="sr-only" aria-live="polite"></div>
+
+  <div id="nowebgl" class="nowebgl" hidden>
+    <div class="card">
+      <h2>Oh no!</h2>
+      <p>This browser can't show 3D games. Try the latest Chrome, Safari, Edge or Firefox.</p>
+    </div>
+  </div>
+  <noscript><div class="nowebgl"><div class="card"><h2>Oh no!</h2><p>Sparkle Dash needs JavaScript to run.</p></div></div></noscript>
+
+  <script src="dist/game.js"></script>
+</body>
+</html>

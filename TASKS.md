@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-02_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -22,14 +22,31 @@ _Last updated: 2026-09-21_
 - [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
 - [x] Register `council` in the marketplace manifest
 
+- [x] Build **Sparkle Dash** (3D kids' endless runner, `games/sparkle-dash/`)
+- [x] Four worlds, four friends (3 unlockable), four power-ups, Easy/Normal
+- [x] Touch + keyboard + on-screen controls; pause, results, persistence
+- [x] Synthesised music/SFX (no audio assets), strict CSP, self-hosted font
+- [x] Performance pass: baked meshes + instancing (≈430 → ≈120 draw calls)
+- [x] Accessibility pass: axe-core clean, reduced-motion, focus management
+- [x] 120 Hz pass: governor, pre-warm, no-reflow HUD, Graphics modes, FPS meter
+- [x] Course-fairness regression test (`npm test` in the game folder)
+
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
+- [ ] Playtest Sparkle Dash on real phones/tablets and with children; tune
+      speeds, hit-forgiveness and unlock thresholds from what you see
+- [ ] Open Sparkle Dash with `?fps` on the target 120 Hz phone; if < 110 fps pick Graphics: Smooth and report numbers
+- [ ] Verify audio unlock + frame rate on iOS Safari and a low-end Android
+- [ ] Deploy Sparkle Dash (GitHub Pages or Vercel) and add the URL to PROJECT.md
 - [ ] Dogfood `council` on one real decision and tune the round word limits
 
 ## 💤 Backlog
+- [ ] Sparkle Dash: Arabic (RTL) + other language UI strings
+- [ ] Sparkle Dash: installable PWA (manifest + offline cache) for tablets
+- [ ] Sparkle Dash: more friends/worlds, daily challenge, gamepad support
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
 - [ ] Create a `website-scaffold` skill for consistent starter structure
 - [ ] Add per-website deployment notes once a real site is built

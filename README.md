@@ -1,7 +1,25 @@
 # asem-repository- — NHT Skills Marketplace
 
-A Claude Code **plugin marketplace**. Install the plugin once and its skill
-becomes available in **every** project on your machine.
+A Claude Code **plugin marketplace** (below) plus a playable 3D kids' game,
+**[Sparkle Dash](games/sparkle-dash/README.md)**.
+
+## 🎮 Sparkle Dash — 3D game for kids
+
+A colourful 3D endless runner: pick a cute friend (Bunny, Kitty, Panda, Dino),
+run through Candy Meadow, Cloud Kingdom, Space Zoom and Sunny Beach, jump the
+candy rolls, dodge the goofy blobs and collect stars. Keyboard, mouse and touch;
+no ads, no accounts, no network requests.
+
+**Play:** open [`games/sparkle-dash/index.html`](games/sparkle-dash/index.html)
+(double-click works) — details, controls and dev docs in
+[`games/sparkle-dash/README.md`](games/sparkle-dash/README.md).
+
+---
+
+## Claude Code plugins
+
+Install a plugin once and its skill becomes available in **every** project on
+your machine.
 
 ## `agency-review` plugin
 
@@ -68,6 +86,8 @@ That's it — the skill now loads in every project. To update later, use
 .
 ├── .claude-plugin/
 │   └── marketplace.json          # marketplace manifest (lists plugins)
+├── games/
+│   └── sparkle-dash/                  # the 3D kids' game (see its README)
 ├── plugins/
 │   ├── council/
 │   │   ├── .claude-plugin/plugin.json

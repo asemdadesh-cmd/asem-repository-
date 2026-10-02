@@ -4,9 +4,57 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-02_
 
 ---
+
+### 2026-10-02 — Sparkle Dash: target the display's refresh rate, remove hitches before averages
+**Decision:** Add a refresh-aware governor that only steps resolution down; pre-bake and pre-upload
+all meshes while idle; restart CSS animations without forced layout; MSAA off when DPR ≥ 1.75;
+default resolution cap 1.75× (user override: Graphics Auto/Smooth/Sharp + FPS meter).
+**Why:** At 120 Hz the budget is 8.3 ms and a single 5–15 ms spike is a visible stutter, while
+average cost was already tiny (0.03 ms). Profiling found the spikes: lazy mesh baking and a forced
+reflow per collected star. The old fixed "<38 fps" rule would never have reacted at 90 fps on a
+120 Hz panel. Resolution is the one lever that cuts GPU cost without changing gameplay. Trade-off:
+slightly softer image than native DPR on 3× phones; the governor never steps back up (avoids
+oscillation), so Sharp mode is manual.
+
+### 2026-10-02 — Sparkle Dash: bake props and instance repeats to cut draw calls
+**Decision:** Each scenery piece, blob and hurdle is merged into **one** mesh
+with per-vertex colours (`bakeGroup` in `gfx.js`, geometry cached per variant);
+stars and particles are single `InstancedMesh`es; the track scrolls by moving a
+texture offset instead of moving geometry.
+**Why:** The first working version drew ~430 calls/frame (every prop was 10–30
+tiny meshes), which is fine on a laptop but a risk on the cheap tablets and
+phones children actually use. Baking cut it to ~120 calls and ~40% fewer
+triangles with identical gameplay (seeded bot runs matched exactly). Trade-off:
+baked props can't animate individual parts and lose real emissive glow (we
+brighten vertex colours instead). Blobs still wobble because the whole baked
+mesh is scaled; the animated hero is deliberately left as separate meshes.
+
+### 2026-10-02 — Sparkle Dash: no third-party requests, strict CSP, committed bundle
+**Decision:** Self-host the Fredoka font, synthesise all audio, generate all
+models in code, serve with `default-src 'none'` + `'self'` for scripts/styles/
+fonts, and **commit** `dist/game.js`.
+**Why:** The audience is children, so no analytics, no Google Fonts IP leak, no
+CDN dependency, nothing to break offline. A bundled classic script (esbuild
+IIFE) also lets the game run from a double-click (`file://` blocks ES-module
+imports) and deploy as a plain static folder. Cost: ~790 KB script
+(≈200 KB gzipped) and the need to rebuild + commit `dist/` after `src/` changes.
+
+### 2026-10-02 — Sparkle Dash: a forgiving 3-lane runner (no hard fail), Three.js, no engine
+**Decision:** Build a 3-lane endless runner on raw Three.js with toon-shaded
+primitives; hits cost a heart with a spin, brief slow-down and invincibility,
+Easy is the default, everyone earns ≥1 star, and unlocks are lifetime-star
+thresholds (no spending).
+**Why:** Lane-runners have the simplest possible controls (left/right/jump —
+swipe, tap or keys), read well in 3D, need no art assets (everything is
+procedural) and scale from ages ~4 upward by tuning speed/hearts. A full engine
+(Unity/Godot/Babylon) would add weight, tooling and a build/export step for no
+gain; Three.js alone is ~200 KB gzipped, tree-shaken. Alternatives rejected:
+open-world collect-a-thon (needs camera control + virtual joystick, harder for
+small kids), double-jump (trivialises tall obstacles). Seeded RNG (`?seed=`)
+makes layouts reproducible, which is what lets `npm test` verify fairness.
 
 ### 2026-09-21 — Three lenses, not eighteen personas
 **Decision:** Build the `council` plugin around three functional lenses
