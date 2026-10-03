@@ -8,6 +8,18 @@ _Last updated: 2026-10-03_
 
 ---
 
+### 2026-10-03 — For Her: encrypted photos in the public repo, key in the link
+**Decision:** Commit photos only as AES-256-GCM ciphertext (`media/*.enc`);
+the browser decrypts with a key carried in the share link's fragment
+(`#k=…`). Deploy as a new Vercel project rooted at `apps/love-game`.
+**Why:** The owner wanted it live on Vercel now. This sandbox can't reach the
+Vercel API directly (egress policy) and couldn't access a new private repo,
+so deploying had to come from this public repo. Ciphertext is safe to
+publish; the fragment is never sent to servers, so neither GitHub nor Vercel
+ever holds viewable photos. Trade-off: the link IS the secret — anyone with
+it can view; clearing site data on her phone means reopening the full link.
+Making the repo private remains the simpler long-term option.
+
 ### 2026-10-03 — For Her: walkable 3D island as the hub (supersedes the 2D-only call)
 **Decision:** Replace the card hub with a Three.js island she walks around as an
 avatar; each mini-game is a place, Memory Lane is a path of framed photos, the

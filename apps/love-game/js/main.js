@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import { unlockMedia } from './media.js';
 import { loadProgress, saveProgress, photo, hearts, escapeHtml, reducedMotion, toast, supportsWebGL } from './util.js';
 
 const GAMES = [
@@ -25,6 +26,10 @@ let worldFailed = !supportsWebGL();
 const home = () => (worldFailed ? '#hub' : '#world');
 
 document.title = `For ${CONFIG.herName} 💗`;
+
+// Decrypt the photos (key comes from the link) before anything shows them.
+await unlockMedia(CONFIG);
+document.getElementById('boot')?.remove();
 
 // ── Intro ──────────────────────────────────────────────────────────────────
 document.querySelector('#intro .her-name').textContent = CONFIG.herName;

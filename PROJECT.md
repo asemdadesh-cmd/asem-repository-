@@ -158,10 +158,20 @@ _Last updated: 2026-10-03_
   (not shipped — copyright); the music button hides if the file is missing.
 - **Testing:** `?debug` exposes `window.__world.teleport(x, z)` for automated
   walkthroughs (headless Chromium + SwiftShader).
-- **Privacy:** `photos/*` is **gitignored** because the repo is public — the
-  real photos/video live only locally. Missing photos render placeholders.
-- **Deployment:** static. Vercel Root Directory `apps/love-game` (no build), or
-  Netlify Drop of the folder (includes local photos). `noindex` meta + header.
+- **Privacy:** plaintext `photos/*` is **gitignored** (public repo). For
+  deployment, `scripts/encrypt-media.mjs` encrypts them (AES-256-GCM) into
+  `media/*.enc` + `media/manifest.json`, which ARE committed. `js/media.js`
+  decrypts in the browser with the key from the share link (`#k=<key>`; the
+  fragment never reaches a server), stores it in `localStorage`
+  (`love-game:key`), and rewrites CONFIG paths to blob URLs. No/wrong key →
+  placeholders. **The key is never committed** — it exists only in the link.
+  To change photos: update `photos/`, run `node scripts/encrypt-media.mjs <key>`
+  (reuse the key so the existing link keeps working), commit `media/`, redeploy.
+- **Deployment:** its own Vercel project **`shahuda-world`** (separate from
+  every other project), Git-linked to this repo with Root Directory
+  `apps/love-game`, framework "Other", no build; only rebuilds when that folder
+  changes. Production is public at the project URL; she opens the link with
+  `#k=<key>` once. `noindex` meta + `X-Robots-Tag` header.
 
 ---
 
@@ -245,6 +255,8 @@ _Last updated: 2026-10-03_
 
 ## Changelog
 
+- **2026-10-03** — For Her: encrypted media (AES-GCM, key in link fragment)
+  and deployed as separate Vercel project `shahuda-world`; NPC/letter now "Asem".
 - **2026-10-03** — For Her: replaced the card hub with a **walkable 3D island**
   (Three.js), personalised for Shahuda (uni, first drive, "Talk Tik",
   cinnamon buns, play-fighting), bilingual EN/AR touches, 5 more photos,

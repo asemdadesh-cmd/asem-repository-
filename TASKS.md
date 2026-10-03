@@ -34,7 +34,7 @@ _Last updated: 2026-10-03_
 ## ⬜ Planned
 - [ ] For Her: add `photos/idk.mp3` (owner's copy of the song)
 - [ ] For Her: confirm Arabic spelling of "Talk Tik" + exact start date
-- [ ] For Her: make repo private (or use Netlify Drop) so photos can be deployed
+- [x] For Her: deploy to its own Vercel project with encrypted photos
 - [ ] For Her: optional full Arabic/RTL toggle (currently mixed EN/AR lines)
 - [x] Localise Stash for Libya (LYD, categories, sample data, Arabic digits)
 - [ ] Stash: Arabic UI with RTL layout (language toggle)
