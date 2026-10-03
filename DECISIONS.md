@@ -4,9 +4,21 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-03_
 
 ---
+
+### 2026-10-03 — For Her: 2D static web game, photos kept out of git
+**Decision:** Build the love game as a no-build static site (vanilla ES modules,
+canvas + DOM) with all personal content in one `js/config.js`, instead of a 3D
+(Three.js) world. Gitignore `photos/*`.
+**Why:** The audience is one person on a phone. 2D mini-games themed on her
+interests (painting, cooking, gym) show real photos sharply and load instantly;
+a 3D world would cost 10x the effort, hurt mobile performance, and make photos
+look worse as textures. No build means the owner can edit text and redeploy
+with zero tooling. The repo is **public**, so intimate photos must not be
+committed; placeholders keep the game working without them. Trade-off: photos
+must be deployed separately (Netlify Drop) or the repo made private first.
 
 ### 2026-10-02 — Stash targets Libya: LYD, interest-free framing, English UI first
 **Decision:** Default Stash to the Libyan dinar with Libya-specific categories and

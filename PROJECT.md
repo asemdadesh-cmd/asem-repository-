@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-03_
 
 ---
 
@@ -26,7 +26,8 @@ _Last updated: 2026-10-02_
   websites/landing pages get built through the skill.
 - **Apps:** `apps/money-tracker/` — **Stash**, a local-first money tracker web
   app (Vite + React + TS) deployable to Vercel as its own project. See the
-  "Apps" section below.
+  "Apps" section below. `apps/love-game/` — **For Her**, a personal mini-game
+  love gift (static HTML/JS).
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
   documentation (this file + TASKS.md + DECISIONS.md) being established now.
@@ -134,6 +135,24 @@ _Last updated: 2026-10-02_
   fallback. `npm run preview` serves the same headers locally.
 - **Checks:** `npm test` (18 unit tests), `npm run build` (typecheck + build).
 
+### For Her — love mini-game (`apps/love-game/`)
+- **What:** Mobile-first browser game made as a gift for the owner's
+  girlfriend. Five rooms each earn a heart — 🎨 Studio (paint to reveal a
+  photo), 🍳 Kitchen (catch ingredients), 💪 Gym (tap reps → compliments),
+  🧠 Memory Lane (photo pairs), ❓ Quiz (ends with a dodging "No" button) —
+  then a 💌 Secret Room (typed love letter, slideshow, video).
+- **Stack:** Plain HTML + CSS + vanilla ES modules, no build, no deps.
+  Fonts from Google Fonts (Fraunces, Nunito). Canvas for paint/kitchen.
+- **Structure:** `index.html`, `css/style.css`, `js/config.js` (ALL personal
+  content), `js/main.js` (hash router, hub, finale), `js/util.js`,
+  `js/games/{paint,kitchen,gym,memory,quiz}.js` (each exports
+  `start(stage, {config, done, back}) → cleanup`), `photos/`.
+- **Data:** progress in `localStorage` key `love-game:v1` (try/catch-safe).
+- **Privacy:** `photos/*` is **gitignored** because the repo is public — the
+  real photos/video live only locally. Missing photos render placeholders.
+- **Deployment:** static. Vercel Root Directory `apps/love-game` (no build), or
+  Netlify Drop of the folder (includes local photos). `noindex` meta + header.
+
 ---
 
 ## Database
@@ -215,6 +234,9 @@ _Last updated: 2026-10-02_
 ---
 
 ## Changelog
+
+- **2026-10-03** — Added **For Her** love mini-game in `apps/love-game/` (5 mini-games +
+  secret room, config-driven, photos gitignored for privacy).
 
 - **2026-10-02** — Localised **Stash for Libya**: LYD default currency (LYD first in the
   list), categories for generator/electricity, mobile & internet, car & fuel,

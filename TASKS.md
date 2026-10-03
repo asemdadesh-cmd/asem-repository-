@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-03_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -23,12 +23,16 @@ _Last updated: 2026-10-02_
 - [x] Register `council` in the marketplace manifest
 - [x] Build **Stash** money tracker (`apps/money-tracker/`) — Vercel-ready,
       tests + build passing
+- [x] Build **For Her** love mini-game (`apps/love-game/`) — 5 games + secret room
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
+- [ ] For Her: personalise config (her name, start date, real quiz answers, letter)
+- [ ] For Her: make repo private (or use Netlify Drop) so photos can be deployed
+- [ ] For Her: optional Arabic version of the text
 - [x] Localise Stash for Libya (LYD, categories, sample data, Arabic digits)
 - [ ] Stash: Arabic UI with RTL layout (language toggle)
 - [ ] Stash: cash vs bank tracking (Libya's cash-liquidity reality)

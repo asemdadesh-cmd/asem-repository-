@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fbeee6" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>For You 💗</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <div class="blobs" aria-hidden="true"><span></span><span></span><span></span></div>
+
+    <main>
+      <!-- Title -->
+      <section id="intro" class="screen intro" hidden>
+        <div class="cover"></div>
+        <p class="kicker">a tiny world, made just for</p>
+        <h1 tabindex="-1"><span class="her-name"></span> 💗</h1>
+        <p class="sub">Five little games. Five hearts to collect.<br />One secret room at the end.</p>
+        <button class="btn primary big start">Let's play ✨</button>
+      </section>
+
+      <!-- Map of rooms -->
+      <section id="hub" class="screen" hidden>
+        <header class="hub-head">
+          <h1 tabindex="-1">Our little world</h1>
+          <p class="days"></p>
+          <p class="hearts" role="img"></p>
+        </header>
+        <nav class="rooms" aria-label="Games"></nav>
+      </section>
+
+      <!-- Active game -->
+      <section id="play" class="screen" hidden>
+        <header class="play-head">
+          <button class="btn ghost back" aria-label="Back to the map">← Map</button>
+          <h2 class="play-title" tabindex="-1"></h2>
+        </header>
+        <div class="stage"></div>
+      </section>
+
+      <!-- Secret room -->
+      <section id="finale" class="screen finale" hidden>
+        <h1 tabindex="-1">The Secret Room 💌</h1>
+        <p class="days"></p>
+        <div class="finale-photo"></div>
+        <article class="letter">
+          <p class="dear"></p>
+          <p class="letter-body"></p>
+          <p class="sign"></p>
+        </article>
+        <div class="slides" aria-label="Our photos"></div>
+        <div class="video" hidden></div>
+        <button class="btn ghost replay">Play it all again ↺</button>
+      </section>
+    </main>
+
+    <button id="music" class="music" aria-label="Music" aria-pressed="false" hidden>🎵</button>
+    <div id="fx" aria-hidden="true"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <noscript><p style="padding:2rem;text-align:center">This little world needs JavaScript turned on 💗</p></noscript>
+  </body>
+</html>

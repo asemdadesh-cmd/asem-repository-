@@ -1,0 +1,4 @@
+# Personal photos/videos stay OUT of git while the repo is public.
+# Once the repo is private, delete these lines to commit and deploy them.
+photos/*
+!photos/README.md
