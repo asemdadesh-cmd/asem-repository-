@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-03_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -25,6 +25,12 @@ _Last updated: 2026-10-02_
       tests + build passing
 
 ## 🔄 In Progress
+- [x] Wasma: rename FB Page to "Wasma Digital" (done by owner)
+- [x] Wasma: draft Facebook Page copy + 3 launch posts (`brand/wasma/facebook-kit.md`)
+- [ ] Wasma: grant the Page to Composio, then push About/description/contact fields
+- [ ] Wasma: design profile picture, cover (1640×624) and launch post visuals
+- [ ] Wasma: publish launch posts after owner approval
+- [ ] Wasma: Instagram Business account linked to the Page (after FB is live)
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 

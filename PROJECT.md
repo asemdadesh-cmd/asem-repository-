@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-03_
 
 ---
 
@@ -190,6 +190,11 @@ _Last updated: 2026-10-02_
 
 ## Known Issues
 
+- **Wasma Facebook via Composio:** token has all `pages_*` scopes but no Page is
+  granted, so Page reads/writes fail with OAuth #100. Fix: remove the Composio app in
+  Facebook → Business integrations, then reconnect and select the Page. Meta's API
+  cannot rename Pages or set profile/cover photos — those stay manual.
+
 - **Bugs:** None known.
 - **Stash limitations:** data is per-browser (no cloud sync); clearing site
   data deletes it unless backed up. No recurring transactions yet.
@@ -215,6 +220,11 @@ _Last updated: 2026-10-02_
 ---
 
 ## Changelog
+
+- **2026-10-03** — Added **Wasma Digital** brand kit (`brand/wasma/`): logo sheet and
+  Facebook Page copy + first 3 launch posts. Facebook Page renamed to "Wasma Digital"
+  (ID `113981666722471`). Publishing via Composio is blocked until the Page is granted
+  to the Composio app (token has page scopes but `/me/accounts` returns no Pages).
 
 - **2026-10-02** — Localised **Stash for Libya**: LYD default currency (LYD first in the
   list), categories for generator/electricity, mobile & internet, car & fuel,

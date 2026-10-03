@@ -4,9 +4,17 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-03_
 
 ---
+
+### 2026-10-03 — Wasma: Facebook first, page copy kept in the repo
+**Decision:** Launch Wasma on Facebook first, reusing the existing "Dadesh Forge" Page
+(renamed "Wasma Digital"), and keep all page copy/posts in `brand/wasma/` as the source
+of truth before pushing via Composio.
+**Why:** The existing Page skips a new-Page setup; Meta's API can't create Pages or IG
+accounts anyway. Versioned copy lets the owner review and edit before anything public
+is published, and gives a reusable record for Instagram later.
 
 ### 2026-10-02 — Stash targets Libya: LYD, interest-free framing, English UI first
 **Decision:** Default Stash to the Libyan dinar with Libya-specific categories and
