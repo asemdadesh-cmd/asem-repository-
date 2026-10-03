@@ -1,0 +1,522 @@
+<!doctype html>
+<!--
+  Sundial: concept site for a rooftop solar installer (fictional brand).
+  Grammar: live surface. The page is the product: a roof estimator that runs on a clearly labelled sample model.
+  Scroll moves the estimator through its steps; every control is live and every number is computed in this file.
+  Signature move: scroll plays the build (panels placed, months filled, payback drawn) while the same controls stay
+  operable, so the visitor can stop the demo at any step and change the house.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sundial · Roof solar estimator</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Concept site: a rooftop solar installer whose page is a working estimator. Sample model, not a quote.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230F1216'/><circle cx='16' cy='16' r='6' fill='%23FFB224'/></svg>">
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../assets/vendor/scrollcraft.css">
+<style>
+  :root {
+    --sc-canvas: #0E1115;
+    --sc-surface: #151A20;
+    --sc-ink: #E8EAEC;
+    --sc-ink-soft: #9CA6B0;
+    --sc-accent: #FFB224;
+    --sc-accent-ink: #1A1303;
+    --sc-font-display: "Geist", system-ui, sans-serif;
+    --sc-font-text: "Geist", system-ui, sans-serif;
+    --sc-font-mono: "Geist Mono", ui-monospace, monospace;
+    --panel: #151A20; --panel2: #1B2128; --line: #262E37; --line2: #323C47;
+    --blue: #4C7DFF; --grn: #53D18A;
+  }
+  html { scroll-behavior: auto; }
+  body { font-size: 14px; line-height: 1.45; }
+  .sc-grain { opacity: .03; }
+  button, input, select { font: inherit; }
+  .mono { font-family: var(--sc-font-mono); }
+
+  /* ================= app shell ================= */
+  .app { height: 100%; display: grid; grid-template-columns: 220px minmax(0, 1fr) 372px; grid-template-rows: 40px minmax(0, 1fr) 32px; grid-template-areas: "side tabs tabs" "side view insp" "status status status"; background: var(--sc-canvas); }
+  .side { grid-area: side; background: var(--panel); border-right: 1px solid var(--line); display: grid; grid-template-rows: auto 1fr auto; min-height: 0; }
+  .brand { display: flex; align-items: center; gap: .6rem; padding: 0 1rem; height: 40px; border-bottom: 1px solid var(--line); font-weight: 650; letter-spacing: -.01em; }
+  .brand i { width: 16px; height: 16px; border-radius: 50%; background: var(--sc-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--sc-accent) 25%, transparent); }
+  .brand small { margin-left: auto; font: 500 .66rem var(--sc-font-mono); color: var(--sc-ink-soft); letter-spacing: .08em; text-transform: uppercase; }
+  .steps { list-style: none; margin: 0; padding: .6rem; display: grid; align-content: start; gap: 2px; }
+  .steps button { width: 100%; display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: .55rem; min-height: 40px; padding: 0 .6rem; border-radius: 6px; border: 0; background: transparent; color: var(--sc-ink-soft); cursor: pointer; text-align: left; transition: background 140ms var(--sc-ease-out), color 140ms var(--sc-ease-out); }
+  .steps button:active { transform: scale(.985); }
+  @media (hover:hover) and (pointer:fine) { .steps button:hover { background: var(--panel2); color: var(--sc-ink); } }
+  .steps .n { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line2); display: grid; place-items: center; font: 500 .7rem var(--sc-font-mono); }
+  .steps button[aria-current="step"] { background: var(--panel2); color: var(--sc-ink); }
+  .steps button[aria-current="step"] .n { background: var(--sc-accent); border-color: var(--sc-accent); color: var(--sc-accent-ink); font-weight: 700; }
+  .steps button[data-done="1"] .n { border-color: var(--grn); color: var(--grn); }
+  .steps .v { font: 500 .72rem var(--sc-font-mono); color: var(--sc-ink-soft); }
+  .help { padding: .9rem 1rem 1rem; border-top: 1px solid var(--line); font-size: .78rem; color: var(--sc-ink-soft); }
+  .help b { color: var(--sc-ink); font-weight: 600; display: block; margin-bottom: .2rem; }
+  .tabs { grid-area: tabs; display: flex; align-items: center; gap: 1rem; padding: 0 1rem; border-bottom: 1px solid var(--line); background: var(--panel); min-width: 0; }
+  .tabs h1 { margin: 0; font: 600 .85rem var(--sc-font-text); letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tabs .crumb { font: 500 .72rem var(--sc-font-mono); color: var(--sc-ink-soft); white-space: nowrap; }
+  .tabs .tag { margin-left: auto; font: 600 .66rem var(--sc-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--sc-accent); border: 1px solid color-mix(in oklab, var(--sc-accent) 55%, transparent); padding: .1rem .5rem; border-radius: 999px; white-space: nowrap; }
+
+  /* ================= roof view ================= */
+  .view { grid-area: view; position: relative; min-height: 0; background:
+      radial-gradient(circle at 1px 1px, #262e37 1px, transparent 1.5px) 0 0 / 22px 22px, var(--sc-canvas); overflow: hidden; }
+  .view svg.roof { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .legend { position: absolute; left: 1rem; bottom: .7rem; display: flex; gap: 1rem; flex-wrap: wrap; font: 500 .7rem var(--sc-font-mono); color: var(--sc-ink-soft); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: .4rem; vertical-align: -1px; }
+  .badge { position: absolute; right: 1rem; top: .9rem; display: grid; gap: 2px; text-align: right; font-family: var(--sc-font-mono); }
+  .badge span { font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .badge b { font-size: 1.7rem; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .badge b small { font-size: .75rem; color: var(--sc-ink-soft); margin-left: .25rem; }
+  .compass { position: absolute; left: 1rem; top: .9rem; width: 74px; height: 74px; }
+  .compass text { font: 600 9px var(--sc-font-mono); fill: var(--sc-ink-soft); }
+  .monthly { position: absolute; left: 1rem; right: 1rem; bottom: 2.6rem; height: 28%; transition: opacity 240ms var(--sc-ease-out); }
+  .monthly svg { width: 100%; height: 100%; overflow: visible; }
+  .monthly text { font: 500 10px var(--sc-font-mono); fill: var(--sc-ink-soft); }
+
+  /* ================= inspector ================= */
+  .insp { grid-area: insp; background: var(--panel); border-left: 1px solid var(--line); overflow: hidden auto; min-height: 0; scrollbar-width: thin; }
+  .sec { padding: .8rem 1rem .9rem; border-bottom: 1px solid var(--line); opacity: .78; transition: opacity 200ms var(--sc-ease-out); }
+  .sec[data-active="1"] { opacity: 1; background: linear-gradient(90deg, color-mix(in oklab, var(--sc-accent) 6%, transparent), transparent 60%); box-shadow: inset 2px 0 0 var(--sc-accent); }
+  .sec h2 { margin: 0 0 .6rem; font: 600 .7rem var(--sc-font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--sc-ink-soft); display: flex; justify-content: space-between; }
+  .sec h2 em { font-style: normal; color: var(--sc-ink); }
+  .f { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .25rem .75rem; margin: .5rem 0; }
+  .f > label { color: var(--sc-ink); font-size: .84rem; }
+  .f > output, .f > .val { font: 500 .8rem var(--sc-font-mono); color: var(--sc-ink); font-variant-numeric: tabular-nums; }
+  .f input[type="range"] { grid-column: 1 / -1; width: 100%; height: 28px; accent-color: var(--sc-accent); background: transparent; cursor: pointer; }
+  .f select, .f input[type="number"], .f input[type="text"], .f input[type="email"] { min-height: 36px; background: var(--sc-canvas); color: var(--sc-ink); border: 1px solid var(--line2); border-radius: 6px; padding: 0 .6rem; }
+  .f input:focus-visible, .f select:focus-visible { outline: 2px solid var(--sc-accent); outline-offset: 1px; }
+  .f select { grid-column: 1 / -1; }
+  .f input[type="number"] { width: 6.2rem; text-align: right; font-family: var(--sc-font-mono); }
+  .f input.wide { grid-column: 1 / -1; width: 100%; text-align: left; }
+  .f .chk { grid-column: 1 / -1; display: flex; align-items: center; gap: .6rem; min-height: 36px; cursor: pointer; }
+  .f .chk input { width: 18px; height: 18px; accent-color: var(--sc-accent); }
+  .f small { grid-column: 1 / -1; color: var(--sc-ink-soft); font-size: .74rem; line-height: 1.35; }
+  .kv { display: grid; grid-template-columns: 1fr auto; gap: .3rem 1rem; margin: 0; }
+  .kv dt { color: var(--sc-ink-soft); font-size: .82rem; }
+  .kv dd { margin: 0; font: 500 .86rem var(--sc-font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+  .kv dd.hi { color: var(--sc-accent); font-weight: 600; }
+  .btn { min-height: 40px; padding: 0 1rem; border: 0; border-radius: 6px; background: var(--sc-accent); color: var(--sc-accent-ink); font-weight: 650; cursor: pointer; transition: transform 120ms var(--sc-ease-out), filter 140ms; }
+  .btn:active { transform: scale(.97); }
+  @media (hover:hover) and (pointer:fine) { .btn:hover { filter: brightness(1.08); } }
+  .btn--ghost { background: transparent; color: var(--sc-ink); border: 1px solid var(--line2); }
+  .stepper { display: flex; gap: .4rem; align-items: center; }
+  .stepper button { width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--line2); background: var(--sc-canvas); color: var(--sc-ink); cursor: pointer; font-size: 1.05rem; line-height: 1; }
+  .stepper button:active { transform: scale(.94); }
+  .msg { min-height: 1.3em; font: 500 .78rem var(--sc-font-mono); color: var(--sc-ink); }
+  .msg.err { color: #ff8a7a; }
+  details.assume { padding: .7rem 1rem 1rem; color: var(--sc-ink-soft); font-size: .78rem; }
+  details.assume summary { cursor: pointer; color: var(--sc-ink); font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+  details.assume ul { margin: .4rem 0 0; padding-left: 1.1rem; display: grid; gap: .25rem; }
+
+  /* ================= status bar ================= */
+  .status { grid-area: status; display: flex; align-items: center; gap: 1.4rem; padding: 0 1rem; border-top: 1px solid var(--line); background: var(--panel); font: 500 .72rem var(--sc-font-mono); color: var(--sc-ink-soft); overflow: hidden; white-space: nowrap; }
+  .status b { color: var(--sc-ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--grn); display: inline-block; margin-right: .4rem; }
+  .status .sp { margin-left: auto; }
+
+  /* ================= phones ================= */
+  .botnav { display: none; }
+  @media (max-width: 960px) {
+    .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: 36px 33svh minmax(0, 1fr) 44px 28px; grid-template-areas: "tabs" "view" "insp" "bot" "status"; }
+    .side { display: none; }
+    .botnav { grid-area: bot; display: flex; background: var(--panel); border-top: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+    .botnav button { flex: 1 0 auto; min-width: 20%; border: 0; background: transparent; color: var(--sc-ink-soft); font: 600 .74rem var(--sc-font-text); min-height: 44px; padding: 0 .6rem; border-top: 2px solid transparent; }
+    .botnav button[aria-current="step"] { color: var(--sc-ink); border-top-color: var(--sc-accent); }
+    .tabs .crumb, .tabs .tag { display: none; }
+    .tabs h1 { font-size: .8rem; }
+    .sec { display: none; opacity: 1; } .sec[data-active="1"] { display: block; }
+    .sec[data-always="1"] { display: block; opacity: 1; background: none; box-shadow: none; }
+    details.assume { display: none; }
+    .badge b { font-size: 1.15rem; } .compass { width: 52px; height: 52px; }
+    .monthly { height: 34%; bottom: 2rem; } .legend { display: none; }
+    .status { gap: .8rem; font-size: .66rem; } .status .hide-m { display: none; }
+  }
+  @media (max-height: 700px) and (min-width: 961px) { .help { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .sec { transition: none; } }
+</style>
+</head>
+<body>
+
+<main id="top">
+  <section data-sc-act="pin" data-sc-span="6.4" aria-label="Roof solar estimator">
+    <div data-sc-stage>
+      <div class="app" id="app">
+
+        <aside class="side">
+          <div class="brand"><i aria-hidden="true"></i>Sundial<small>est. v0.3</small></div>
+          <ol class="steps" id="steps" aria-label="Estimate steps"></ol>
+          <div class="help"><b>How this works</b>This is the product, not a picture of it. Scroll to walk through an estimate, or change anything and the numbers follow. Sample model, not a quote.</div>
+        </aside>
+
+        <div class="tabs">
+          <h1>Roof solar estimate</h1>
+          <span class="crumb" id="crumb">Step 1 of 5 / Roof</span>
+          <span class="tag">Sample model</span>
+        </div>
+
+        <div class="view" id="view">
+          <svg class="roof" id="roof" viewBox="0 0 800 560" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Diagram of the house roof with solar panels placed on it. It updates as you change the settings."></svg>
+          <svg class="compass" id="compass" viewBox="0 0 74 74" aria-hidden="true"></svg>
+          <div class="badge" aria-live="off"><span>Output right now</span><b><span id="nowkw">0.00</span><small>kW</small></b></div>
+                    <div class="legend"><span><i style="background:#FFB224"></i>Generated</span><span><i style="background:#4C7DFF"></i>Household use</span><span><i style="background:#0f2347;border:1px solid #4c7dff"></i>Panel</span></div>
+        </div>
+
+        <aside class="insp" id="insp">
+          <section class="sec" data-step="0">
+            <h2><span>1 · Roof</span><em id="roof-sum">South, 35°</em></h2>
+            <div class="f"><label for="az">Roof faces</label><output id="az-o" for="az">South</output>
+              <input id="az" type="range" min="-180" max="180" step="5" value="0" aria-valuetext="South"></div>
+            <div class="f"><label for="pitch">Roof pitch</label><output id="pitch-o" for="pitch">35°</output>
+              <input id="pitch" type="range" min="10" max="60" step="1" value="35"></div>
+            <div class="f"><label for="shade">Shade on the roof</label>
+              <select id="shade"><option value="1">None</option><option value="0.9">Some, a tree or chimney</option><option value="0.75">A lot</option></select></div>
+          </section>
+
+          <section class="sec" data-step="1">
+            <h2><span>2 · Panels</span><em id="kwp-sum">3.44 kWp</em></h2>
+            <div class="f"><label for="n">Number of panels</label>
+              <div class="stepper"><button type="button" id="n-dec" aria-label="Fewer panels">&minus;</button><output id="n-o" for="n" class="mono" style="min-width:2ch;text-align:center">8</output><button type="button" id="n-inc" aria-label="More panels">+</button></div>
+              <input id="n" type="range" min="2" max="28" step="1" value="8"></div>
+            <div class="f"><small>430 W panels. The roof drawing fits up to 28.</small></div>
+          </section>
+
+          <section class="sec" data-step="2">
+            <h2><span>3 · Output</span><em id="gen-sum">0 kWh / yr</em></h2>
+            <dl class="kv">
+              <dt>Generated per year</dt><dd id="o-gen">0 kWh</dd>
+              <dt>Used in the home</dt><dd id="o-self">0 kWh</dd>
+              <dt>Sent to the grid</dt><dd id="o-exp">0 kWh</dd>
+            </dl>
+            <div class="f" style="margin-top:.9rem"><label for="tod">Time of day, July</label><output id="tod-o" for="tod">13:00</output>
+              <input id="tod" type="range" min="5" max="21" step="0.25" value="13"></div>
+          </section>
+
+          <section class="sec" data-step="3">
+            <h2><span>4 · Bill</span><em id="pay-sum">payback</em></h2>
+            <div class="f"><label for="bill">Electricity bill, per month</label><span class="val">£</span><input id="bill" type="number" min="20" max="500" step="5" value="95" class="wide" style="grid-column:1/-1;width:100%;text-align:left"></div>
+            <div class="f"><label for="rate">Unit price</label><output id="rate-o" for="rate">27 p/kWh</output><input id="rate" type="range" min="15" max="45" step="1" value="27"></div>
+            <div class="f"><label for="home">Who is home in the day?</label>
+              <select id="home"><option value="0.3">Mostly out</option><option value="0.42" selected>Some of the day</option><option value="0.56">Mostly in</option></select></div>
+            <div class="f"><label class="chk"><input id="batt" type="checkbox"> Add a home battery</label></div>
+            <dl class="kv" style="margin-top:.5rem">
+              <dt>Saved per year</dt><dd class="hi" id="o-save">£0</dd>
+              <dt>System cost</dt><dd id="o-cost">£0</dd>
+              <dt>Pays back in</dt><dd class="hi" id="o-pay">0 years</dd>
+            </dl>
+          </section>
+
+          <section class="sec" data-step="4">
+            <h2><span>5 · Survey</span><em>free, no obligation</em></h2>
+            <p style="margin:.1rem 0 .7rem;color:var(--sc-ink-soft);font-size:.8rem" id="design-line">Your design appears here.</p>
+            <form id="survey" novalidate>
+              <div class="f"><label for="pc">Postcode</label><input id="pc" class="wide" type="text" autocomplete="postal-code" placeholder="e.g. LS1 4AB" style="grid-column:1/-1;width:100%;text-align:left"></div>
+              <div class="f"><label for="em">Email</label><input id="em" class="wide" type="email" autocomplete="email" placeholder="you@example.com" style="grid-column:1/-1;width:100%;text-align:left"></div>
+              <div style="display:flex;gap:.6rem;align-items:center;margin-top:.7rem"><button class="btn" type="submit">Request a survey</button><span class="msg" id="msg" role="status"></span></div>
+            </form>
+          </section>
+
+          <details class="assume">
+            <summary>Assumptions in this sample model</summary>
+            <ul>
+              <li>Ideal yield 950 kWh per kWp per year (south, 35°, no shade).</li>
+              <li>Direction and pitch scale that yield. South at 35° is 100%; north-facing is 57%.</li>
+              <li>Monthly shape is a typical UK curve, June and July strongest.</li>
+              <li>Household use is bill divided by unit price, spread flat across the year.</li>
+              <li>Exported power earns 15 p per kWh.</li>
+              <li>Cost is £1,650 per kWp, plus £3,800 for a battery. Output falls 0.5% a year.</li>
+              <li>Every figure is a placeholder for the concept, not a quotation.</li>
+            </ul>
+          </details>
+        </aside>
+
+        <nav class="botnav" id="botnav" aria-label="Estimate steps"></nav>
+
+        <div class="status" role="status" aria-live="off">
+          <span><span class="dot" aria-hidden="true"></span>Sample model</span>
+          <span class="hide-m">Size <b id="s-kwp">0</b> kWp</span>
+          <span>Generates <b id="s-gen">0</b> kWh/yr</span>
+          <span>Saves <b id="s-save">£0</b>/yr</span>
+          <span>Payback <b id="s-pay">0</b></span>
+          <span class="sp hide-m">Settings stay in this browser tab</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="../../assets/vendor/scrollcraft.js"></script>
+<script>
+var CONTACT = "surveys@sundial.example";    // replace before going live
+var NS = "http://www.w3.org/2000/svg";
+var clamp = function(v,a,b){ return Math.max(a, Math.min(b, v)); };
+var lerp = function(a,b,t){ return a + (b-a)*t; };
+var ease = function(t){ return t*t*(3-2*t); };
+var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function sv(tag, attrs, parent){ var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function table(t, rows){ for (var i = 1; i < rows.length; i++){ if (t <= rows[i][0]){ var a = rows[i-1], b = rows[i]; return lerp(a[1], b[1], (t-a[0])/(b[0]-a[0])); } } return rows[rows.length-1][1]; }
+
+/* ================================================================= model */
+var M = {
+  panelKw: 0.43, idealYield: 950,
+  month: [2.5, 4.5, 8, 11.5, 13.5, 14, 14, 12, 9.5, 5.5, 3, 2],        // % of the year, typical UK shape
+  mname: ["J","F","M","A","M","J","J","A","S","O","N","D"],
+  az: [[0,1.00],[45,0.95],[90,0.84],[135,0.68],[180,0.57]],
+  pitch: [[10,0.93],[20,0.97],[30,0.995],[35,1],[40,0.995],[50,0.96],[60,0.90]],
+  exportRate: 0.15, perKwp: 1650, battery: 3800, degrade: 0.005
+};
+var S = { az: 0, pitch: 35, shade: 1, n: 8, bill: 95, rate: 27, home: 0.42, batt: false };
+function compute(){
+  var kwp = S.n * M.panelKw;
+  var gen = kwp * M.idealYield * table(Math.abs(S.az), M.az) * table(S.pitch, M.pitch) * S.shade;
+  var usage = S.bill / (S.rate/100) * 12;
+  var frac = clamp(S.home + (S.batt ? 0.27 : 0), 0, 0.88);
+  var self = Math.min(gen * frac, usage);
+  var exp = gen - self;
+  var save = self * S.rate/100 + exp * M.exportRate;
+  var cost = kwp * M.perKwp + (S.batt ? M.battery : 0);
+  var cum = 0, pay = null, series = [];
+  for (var y = 1; y <= 25; y++){ cum += save * Math.pow(1 - M.degrade, y-1); series.push(cum); if (pay === null && cum >= cost) pay = (y-1) + (cost - (cum - save*Math.pow(1-M.degrade, y-1))) / (save*Math.pow(1-M.degrade, y-1)); }
+  return { kwp:kwp, gen:gen, usage:usage, self:self, exp:exp, save:save, cost:cost, pay:pay, series:series };
+}
+var R = compute();
+
+/* ================================================================= steps */
+var STEPS = ["Roof","Panels","Output","Bill","Survey"];
+var BOUNDS = [0, 0.17, 0.38, 0.6, 0.8, 1.0];      // p ranges for each step
+var stepsEl = document.getElementById("steps"), botnav = document.getElementById("botnav");
+STEPS.forEach(function(name, i){
+  var li = document.createElement("li"); li.innerHTML = '<button type="button" data-i="'+i+'"><span class="n">'+(i+1)+'</span><span>'+name+'</span><span class="v" id="sv'+i+'"></span></button>'; stepsEl.appendChild(li);
+  var b = document.createElement("button"); b.type = "button"; b.dataset.i = i; b.textContent = (i+1) + " " + name; botnav.appendChild(b);
+});
+var act = document.querySelector("[data-sc-act]");
+function jump(i){
+  var actTop = act.getBoundingClientRect().top + scrollY, range = act.offsetHeight - innerHeight;
+  var p = i === 0 ? 0.02 : (BOUNDS[i] + BOUNDS[i+1]) / 2;
+  window.scrollTo({ top: actTop + p * range, behavior: reduced ? "auto" : "smooth" });
+}
+document.addEventListener("click", function(e){ var b = e.target.closest(".steps button, .botnav button"); if (b) jump(+b.dataset.i); });
+
+/* ================================================================= roof drawing */
+var roof = document.getElementById("roof");
+var ROWS = 4, COLS = 7, SLOTS = ROWS * COLS;
+var gDefs = sv("defs", {}, roof);
+var gp = sv("linearGradient", { id:"gPanel", x1:0, y1:0, x2:1, y2:1 }, gDefs); sv("stop", { offset:0, "stop-color":"#1f3d7a" }, gp); sv("stop", { offset:1, "stop-color":"#0b1b3a" }, gp);
+var gs = sv("linearGradient", { id:"gSky", x1:0, y1:0, x2:0, y2:1 }, gDefs); sv("stop", { offset:0, "stop-color":"#10151b" }, gs); sv("stop", { offset:1, "stop-color":"#0e1115" }, gs);
+var wallG = sv("g", {}, roof), roofG = sv("g", {}, roof), panelG = sv("g", {}, roof), shadeG = sv("g", {}, roof), sunG = sv("g", {}, roof);
+var roofPoly = sv("path", { fill:"#2a323c", stroke:"#3b4653", "stroke-width":2 }, roofG);
+var tileG = sv("g", { stroke:"#343e49", "stroke-width":1 }, roofG);
+var wall = sv("rect", { x:150, y:0, width:500, height:0, fill:"#1a2028", stroke:"#323c47", "stroke-width":2 }, wallG);
+var winG = sv("g", {}, wallG);
+sv("line", { x1:70, x2:730, y1:400, y2:400, stroke:"#323c47", "stroke-width":2 }, wallG);
+var panels = [];
+for (var i = 0; i < SLOTS; i++){ var pg = sv("g", { opacity:0 }, panelG); var pp = sv("path", { fill:"url(#gPanel)", stroke:"#5d86e8", "stroke-width":1.2 }, pg); var pc = sv("path", { fill:"none", stroke:"rgba(120,160,255,.35)", "stroke-width":.7 }, pg); var gl = sv("path", { fill:"rgba(255,255,255,.0)" }, pg); panels.push({ g:pg, p:pp, c:pc, gl:gl }); }
+var treeG = sv("g", {}, shadeG);
+var arc = sv("path", { fill:"none", stroke:"#323c47", "stroke-width":1.5, "stroke-dasharray":"3 6" }, sunG);
+var sunDot = sv("circle", { r:11, fill:"#FFB224" }, sunG), sunHalo = sv("circle", { r:24, fill:"rgba(255,178,36,.18)" }, sunG);
+
+var geo = {};
+function layoutRoof(){
+  var base = 330, h = 64 + S.pitch * 2.9;                 // steeper roof = taller plane
+  var top = base - h, inset = 60 + S.pitch * 0.5;
+  geo = { bl:[70,base], br:[730,base], tr:[730-inset,top], tl:[70+inset,top], base:base, top:top };
+  roofPoly.setAttribute("d", "M"+geo.bl+"L"+geo.br+"L"+geo.tr+"L"+geo.tl+"Z");
+  tileG.innerHTML = "";
+  for (var r = 1; r < 9; r++){ var v = r/9, a = bil(0,v), b = bil(1,v); sv("line", { x1:a[0], y1:a[1], x2:b[0], y2:b[1] }, tileG); }
+  wall.setAttribute("y", base); wall.setAttribute("height", 400 - base);
+  winG.innerHTML = "";
+  [[210,base+14],[330,base+14],[520,base+14],[610,base+14]].forEach(function(w){ sv("rect", { x:w[0], y:w[1], width:56, height:44, fill:"#0e1115", stroke:"#3b4653", "stroke-width":1.5 }, winG); });
+  // sun arc across the sky
+  arc.setAttribute("d", "M60 150Q400 -110 740 150");
+}
+function bil(u, v){ // bilinear point in the roof quad, u across, v up
+  var bx = lerp(geo.bl[0], geo.br[0], u), by = lerp(geo.bl[1], geo.br[1], u);
+  var tx = lerp(geo.tl[0], geo.tr[0], u), ty = lerp(geo.tl[1], geo.tr[1], u);
+  return [lerp(bx, tx, v), lerp(by, ty, v)];
+}
+function layoutPanels(shown){
+  var mu = 0.045, mv = 0.09, gu = 0.012, gv = 0.02;
+  var cw = (1 - 2*mu - gu*(COLS-1)) / COLS, ch = (1 - 2*mv - gv*(ROWS-1)) / ROWS;
+  for (var i = 0; i < SLOTS; i++){
+    var row = Math.floor(i / COLS), col = i % COLS;
+    var u0 = mu + col*(cw+gu), v0 = mv + row*(ch+gv), u1 = u0 + cw, v1 = v0 + ch;
+    var a = bil(u0,v0), b = bil(u1,v0), c = bil(u1,v1), d = bil(u0,v1);
+    var d1 = "M"+a+"L"+b+"L"+c+"L"+d+"Z";
+    var m1 = bil((u0+u1)/2, v0), m2 = bil((u0+u1)/2, v1), m3 = bil(u0, (v0+v1)/2), m4 = bil(u1, (v0+v1)/2);
+    var d2 = "M"+m1+"L"+m2+"M"+m3+"L"+m4;
+    var P = panels[i]; P.p.setAttribute("d", d1); P.c.setAttribute("d", d2); P.gl.setAttribute("d", "M"+a+"L"+bil(lerp(u0,u1,.55), v0)+"L"+bil(lerp(u0,u1,.15), v1)+"L"+d+"Z");
+    var on = clamp(shown - i, 0, 1);
+    P.g.setAttribute("opacity", on.toFixed(2));
+    P.g.style.transform = "translateY(" + ((1-on)*-8).toFixed(1) + "px)";
+  }
+}
+function layoutShade(){
+  treeG.innerHTML = "";
+  var lvl = S.shade < 0.8 ? 2 : S.shade < 0.95 ? 1 : 0;
+  if (!lvl) return;
+  sv("rect", { x:34, y:290, width:10, height:110, fill:"#3a2f24" }, treeG);
+  sv("circle", { cx:39, cy:280, r:44, fill:"#1f3a2b" }, treeG); sv("circle", { cx:24, cy:300, r:30, fill:"#264a36" }, treeG);
+  var w = lvl === 2 ? 0.46 : 0.2;                               // shadow reaching into the panel field
+  var a = bil(0, 0), b = bil(w, 0), c = bil(w + 0.14, 1), d = bil(0.04, 1);
+  sv("path", { d:"M"+a+"L"+b+"L"+c+"L"+d+"Z", fill:"rgba(6,8,12,.55)" }, treeG);
+}
+function layoutSun(){
+  var h = S.tod, rise = 4.6, set = 21.4;
+  var t = clamp((h - rise)/(set - rise), 0, 1);
+  var x = lerp(60, 740, t), y = 150 * (1-t)*(1-t) + 2*(1-t)*t*(-110) + 150 * t*t;
+  sunDot.setAttribute("cx", x.toFixed(1)); sunDot.setAttribute("cy", y.toFixed(1)); sunHalo.setAttribute("cx", x.toFixed(1)); sunHalo.setAttribute("cy", y.toFixed(1));
+  var inDay = h >= rise && h <= set;
+  sunDot.setAttribute("opacity", inDay ? 1 : 0.25); sunHalo.setAttribute("opacity", inDay ? 1 : 0);
+  panels.forEach(function(P){ P.gl.setAttribute("fill", "rgba(255,255,255," + (inDay ? (0.04 + 0.1*Math.sin(Math.PI*t)) : 0) + ")"); });
+  // instantaneous output: bell across the day, scaled so the July peak lands near the array's rating
+  var bell = inDay ? Math.pow(Math.sin(Math.PI * t), 1.35) : 0;
+  var kw = R.kwp * table(Math.abs(S.az), M.az) * table(S.pitch, M.pitch) * S.shade * bell * 0.82;
+  document.getElementById("nowkw").textContent = kw.toFixed(2);
+}
+S.tod = 13;
+
+/* ================================================================= compass */
+(function(){
+  var c = document.getElementById("compass");
+  sv("circle", { cx:37, cy:37, r:32, fill:"rgba(21,26,32,.9)", stroke:"#323c47", "stroke-width":1.5 }, c);
+  [["N",37,12],["E",63,40],["S",37,66],["W",11,40]].forEach(function(l){ var t = sv("text", { x:l[1], y:l[2], "text-anchor":"middle" }, c); t.textContent = l[0]; });
+  var g = sv("g", { id:"needle" }, c);
+  sv("path", { d:"M37 18L43 40H31Z", fill:"#FFB224" }, g); sv("path", { d:"M37 56L43 40H31Z", fill:"#323c47" }, g);
+})();
+var NAMES = ["North","North-east","East","South-east","South","South-west","West","North-west"];
+function compassName(az){            // az: 0 = south, + = west
+  var bearing = (180 + az + 360) % 360, i = Math.round(bearing / 45) % 8;
+  return NAMES[i];
+}
+
+/* ================================================================= monthly + payback charts */
+var mchart = sv("g", { transform:"translate(60 430)" }, roof);
+function drawMonthly(show){
+  mchart.innerHTML = "";
+  var w = 680, h = 112, bw = 680/12, maxv = Math.max.apply(null, M.month.map(function(m){ return m/100*R.gen; }).concat([R.usage/12])) * 1.1 || 1;
+  var use = R.usage/12;
+  for (var i = 0; i < 12; i++){
+    var g = M.month[i]/100*R.gen * ease(clamp(show*1.3 - i*0.05, 0, 1));
+    var bh = g/maxv*(h-22);
+    sv("rect", { x:i*bw+bw*0.2, y:h-16-bh, width:bw*0.6, height:Math.max(0.5,bh), rx:2, fill:"#FFB224", opacity:.95 }, mchart);
+    var t = sv("text", { x:i*bw+bw/2, y:h-1, "text-anchor":"middle", fill:"#9CA6B0", "font-family":"Geist Mono, monospace", "font-size":11 }, mchart); t.textContent = M.mname[i];
+  }
+  var uy = h-16-use/maxv*(h-22);
+  sv("line", { x1:0, x2:w, y1:uy, y2:uy, stroke:"#4C7DFF", "stroke-width":2, "stroke-dasharray":"5 5", opacity: clamp(show*2,0,1) }, mchart);
+}
+
+/* payback drawn into the roof view's sky, in the same svg */
+var payG = sv("g", { id:"paychart", opacity:0 }, roof);
+function drawPay(show){
+  payG.innerHTML = "";
+  var x0 = 500, y0 = 70, w = 230, h = 70;
+  var maxv = Math.max(R.series[24], R.cost) * 1.05 || 1;
+  sv("rect", { x:x0-12, y:y0-30, width:w+24, height:h+60, rx:8, fill:"rgba(21,26,32,.94)", stroke:"#323c47" }, payG);
+  var t = sv("text", { x:x0, y:y0-8, fill:"#9CA6B0", "font-family":"Geist Mono, monospace", "font-size":10 }, payG); t.textContent = "CUMULATIVE SAVING, 25 YEARS";
+  sv("line", { x1:x0, x2:x0+w, y1:y0+h, y2:y0+h, stroke:"#323c47" }, payG);
+  var cy = y0 + h - R.cost/maxv*h;
+  sv("line", { x1:x0, x2:x0+w, y1:cy, y2:cy, stroke:"#4C7DFF", "stroke-dasharray":"4 4" }, payG);
+  var tc = sv("text", { x:x0+w, y:cy-4, "text-anchor":"end", fill:"#7f9bf0", "font-family":"Geist Mono, monospace", "font-size":10 }, payG); tc.textContent = "COST";
+  var n = Math.max(1, Math.round(25 * show)), d = "M"+x0+" "+(y0+h);
+  for (var y = 1; y <= n; y++){ d += "L" + (x0 + y/25*w).toFixed(1) + " " + (y0 + h - R.series[y-1]/maxv*h).toFixed(1); }
+  sv("path", { d:d, fill:"none", stroke:"#53D18A", "stroke-width":2.5, "stroke-linejoin":"round" }, payG);
+  if (R.pay && show >= R.pay/25){
+    var px = x0 + R.pay/25*w;
+    sv("circle", { cx:px, cy:cy, r:5, fill:"#53D18A" }, payG);
+    var tp = sv("text", { x:px, y:y0+h+14, "text-anchor":"middle", fill:"#53D18A", "font-family":"Geist Mono, monospace", "font-size":10 }, payG); tp.textContent = R.pay.toFixed(1) + " YR";
+  }
+}
+
+/* ================================================================= readouts */
+function fmtN(n){ return Math.round(n).toLocaleString("en-GB"); }
+function money(n){ return "£" + fmtN(n); }
+var shown = { gen:0, self:0, exp:0, save:0, cost:0, kwp:0, pay:0 };
+function setText(id, v){ var e = document.getElementById(id); if (e && e.textContent !== v) e.textContent = v; }
+function readouts(){
+  // ease the displayed numbers toward their targets, so a changed slider feels like a changed machine
+  var k = reduced ? 1 : 0.2;
+  ["gen","self","exp","save","cost","kwp"].forEach(function(key){ shown[key] += (R[key] - shown[key]) * k; if (Math.abs(R[key] - shown[key]) < 0.01) shown[key] = R[key]; });
+  var payTxt = R.pay ? R.pay.toFixed(1) + " years" : "Over 25 years";
+  setText("o-gen", fmtN(shown.gen) + " kWh"); setText("o-self", fmtN(shown.self) + " kWh"); setText("o-exp", fmtN(shown.exp) + " kWh");
+  setText("o-save", money(shown.save)); setText("o-cost", money(shown.cost)); setText("o-pay", payTxt);
+  setText("gen-sum", fmtN(shown.gen) + " kWh / yr"); setText("kwp-sum", shown.kwp.toFixed(2) + " kWp");
+  setText("pay-sum", R.pay ? R.pay.toFixed(1) + " yr payback" : "no payback");
+  setText("roof-sum", compassName(S.az) + ", " + S.pitch + "°");
+  setText("s-kwp", shown.kwp.toFixed(2)); setText("s-gen", fmtN(shown.gen)); setText("s-save", money(shown.save)); setText("s-pay", R.pay ? R.pay.toFixed(1) + " yr" : "25+ yr");
+  setText("sv0", compassName(S.az).slice(0, 1) === "S" && Math.abs(S.az) < 30 ? "S" : compassName(S.az).split("-").map(function(w){return w[0];}).join(""));
+  setText("sv1", S.n + ""); setText("sv2", (shown.gen/1000).toFixed(1) + "k"); setText("sv3", R.pay ? R.pay.toFixed(0) + "y" : "-"); setText("sv4", "");
+  setText("design-line", S.n + " panels, " + R.kwp.toFixed(2) + " kWp, facing " + compassName(S.az).toLowerCase() + " at " + S.pitch + "°. About " + fmtN(R.gen) + " kWh a year.");
+}
+
+/* ================================================================= inputs */
+var $ = function(id){ return document.getElementById(id); };
+function readInputs(){
+  S.az = +$("az").value; S.pitch = +$("pitch").value; S.shade = +$("shade").value; S.n = +$("n").value;
+  S.bill = clamp(+$("bill").value || 0, 20, 500); S.rate = +$("rate").value; S.home = +$("home").value; S.batt = $("batt").checked; S.tod = +$("tod").value;
+  $("az-o").textContent = compassName(S.az) + (Math.abs(S.az) > 0 && Math.abs(S.az) < 180 ? " " + (S.az > 0 ? "W" : "E") + Math.abs(S.az) + "°" : "");
+  $("az").setAttribute("aria-valuetext", compassName(S.az));
+  $("pitch-o").textContent = S.pitch + "°"; $("n-o").textContent = S.n; $("rate-o").textContent = S.rate + " p/kWh";
+  var h = Math.floor(S.tod), m = Math.round((S.tod - h) * 60); $("tod-o").textContent = (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+  R = compute();
+  document.getElementById("needle").setAttribute("transform", "rotate(" + (S.az) + " 37 37)");
+  try { localStorage.setItem("sundial-state", JSON.stringify({ az:$("az").value, pitch:$("pitch").value, shade:$("shade").value, n:$("n").value, bill:$("bill").value, rate:$("rate").value, home:$("home").value, batt:$("batt").checked })); } catch(e){}
+  layoutRoof(); layoutShade(); dirty = true;
+}
+var dirty = true;
+["az","pitch","shade","n","bill","rate","home","batt","tod"].forEach(function(id){ $(id).addEventListener("input", readInputs); $(id).addEventListener("change", readInputs); });
+$("n-dec").addEventListener("click", function(){ $("n").value = Math.max(2, +$("n").value - 1); readInputs(); });
+$("n-inc").addEventListener("click", function(){ $("n").value = Math.min(28, +$("n").value + 1); readInputs(); });
+try { var st = JSON.parse(localStorage.getItem("sundial-state") || "null"); if (st){ for (var k in st){ var el = $(k); if (!el) continue; if (el.type === "checkbox") el.checked = !!st[k]; else el.value = st[k]; } } } catch(e){}
+
+/* survey: honest, no false success */
+$("survey").addEventListener("submit", function(e){
+  e.preventDefault();
+  var pc = $("pc").value.trim(), em = $("em").value.trim(), msg = $("msg");
+  var okPc = /^[A-Za-z]{1,2}\d[A-Za-z\d]?\s*\d[A-Za-z]{2}$/.test(pc), okEm = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em);
+  msg.classList.toggle("err", !(okPc && okEm));
+  if (!okPc){ msg.textContent = "Enter a UK postcode."; $("pc").focus(); return; }
+  if (!okEm){ msg.textContent = "Enter a valid email."; $("em").focus(); return; }
+  msg.textContent = "Opening your email app.";
+  var body = "Postcode: " + pc + "\nEmail: " + em + "\n\nSample design:\n" + $("design-line").textContent + "\nEstimated saving about " + money(R.save) + " a year; cost about " + money(R.cost) + (R.pay ? "; payback about " + R.pay.toFixed(1) + " years" : "") + ".\nBattery: " + (S.batt ? "yes" : "no") + "\n";
+  location.href = "mailto:" + CONTACT + "?subject=" + encodeURIComponent("Roof survey request") + "&body=" + encodeURIComponent(body);
+});
+
+/* ================================================================= scroll drives the walk-through */
+var secs = [].slice.call(document.querySelectorAll(".sec")), stepBtns = [].slice.call(document.querySelectorAll(".steps button, .botnav button"));
+var curStep = -1;
+function pNow(){ var v = parseFloat(getComputedStyle(act).getPropertyValue("--sc-p")); return isNaN(v) ? 0 : v; }
+var lastKey = "";
+function frame(){
+  var p = pNow();
+  var step = 0; for (var i = 0; i < 5; i++) if (p >= BOUNDS[i]) step = i;
+  if (step !== curStep){
+    curStep = step;
+    secs.forEach(function(s){ s.dataset.active = (+s.dataset.step === step) ? "1" : "0"; });
+    stepBtns.forEach(function(b){ var i = +b.dataset.i; if (i === step) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); b.dataset.done = i < step ? "1" : "0"; });
+    document.getElementById("crumb").textContent = "Step " + (step+1) + " of 5 / " + STEPS[step];
+    if (innerWidth <= 960){ var bn = botnav.children[step]; if (bn && bn.scrollIntoView) bn.scrollIntoView({ inline:"center", block:"nearest" }); }
+    var insp = $("insp"); var sec = secs[step]; if (insp && sec && innerWidth > 960) insp.scrollTo({ top: Math.max(0, sec.offsetTop - 12), behavior: reduced ? "auto" : "smooth" });
+  }
+  var build = reduced ? 1 : ease(clamp((p - 0.1) / 0.3, 0, 1));          // panels placed
+  var mon = reduced ? 1 : ease(clamp((p - 0.36) / 0.24, 0, 1));          // months filled
+  var pay = reduced ? 1 : clamp((p - 0.6) / 0.2, 0, 1);                  // payback line drawn
+  var showN = Math.max(Math.min(2, S.n), S.n * build);
+  var key = [showN.toFixed(2), mon.toFixed(2), pay.toFixed(2), S.tod, dirty].join("|");
+  if (key !== lastKey || shown.gen !== R.gen){
+    lastKey = key; dirty = false;
+    layoutPanels(showN); layoutSun(); drawMonthly(mon); drawPay(pay);
+    payG.setAttribute("opacity", clamp((p - 0.58) * 6, 0, 1).toFixed(2));
+    mchart.setAttribute("opacity", clamp((p - 0.34) * 8, 0, 1).toFixed(2));
+    readouts();
+  }
+  appEl.setAttribute("data-sc-verify-state", lastKey + "|" + curStep);
+  requestAnimationFrame(frame);
+}
+var appEl = document.getElementById("app");
+S.tod = 13; readInputs();
+if (reduced) act.setAttribute("data-sc-span", "4");     // everything is already complete, so give each step less room
+ScrollCraft.mount(document.body);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

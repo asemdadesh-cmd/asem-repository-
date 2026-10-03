@@ -1,0 +1,7 @@
+{
+  "name": "northlight-web-tools",
+  "private": true,
+  "type": "module",
+  "description": "Capture and verification scripts for the web/ sites. Not needed to run or deploy the sites.",
+  "devDependencies": { "playwright-core": "^1.50.0", "axe-core": "^4.10.0" }
+}

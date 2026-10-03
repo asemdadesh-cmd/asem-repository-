@@ -1,0 +1,640 @@
+<!doctype html>
+<!--
+  Altura: concept site for a high-altitude coffee roaster (fictional brand, sample origin copy).
+  Grammar: filmic one-shot, built from layered SVG planes instead of video.
+  Signature move: the roast. Scrolling runs a roast in real roasting phases (beans, drum, curve). The visitor stops it
+  at first crack or later with "Drop", and that roast level follows them to the range and the order.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Altura · Coffee roasted above the clouds</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Concept site: a small-lot coffee roaster. Scroll runs a live roast; stop it where you like your coffee.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230E1A14'/><path d='M3 24l9-13 5 7 3-4 9 10z' fill='%23F2A33A'/></svg>">
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../assets/vendor/scrollcraft.css">
+<style>
+  :root {
+    --sc-canvas: #0D1914;
+    --sc-surface: #14261D;
+    --sc-ink: #F0E9D8;
+    --sc-ink-soft: #AEB8A8;
+    --sc-accent: #F2A33A;
+    --sc-accent-ink: #1A1006;
+    --sc-font-display: "Archivo", system-ui, sans-serif;
+    --sc-font-text: "Geist", system-ui, sans-serif;
+    --sc-font-mono: "Geist Mono", ui-monospace, monospace;
+    --sc-shadow-color: 150 40% 3%;
+    --cherry: #C8402E;
+  }
+  .sc-display { font-weight: 560; font-stretch: 108%; letter-spacing: -.035em; }
+
+  /* ---- bar ---- */
+  .bar { position: fixed; inset: 0 0 auto 0; z-index: 60; height: 68px; display: flex; align-items: center; justify-content: space-between; padding-inline: var(--sc-gutter); pointer-events: none; }
+  .bar > * { pointer-events: auto; }
+  .mark { font: 640 1.05rem var(--sc-font-display); font-stretch: 75%; letter-spacing: .2em; text-decoration: none; text-transform: uppercase; }
+  .bar__r { display: flex; align-items: center; gap: 1rem; }
+  .yours { font: 500 .74rem var(--sc-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--sc-ink); opacity: 0; transition: opacity 300ms var(--sc-ease-out); }
+  .yours[data-on="1"] { opacity: 1; }
+  .yours b { color: var(--sc-accent); font-weight: 600; }
+  .cta { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 1.35rem; border-radius: 999px; background: var(--sc-accent); color: var(--sc-accent-ink); font: 600 .94rem var(--sc-font-text); text-decoration: none; white-space: nowrap; border: 0; cursor: pointer; transition: transform 120ms var(--sc-ease-out), background 140ms var(--sc-ease-out); }
+  .cta:active { transform: scale(.97); }
+  @media (hover:hover) and (pointer:fine) { .cta:hover { background: #ffb85a; } }
+  .cta--ghost { background: transparent; color: var(--sc-ink); border: 1px solid var(--sc-hairline-strong); }
+  @media (hover:hover) and (pointer:fine) { .cta--ghost:hover { background: color-mix(in oklab, var(--sc-ink) 8%, transparent); } }
+
+  /* ---- altimeter ---- */
+  .alt { position: fixed; right: var(--sc-gutter); top: 50%; translate: 0 -50%; z-index: 55; display: grid; justify-items: end; gap: .35rem; font-family: var(--sc-font-mono); pointer-events: none; mix-blend-mode: normal; }
+  .alt__v { font-size: .95rem; font-weight: 500; letter-spacing: .04em; font-variant-numeric: tabular-nums; text-shadow: 0 1px 8px hsl(150 40% 3% / .7); }
+  .alt__v small { color: var(--sc-ink-soft); font-size: .66rem; letter-spacing: .1em; margin-left: .3em; }
+  .alt__l { font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--sc-ink-soft); text-shadow: 0 1px 8px hsl(150 40% 3% / .7); }
+  .alt__rail { width: 1px; height: 26vh; background: color-mix(in oklab, var(--sc-ink) 24%, transparent); position: relative; }
+  .alt__dot { position: absolute; right: -3px; top: 0; width: 7px; height: 7px; border-radius: 50%; background: var(--sc-accent); transform: translateY(-50%); }
+  @media (max-width: 860px) { .alt { display: none; } }
+
+  /* ---- 1 · hero: layered descent ---- */
+  .hero .stage-sky { position: absolute; inset: 0; background:
+      radial-gradient(60% 46% at 70% 62%, rgba(255,196,110,.5), rgba(255,150,70,.14) 45%, transparent 72%),
+      linear-gradient(180deg, #0a2430 0%, #174349 38%, #4a7366 62%, #d29a5b 82%, #e9b878 100%); }
+  .hero .plane { position: absolute; left: -10%; width: 120%; top: -8%; height: 118%; will-change: transform; pointer-events: none; }
+  .hero .plane svg { width: 100%; height: 100%; }
+  .hero .mist { position: absolute; left: -20%; width: 140%; height: 24%; pointer-events: none; background: radial-gradient(50% 50% at 50% 50%, rgba(250,225,180,.38), transparent 70%); filter: blur(10px); animation: drift 38s ease-in-out infinite alternate; }
+  .hero .mist--a { top: 46%; } .hero .mist--b { top: 60%; animation-duration: 52s; animation-direction: alternate-reverse; opacity: .8; }
+  @keyframes drift { from { transform: translateX(-6%); } to { transform: translateX(6%); } }
+  .hero .descend { position: absolute; inset: 0; z-index: 4; pointer-events: none;
+      background: linear-gradient(0deg, var(--sc-canvas) 0%, color-mix(in oklab, var(--sc-canvas) 72%, #3e5d52) 55%, transparent 100%);
+      opacity: clamp(0, calc((var(--sc-p, 0) - .72) * 3.6), 1); }
+  .hero .sc-copy { z-index: 8; }
+  .hero h1 { font-size: clamp(2.7rem, 1.5rem + 4.4vw, 5.6rem); max-width: 14ch; text-shadow: 0 2px 30px hsl(150 40% 3% / .45); }
+  .hero .sc-body { color: var(--sc-ink); margin-top: var(--sc-4); max-width: 38ch; text-shadow: 0 1px 14px hsl(150 40% 3% / .6); }
+  @media (max-width: 860px) { .hero h1 { font-size: var(--sc-t-2xl); } }
+
+  /* ---- 2 · argument ---- */
+  .arg { background: var(--sc-canvas); }
+  .arg [data-sc-stage] { display: grid; align-content: center; padding-inline: var(--sc-gutter); }
+  .arg .topo { position: absolute; inset: -5%; width: 110%; height: 110%; opacity: .5; }
+  .arg p { position: absolute; left: var(--sc-gutter); right: var(--sc-gutter); top: 50%; translate: 0 -50%; margin: 0; font: 540 var(--sc-t-3xl)/1.02 var(--sc-font-display); font-stretch: 106%; letter-spacing: -.035em; max-width: 17ch; text-wrap: balance; z-index: 2; }
+  .arg p em { font-style: normal; color: var(--sc-accent); }
+  @media (max-width: 860px) { .arg p { font-size: var(--sc-t-2xl); } }
+
+  /* ---- 3 · origin ---- */
+  .origin { background: var(--sc-canvas); padding-block: clamp(2rem, 6vw, 5rem) var(--sc-section); }
+  .origin .wrap { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 6vw, 6rem); align-items: center; }
+  .origin h2 { font-size: var(--sc-t-3xl); }
+  .origin .sc-body { margin-top: 1.25rem; }
+  .facts { margin: 2rem 0 0; padding: 0; list-style: none; display: grid; gap: 0; border-top: 1px solid var(--sc-hairline-strong); }
+  .facts li { display: grid; grid-template-columns: 8.5rem 1fr; gap: 1rem; padding: .8rem 0; border-bottom: 1px solid var(--sc-hairline); font-size: .96rem; }
+  .facts b { font: 500 .72rem var(--sc-font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--sc-ink-soft); padding-top: .2em; }
+  .fig { margin: 0; position: relative; }
+  .fig svg { width: 100%; height: auto; }
+  .fig figcaption { font: 500 .72rem var(--sc-font-mono); letter-spacing: .08em; color: var(--sc-ink-soft); margin-top: .75rem; text-transform: uppercase; }
+  @media (max-width: 860px) { .origin .wrap { grid-template-columns: 1fr; } .facts li { grid-template-columns: 6rem 1fr; } }
+
+  /* ---- 4 · the roast ---- */
+  .roast [data-sc-stage] { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: center; padding: 84px var(--sc-gutter) 2rem; }
+  .roast .left { display: grid; justify-items: center; position: relative; }
+  .roast canvas { width: min(54vmin, 600px); aspect-ratio: 1; display: block; }
+  .roast .temp { margin-top: .5rem; display: flex; gap: 1.6rem; font-family: var(--sc-font-mono); }
+  .roast .temp div { display: grid; }
+  .roast .temp span { font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .roast .temp b { font-size: 1.5rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .roast .right { display: grid; gap: 1rem; }
+  .roast h2 { font-size: var(--sc-t-2xl); max-width: 16ch; }
+  .roast .sc-body { max-width: 46ch; }
+  .chart { width: 100%; max-width: 640px; height: auto; overflow: visible; }
+  .chart text { font-family: var(--sc-font-mono); font-size: 11px; fill: var(--sc-ink-soft); letter-spacing: .06em; }
+  .chart .phase text { text-transform: uppercase; }
+  .chart .axis { stroke: var(--sc-hairline-strong); stroke-width: 1; }
+  .chart .curve-bg { fill: none; stroke: var(--sc-hairline-strong); stroke-width: 2; }
+  .chart .curve { fill: none; stroke: var(--sc-accent); stroke-width: 3; stroke-linecap: round; }
+  .chart .band { fill: color-mix(in oklab, var(--sc-ink) 4%, transparent); }
+  .chart .crack { stroke: var(--sc-accent); stroke-dasharray: 3 4; stroke-width: 1; opacity: .8; }
+  .chart .dot { fill: var(--sc-ink); stroke: var(--sc-accent); stroke-width: 3; }
+  .drop-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .drop { min-height: 52px; padding: 0 1.6rem; border-radius: 999px; border: 0; cursor: pointer; font: 650 1rem var(--sc-font-text); background: var(--sc-accent); color: var(--sc-accent-ink); transition: transform 120ms var(--sc-ease-out), opacity 160ms; }
+  .drop:active { transform: scale(.97); }
+  .drop[disabled] { background: color-mix(in oklab, var(--sc-ink) 12%, transparent); color: var(--sc-ink-soft); cursor: not-allowed; }
+  .drop-note { font: 500 .8rem var(--sc-font-mono); letter-spacing: .04em; color: var(--sc-ink-soft); min-height: 1.4em; }
+  .drop-note b { color: var(--sc-ink); font-weight: 600; }
+  .undo { background: none; border: 0; padding: .6rem .2rem; color: var(--sc-ink); font: 500 .85rem var(--sc-font-text); text-decoration: underline; text-underline-offset: .22em; cursor: pointer; min-height: 44px; }
+  .undo[hidden] { display: none; }
+  @media (max-width: 860px) {
+    .roast [data-sc-stage] { grid-template-columns: 1fr; padding-top: 72px; gap: .4rem; align-content: start; }
+    .roast canvas { width: min(40vh, 78vw); }
+    .roast .temp b { font-size: 1.15rem; } .roast .temp { margin-top: .2rem; gap: 1.1rem; }
+    .roast h2 { font-size: var(--sc-t-xl); } .roast .sc-body { display: none; }
+    .chart { max-height: 20vh; }
+    .roast .right { gap: .5rem; }
+  }
+  @media (max-height: 620px) and (min-width: 861px) { .roast .sc-body { display: none; } }
+
+  .beds { position: absolute; inset: 0; z-index: 0; pointer-events: none; -webkit-mask-image: linear-gradient(100deg, #000 0%, rgba(0,0,0,.7) 38%, rgba(0,0,0,.12) 62%, transparent 80%); mask-image: linear-gradient(100deg, #000 0%, rgba(0,0,0,.7) 38%, rgba(0,0,0,.12) 62%, transparent 80%); }
+  .beds img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+  .beds::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--sc-canvas) 0%, transparent 28%, transparent 72%, var(--sc-canvas) 100%); }
+  .roast .left, .roast .right { position: relative; z-index: 1; }
+  @media (max-width: 860px) { .beds { -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.5) 45%, transparent 75%); mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.5) 45%, transparent 75%); } }
+
+  /* ---- 5 · range (pan) ---- */
+  .range [data-sc-stage] { display: grid; align-content: center; }
+  .rail { padding: 5rem 0 2rem var(--sc-gutter); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+  .rail__lead { flex: 0 0 min(30rem, 78vw); }
+  .rail__lead h2 { font-size: var(--sc-t-3xl); }
+  .rail__end { flex: 0 0 min(22rem, 80vw); padding-right: var(--sc-gutter); }
+  .lot { flex: 0 0 clamp(17rem, 28vw, 24rem); position: relative; padding-bottom: 1rem; }
+  .lot h3 { font: 560 var(--sc-t-xl) var(--sc-font-display); font-stretch: 108%; letter-spacing: -.03em; margin: 1.5rem 0 .2rem; }
+  .lot .lvl { display: flex; gap: .3rem; align-items: center; font: 500 .7rem var(--sc-font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .lot .lvl i { width: 18px; height: 6px; border-radius: 3px; background: color-mix(in oklab, var(--sc-ink) 20%, transparent); }
+  .lot .lvl i.on { background: var(--sc-accent); }
+  .lot p { margin: .6rem 0 0; color: var(--sc-ink-soft); font-size: .95rem; max-width: 34ch; }
+  .lot .notes { color: var(--sc-ink); font-size: 1rem; }
+  .lot .match { position: absolute; top: -.2rem; left: 0; background: var(--sc-ink); color: var(--sc-canvas); font: 650 .7rem var(--sc-font-mono); letter-spacing: .1em; text-transform: uppercase; padding: .25rem .6rem; border-radius: 999px; opacity: 0; transition: opacity 240ms var(--sc-ease-out); }
+  .lot[data-match="1"] .match { opacity: 1; }
+  .bag { width: 100%; aspect-ratio: 4 / 5; position: relative; transform: translateZ(0); }
+  .bag__body { position: absolute; inset: 7% 8% 0 8%; background: linear-gradient(100deg, var(--b1), var(--b2) 55%, var(--b1)); clip-path: polygon(0 5%, 6% 0, 12% 4%, 18% 0, 24% 4%, 30% 0, 36% 4%, 42% 0, 48% 4%, 54% 0, 60% 4%, 66% 0, 72% 4%, 78% 0, 84% 4%, 90% 0, 96% 4%, 100% 0, 100% 96%, 94% 100%, 6% 100%, 0 96%); border-radius: 0 0 14px 14px; box-shadow: var(--sc-e3); }
+  .bag__body::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,.14), transparent 22%, transparent 70%, rgba(0,0,0,.18)); }
+  .bag__body::after { content: ""; position: absolute; left: 0; right: 0; top: 12%; height: 1px; background: rgba(255,255,255,.18); }
+  .bag__fold { position: absolute; left: 8%; right: 8%; top: 0; height: 10%; background: var(--b2); filter: brightness(.82); clip-path: polygon(0 100%, 3% 0, 97% 0, 100% 100%); }
+  .bag__label { position: absolute; left: 20%; right: 20%; top: 28%; bottom: 14%; background: var(--paper); color: #17201a; padding: 6% 7%; display: grid; align-content: space-between; border-radius: 3px; }
+  .bag__label b { font: 640 clamp(1.1rem, 1.6vw, 1.5rem) var(--sc-font-display); font-stretch: 75%; letter-spacing: .18em; text-transform: uppercase; }
+  .bag__label span { font: 500 .66rem var(--sc-font-mono); letter-spacing: .08em; text-transform: uppercase; line-height: 1.5; }
+  .bag__label .pk { display: block; height: 3px; background: var(--b2); width: 38%; }
+  .lot--1 { --b1: #cfa84a; --b2: #e5c571; --paper: #f4efe2; }
+  .lot--2 { --b1: #9a4a2c; --b2: #bf6540; --paper: #f1e7d6; }
+  .lot--3 { --b1: #1c130e; --b2: #2d2018; --paper: #e7dcc8; }
+  .lot[data-match="1"] .bag__body { outline: 2px solid var(--sc-accent); outline-offset: 6px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .rail .lot { opacity: calc(.82 + .18 * clamp(0, calc(var(--sc-p, 0) * 3 - var(--i, 0) * .55), 1)); }
+  }
+
+  /* ---- 6 · close ---- */
+  .close [data-sc-stage] { display: grid; place-items: center; text-align: center; background: radial-gradient(60% 50% at 50% 55%, #1b3326 0%, var(--sc-canvas) 70%); }
+  .close__inner { display: grid; justify-items: center; gap: 2rem; padding-inline: var(--sc-gutter); }
+  .close h2 { font-size: var(--sc-t-4xl); max-width: 11ch; }
+  .close h2 em { font-style: normal; color: var(--sc-accent); }
+  .close .cta { min-height: 60px; padding-inline: 2.4rem; font-size: 1.1rem; }
+  .close .sub { color: var(--sc-ink-soft); font-size: 1rem; max-width: 44ch; margin: 0; }
+  .foot { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 1.25rem var(--sc-gutter); font: 400 .78rem var(--sc-font-mono); color: var(--sc-ink-soft); letter-spacing: .02em; }
+  .foot a { color: var(--sc-ink); }
+  @media (max-width: 860px) { .close h2 { font-size: var(--sc-t-3xl); } .foot { font-size: .7rem; } }
+</style>
+</head>
+<body>
+
+<span data-sc-progress aria-hidden="true"></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<header class="bar">
+  <a class="mark" href="#top" aria-label="Altura, top of page">Altura</a>
+  <div class="bar__r">
+    <span class="yours" id="yours" aria-live="polite">Your roast <b id="yours-v"></b></span>
+    <a class="cta" href="#order" data-order>Reserve a bag</a>
+  </div>
+</header>
+
+<div class="alt" aria-hidden="true">
+  <span class="alt__l">Altitude</span>
+  <span class="alt__v"><span id="alt-v">2,140</span><small>m</small></span>
+  <div class="alt__rail"><i class="alt__dot" id="alt-dot"></i></div>
+</div>
+
+<main id="top">
+
+  <!-- 1 · RECOGNITION: layered descent -->
+  <section class="hero" data-sc-act="scrub" data-sc-span="2.7" data-sc-drift="#0D1914">
+    <div data-sc-stage>
+      <div class="stage-sky"></div>
+      <div class="plane" data-sc-parallax="-0.2"><svg id="p-far" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg></div>
+      <div class="mist mist--a"></div>
+      <div class="plane" data-sc-parallax="-0.7"><svg id="p-mid" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg></div>
+      <div class="mist mist--b"></div>
+      <div class="plane" data-sc-parallax="-1.5"><svg id="p-near" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg></div>
+      <div class="plane" data-sc-parallax="-2.6"><svg id="p-front" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg></div>
+      <div class="sc-scrim sc-scrim--lead" aria-hidden="true" style="z-index:5;--sc-scrim-a:84%"></div>
+      <div class="descend" aria-hidden="true"></div>
+      <div class="sc-copy sc-copy--lead" data-sc-cue="0 0.72 0">
+        <h1 class="sc-display sc-display--xl" data-sc-kinetic="lines">Grown above the clouds. Roasted by hand.</h1>
+        <p class="sc-body">Small lots from high farms, roasted weekly in the north. You decide how dark.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · TENSION: pinned argument -->
+  <section class="arg" data-sc-act="pin" data-sc-span="3.2" data-sc-drift="#0D1914">
+    <div data-sc-stage>
+      <svg class="topo" id="topo" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+      <p data-sc-cue="0 0.3 0 0.25">Most coffee is picked <em>for weight.</em></p>
+      <p data-sc-cue="0.26 0.58">Shipped for months, then roasted <em>for sameness.</em></p>
+      <p data-sc-cue="0.54 0.9">The flavour was decided <em>long before the roast.</em></p>
+      <p data-sc-cue="0.82 0.99 0.04 0.03">Start higher. <em>Stop sooner.</em></p>
+    </div>
+  </section>
+
+  <!-- 3 · TURN: origin, a wipe is a change of state -->
+  <section class="origin" data-sc-drift="#0D1914">
+    <div class="sc-wrap wrap">
+      <div data-sc-in data-sc-stagger="70" class="sc-stack">
+        <h2 class="sc-display">Cold nights. Slow cherries.</h2>
+        <p class="sc-body">Above 1,700 metres the nights drop, ripening slows, and the bean packs more into the same cherry. Pickers return to each tree several times, taking only what is red.</p>
+        <ul class="facts">
+          <li><b>Altitude</b><span>1,700 to 2,000 m, terraced</span></li>
+          <li><b>Picking</b><span>By hand, in passes, ripe only</span></li>
+          <li><b>Processing</b><span>Washed, dried on raised beds</span></li>
+          <li><b>Roasting</b><span>Small batches, once a week</span></li>
+        </ul>
+      </div>
+      <figure class="fig" data-sc-reveal="left" data-sc-reveal-at="0.12 0.5">
+        <svg id="terrace" viewBox="0 0 900 600" role="img" aria-label="Cross-section of a terraced hillside from 2,000 down to 1,700 metres, with shade trees and rows of coffee."></svg>
+        <figcaption>Sample origin illustration. Altitudes are typical for the region, not a specific farm.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 4 · SUBSTANCE + PEAK: the roast -->
+  <section class="roast" id="roast" data-sc-act="pin" data-sc-span="5.2" data-sc-drift="#16100B">
+    <div data-sc-stage>
+      <div class="beds" aria-hidden="true">
+        <img id="bed-g" src="../../assets/gen/altura/beans-green.webp" width="1536" height="1024" alt="" decoding="async">
+        <img id="bed-m" src="../../assets/gen/altura/beans-medium.webp" width="1536" height="1024" alt="" decoding="async">
+        <img id="bed-d" src="../../assets/gen/altura/beans-dark.webp" width="1536" height="1024" alt="" decoding="async">
+      </div>
+      <div class="left">
+        <canvas id="drum" width="900" height="900" role="img" aria-label="Cross-section of a roasting drum. The beans change from green to brown as you scroll."></canvas>
+        <div class="temp" aria-hidden="true">
+          <div><span>Time</span><b id="t-time">00:00</b></div>
+          <div><span>Bean temp</span><b id="t-temp">200&nbsp;°C</b></div>
+          <div><span>Phase</span><b id="t-phase" style="font-size:1rem;align-self:end;padding-bottom:.2rem">Charge</b></div>
+        </div>
+      </div>
+      <div class="right">
+        <h2 class="sc-display" data-sc-cue="0 1 0 0" data-sc-kinetic="lines">One decision, made at the right second.</h2>
+        <p class="sc-body" data-sc-cue="0.02 0.98 0.06 0.04">Scroll to run the roast. When first crack passes, the button opens. Drop early for something bright, late for something deep.</p>
+        <svg class="chart" id="chart" viewBox="0 0 600 270" role="img" aria-label="Roast curve: bean temperature against time over twelve minutes, with first crack at about seven and a half minutes."></svg>
+        <div class="drop-row">
+          <button class="drop" id="drop" type="button" disabled>Drop the roast</button>
+          <button class="undo" id="undo" type="button" hidden>Run it again</button>
+        </div>
+        <div class="drop-note" id="drop-note" role="status" aria-live="polite">Waiting for first crack.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · RANGE: pan -->
+  <section class="range" data-sc-act="pan" data-sc-span="3.6" data-sc-drift="#0D1914">
+    <div data-sc-stage>
+      <div class="rail" data-sc-pan="0.05">
+        <div class="rail__lead sc-stack">
+          <h2 class="sc-display">Three roasts of the same lot.</h2>
+          <p class="sc-body">Same farm, same week, three drop points. The one you stopped at is marked.</p>
+        </div>
+        <article class="lot lot--1" data-level="light" style="--i:0">
+          <span class="match">Your roast</span>
+          <div data-sc-tilt="6"><div class="bag" aria-hidden="true"><div class="bag__fold"></div><div class="bag__body"></div><div class="bag__label"><b>Cumbre</b><i class="pk"></i><span>Light roast<br>Washed · 250 g</span></div></div></div>
+          <h3>Cumbre</h3>
+          <div class="lvl" aria-label="Light roast, 1 of 3"><i class="on"></i><i></i><i></i> Light</div>
+          <p class="notes">Jasmine, apricot, black tea.</p>
+          <p>Bright and clean. Best as a filter brew, 15 g to 250 ml.</p>
+        </article>
+        <article class="lot lot--2" data-level="medium" style="--i:1">
+          <span class="match">Your roast</span>
+          <div data-sc-tilt="6"><div class="bag" aria-hidden="true"><div class="bag__fold"></div><div class="bag__body"></div><div class="bag__label"><b>Nube</b><i class="pk"></i><span>Medium roast<br>Washed · 250 g</span></div></div></div>
+          <h3>Nube</h3>
+          <div class="lvl" aria-label="Medium roast, 2 of 3"><i class="on"></i><i class="on"></i><i></i> Medium</div>
+          <p class="notes">Red apple, cocoa nib, brown sugar.</p>
+          <p>Round and easy. Works in a V60, an AeroPress or a moka pot.</p>
+        </article>
+        <article class="lot lot--3" data-level="dark" style="--i:2">
+          <span class="match">Your roast</span>
+          <div data-sc-tilt="6"><div class="bag" aria-hidden="true"><div class="bag__fold"></div><div class="bag__body"></div><div class="bag__label"><b>Brasa</b><i class="pk"></i><span>Dark roast<br>Washed · 250 g</span></div></div></div>
+          <h3>Brasa</h3>
+          <div class="lvl" aria-label="Dark roast, 3 of 3"><i class="on"></i><i class="on"></i><i class="on"></i> Dark</div>
+          <p class="notes">Dark chocolate, toasted almond, molasses.</p>
+          <p>Deep and heavy. Made for espresso and milk.</p>
+        </article>
+        <div class="rail__end sc-stack">
+          <p class="sc-lede">Not sure? Start with the one you dropped.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · COMMITMENT -->
+  <section class="close" id="order" data-sc-act="pin" data-sc-span="1.3" data-sc-drift="#0D1914">
+    <div data-sc-stage data-sc-spotlight>
+      <div class="close__inner">
+        <h2 class="sc-display" data-sc-cue="0.06" data-sc-kinetic="lines" id="close-h">Start with the one you stopped at.</h2>
+        <p class="sub" data-sc-cue="0.1" id="close-sub">Roasted on Monday, posted the same day.</p>
+        <a class="cta" id="order-cta" href="#" data-sc-magnet="0.26" data-sc-cue="0.06" data-sc-rise="0">Reserve a bag</a>
+      </div>
+      <footer class="foot">
+        <span>Altura. Concept site, fictional brand. Origin details are sample copy.</span>
+        <span>Opens your email app to place a request. Nothing is sent from this page.</span>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script src="../../assets/vendor/scrollcraft.js"></script>
+<script>
+var CONTACT = "orders@altura.example";   // replace before going live
+var NS = "http://www.w3.org/2000/svg";
+function rng(seed){ var s = seed; return function(){ s = (s*16807)%2147483647; return (s-1)/2147483646; }; }
+function sv(tag, attrs, parent){ var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+var clamp = function(v,a,b){ return Math.max(a, Math.min(b, v)); };
+var lerp = function(a,b,t){ return a + (b-a)*t; };
+var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ----------------------------------------------------------------- hero art */
+function ridge(base, amp, seed, steps, freq){
+  var r = rng(seed), pts = [], ph = [r()*6, r()*6, r()*6];
+  for (var i = 0; i <= steps; i++){
+    var x = i/steps*1600;
+    var y = base - amp*(0.55*Math.sin(x*freq + ph[0]) + 0.3*Math.sin(x*freq*2.3 + ph[1]) + 0.15*Math.sin(x*freq*5.1 + ph[2]) + 0.5);
+    pts.push([x, y]);
+  }
+  var d = "M0 1000L0 " + pts[0][1].toFixed(1);
+  pts.forEach(function(p){ d += "L" + p[0].toFixed(1) + " " + p[1].toFixed(1); });
+  return d + "L1600 1000Z";
+}
+(function(){
+  var far = document.getElementById("p-far"), mid = document.getElementById("p-mid"), near = document.getElementById("p-near"), front = document.getElementById("p-front");
+  var defs = sv("defs", {}, far);
+  function grad(id, c1, c2, parent){ var g = sv("linearGradient", { id:id, x1:0, y1:0, x2:0, y2:1 }, parent); sv("stop", { offset:0, "stop-color":c1 }, g); sv("stop", { offset:1, "stop-color":c2 }, g); }
+  grad("gFar", "#6f9a8e", "#2f6158", defs);
+  sv("path", { d: ridge(560, 190, 3, 120, 0.0042), fill:"url(#gFar)", opacity:.62 }, far);
+  sv("path", { d: ridge(640, 150, 9, 120, 0.0058), fill:"url(#gFar)", opacity:.8 }, far);
+  var defs2 = sv("defs", {}, mid); grad("gMid", "#2d6254", "#154035", defs2);
+  sv("path", { d: ridge(700, 150, 17, 140, 0.0052), fill:"url(#gMid)" }, mid);
+  var defs3 = sv("defs", {}, near); grad("gNear", "#1b4a36", "#0d2a20", defs3);
+  // terraced slope: contour rows of shrubs
+  var slope = function(x){ return 690 + (x/1600)*140 + 26*Math.sin(x*0.004); };
+  sv("path", { d: (function(){ var d = "M0 1000L0 " + slope(0); for (var x = 0; x <= 1600; x += 40) d += "L" + x + " " + slope(x).toFixed(1); return d + "L1600 1000Z"; })(), fill:"url(#gNear)" }, near);
+  var r = rng(41);
+  for (var row = 0; row < 15; row++){
+    var off = 6 + row*36 + row*row*1.4, step = 22 + row*2.6, sz = 7 + row*1.6;
+    for (var x = -20 + (row%2)*step/2; x < 1640; x += step + r()*5){
+      var y = slope(x) + off;
+      var g = sv("g", { transform:"translate("+x.toFixed(1)+" "+y.toFixed(1)+")" }, near);
+      sv("ellipse", { cx:0, cy:0, rx:sz*1.25, ry:sz*0.8, fill: row%3 ? "#0f3a28" : "#124530" }, g);
+      sv("ellipse", { cx:-sz*0.15, cy:-sz*0.28, rx:sz*0.85, ry:sz*0.48, fill:"#2f7a4b", opacity:.85 }, g);
+      if (r() > 0.55) sv("circle", { cx:(r()-0.5)*sz*1.4, cy:sz*0.1, r:Math.max(1.4, sz*0.14), fill:"#c8402e" }, g);
+    }
+  }
+  // shade trees dotted among terraces
+  [220, 640, 1080, 1420].forEach(function(x, i){ var y = slope(x) + 40 + i*18;
+    sv("rect", { x:x-3, y:y-70, width:6, height:70, fill:"#07170f" }, near);
+    sv("ellipse", { cx:x, cy:y-84, rx:62, ry:20, fill:"#0c2e1f" }, near); sv("ellipse", { cx:x-8, cy:y-92, rx:44, ry:11, fill:"#1d5a3b", opacity:.8 }, near);
+  });
+  // foreground branch with leaves and cherries (framing the right, clear of the copy)
+  var defs4 = sv("defs", {}, front);
+  var lg = sv("linearGradient", { id:"gLeaf", x1:0, y1:0, x2:1, y2:1 }, defs4); sv("stop", { offset:0, "stop-color":"#2c7a4a" }, lg); sv("stop", { offset:1, "stop-color":"#0a2a1c" }, lg);
+  var cg = sv("radialGradient", { id:"gCh", cx:".35", cy:".3", r:".8" }, defs4); sv("stop", { offset:0, "stop-color":"#ef6a4e" }, cg); sv("stop", { offset:.55, "stop-color":"#c8402e" }, cg); sv("stop", { offset:1, "stop-color":"#7d1d14" }, cg);
+  function leaf(x, y, len, ang, shade){
+    var g = sv("g", { transform:"translate("+x+" "+y+") rotate("+ang+")" }, front);
+    sv("path", { d:"M0 0C"+len*.28+" "+(-len*.3)+" "+len*.74+" "+(-len*.22)+" "+len+" 0C"+len*.74+" "+len*.22+" "+len*.28+" "+len*.3+" 0 0Z", fill: shade ? "#0a2519" : "url(#gLeaf)" }, g);
+    sv("path", { d:"M4 0C"+len*.4+" "+(-len*.02)+" "+len*.7+" 0 "+(len*.96)+" 0", stroke:"rgba(180,230,180,.35)", "stroke-width":2, fill:"none" }, g);
+  }
+  function cherry(x, y, rr){ var g = sv("g", {}, front); sv("circle", { cx:x, cy:y, r:rr, fill:"url(#gCh)" }, g); sv("circle", { cx:x-rr*.35, cy:y-rr*.38, r:rr*.2, fill:"rgba(255,255,255,.55)" }, g); sv("circle", { cx:x+rr*.1, cy:y-rr*.9, r:rr*.16, fill:"#3a1209" }, g); }
+  sv("path", { d:"M1700 1060C1560 900 1450 790 1230 690C1150 655 1080 640 1010 560", stroke:"#07180f", "stroke-width":16, fill:"none", "stroke-linecap":"round" }, front);
+  sv("path", { d:"M1470 850C1380 820 1330 840 1250 900", stroke:"#07180f", "stroke-width":9, fill:"none", "stroke-linecap":"round" }, front);
+  [[1330,742,230,-38,1],[1260,700,210,-6,0],[1160,664,190,-62,1],[1090,610,170,-18,0],[1030,570,140,-70,1],[1400,800,250,18,0],[1500,860,260,-20,1],[1560,930,250,38,0],[1300,830,200,50,1],[1235,905,170,70,0],[1180,640,170,24,0],[1380,760,200,-72,0]]
+    .forEach(function(l){ leaf(l[0], l[1], l[2], l[3], l[4]); });
+  [[1245,722,18],[1274,745,17],[1228,748,16],[1175,688,15],[1196,704,16],[1118,640,14],[1330,806,18],[1356,830,17],[1318,832,16],[1262,884,15],[1442,880,18]].forEach(function(c){ cherry(c[0], c[1], c[2]); });
+})();
+
+/* topographic lines for the argument act */
+(function(){
+  var svg = document.getElementById("topo"), r = rng(5);
+  for (var k = 0; k < 16; k++){
+    var cx = 1050, cy = 520, rad = 60 + k*46, d = "";
+    for (var i = 0; i <= 90; i++){
+      var a = i/90*Math.PI*2;
+      var rr = rad*(1 + 0.16*Math.sin(a*3 + k*0.35) + 0.09*Math.sin(a*5 - k*0.2) + 0.05*Math.sin(a*9 + k));
+      var x = cx + Math.cos(a)*rr*1.35, y = cy + Math.sin(a)*rr*0.9;
+      d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+    }
+    sv("path", { d:d+"Z", fill:"none", stroke: k%5===0 ? "rgba(242,163,58,.38)" : "rgba(240,233,216,.11)", "stroke-width": k%5===0 ? 1.4 : 1 }, svg);
+  }
+})();
+
+/* terrace figure */
+(function(){
+  var svg = document.getElementById("terrace");
+  var defs = sv("defs", {}, svg);
+  var g1 = sv("linearGradient", { id:"tSky", x1:0, y1:0, x2:0, y2:1 }, defs); sv("stop", { offset:0, "stop-color":"#1d3a30" }, g1); sv("stop", { offset:1, "stop-color":"#3e6a58" }, g1);
+  sv("rect", { width:900, height:600, fill:"url(#tSky)", rx:6 }, svg);
+  sv("path", { d:"M0 330L120 270L240 300L380 220L520 270L680 200L900 260V600H0Z", fill:"#2a5547", opacity:.7 }, svg);
+  // stepped hillside
+  var steps = [[0,250],[170,250],[170,305],[330,305],[330,360],[500,360],[500,415],[670,415],[670,470],[900,470]];
+  var d = "M0 600L0 250"; steps.forEach(function(s){ d += "L" + s[0] + " " + s[1]; }); d += "L900 600Z";
+  sv("path", { d:d, fill:"#143a2a" }, svg);
+  var r = rng(77);
+  [[0,170,250],[170,330,305],[330,500,360],[500,670,415],[670,900,470]].forEach(function(t, i){
+    sv("rect", { x:t[0], y:t[2], width:t[1]-t[0], height:8, fill:"#5a3e26" }, svg);
+    for (var x = t[0]+14; x < t[1]-8; x += 20){ var h = 22 + r()*6;
+      sv("ellipse", { cx:x, cy:t[2]-h*0.45, rx:12, ry:h*0.5, fill:"#1d6a41" }, svg);
+      sv("ellipse", { cx:x-2, cy:t[2]-h*0.65, rx:8, ry:h*0.28, fill:"#33935a", opacity:.85 }, svg);
+      if (r() > 0.5) sv("circle", { cx:x+(r()-.5)*10, cy:t[2]-h*0.4, r:2.2, fill:"#e0523a" }, svg);
+    }
+  });
+  // shade trees
+  [[90,250],[420,360],[790,470]].forEach(function(t){ sv("rect", { x:t[0]-3, y:t[1]-90, width:6, height:90, fill:"#0c2217" }, svg); sv("ellipse", { cx:t[0], cy:t[1]-96, rx:70, ry:22, fill:"#0f3524" }, svg); sv("ellipse", { cx:t[0]-6, cy:t[1]-104, rx:50, ry:12, fill:"#2b7b50", opacity:.85 }, svg); });
+  // altitude guides
+  [[250,"2,000 m"],[360,"1,850 m"],[470,"1,700 m"]].forEach(function(a){ sv("line", { x1:0, x2:900, y1:a[0]+8, y2:a[0]+8, stroke:"rgba(240,233,216,.4)", "stroke-dasharray":"4 6" }, svg);
+    var t = sv("text", { x:884, y:a[0]-2, "text-anchor":"end", fill:"#F0E9D8", "font-family":"Geist Mono, monospace", "font-size":13, "letter-spacing":".08em" }, svg); t.textContent = a[1]; });
+  // sun
+  sv("circle", { cx:760, cy:110, r:34, fill:"#f2a33a", opacity:.9 }, svg);
+  sv("circle", { cx:760, cy:110, r:62, fill:"#f2a33a", opacity:.14 }, svg);
+})();
+
+/* ------------------------------------------------------------- altimeter */
+var altV = document.getElementById("alt-v"), altDot = document.getElementById("alt-dot");
+var roastEl = document.getElementById("roast");
+function altitude(){
+  var max = document.documentElement.scrollHeight - innerHeight || 1;
+  var rTop = roastEl.getBoundingClientRect().top + scrollY;
+  var f = clamp(scrollY / Math.max(1, rTop), 0, 1);
+  var e = f*f*(3-2*f);
+  var m = Math.round(lerp(2140, 38, e));
+  altV.textContent = m.toLocaleString("en-GB");
+  altDot.style.top = (e*100).toFixed(1) + "%";
+}
+
+/* ----------------------------------------------------------------- roast */
+var PROFILE = [[0,200],[0.04,150],[0.12,92],[0.25,125],[0.45,160],[0.62,196],[0.8,208],[1,222]];
+function profile(t){
+  for (var i = 1; i < PROFILE.length; i++){
+    if (t <= PROFILE[i][0]){ var a = PROFILE[i-1], b = PROFILE[i]; var u = (t - a[0])/(b[0]-a[0]); u = u*u*(3-2*u)*0.55 + u*0.45; return lerp(a[1], b[1], u); }
+  }
+  return 222;
+}
+var CRACK = 0.62, TOTAL_S = 12*60;
+var BEAN_STOPS = [[0,[142,150,86]],[0.28,[182,168,92]],[0.46,[170,124,68]],[0.62,[140,92,52]],[0.75,[108,66,38]],[0.88,[68,40,24]],[1,[32,19,13]]];
+function beanColor(t){
+  for (var i = 1; i < BEAN_STOPS.length; i++){
+    if (t <= BEAN_STOPS[i][0]){ var a = BEAN_STOPS[i-1], b = BEAN_STOPS[i], u = (t-a[0])/(b[0]-a[0]); return [lerp(a[1][0],b[1][0],u), lerp(a[1][1],b[1][1],u), lerp(a[1][2],b[1][2],u)]; }
+  }
+  return BEAN_STOPS[BEAN_STOPS.length-1][1];
+}
+function levelAt(t){ return t < CRACK ? null : t < 0.74 ? "light" : t < 0.88 ? "medium" : "dark"; }
+var LEVEL_NAME = { light:"Light", medium:"Medium", dark:"Dark" }, LOT_NAME = { light:"Cumbre", medium:"Nube", dark:"Brasa" };
+function phaseAt(t){ return t < 0.12 ? "Charge" : t < 0.45 ? "Drying" : t < CRACK ? "Browning" : t < 0.9 ? "Development" : "Second crack"; }
+
+/* chart */
+var chart = document.getElementById("chart"), CH = { x0:44, x1:590, y0:10, y1:232, tMin:80, tMax:230 };
+function cx(t){ return CH.x0 + t*(CH.x1-CH.x0); }
+function cy(T){ return CH.y1 - (T-CH.tMin)/(CH.tMax-CH.tMin)*(CH.y1-CH.y0); }
+var curveD = ""; for (var i = 0; i <= 120; i++){ var tt = i/120; curveD += (i?"L":"M") + cx(tt).toFixed(1) + " " + cy(profile(tt)).toFixed(1); }
+(function(){
+  [[0,0.45,"Drying"],[0.45,CRACK,"Browning"],[CRACK,1,"Development"]].forEach(function(b, i){
+    if (i % 2 === 0) sv("rect", { x:cx(b[0]), y:CH.y0, width:cx(b[1])-cx(b[0]), height:CH.y1-CH.y0, class:"band" }, chart);
+    var tx = sv("text", { x:cx(b[0])+8, y:CH.y0+16, class:"ph" }, chart); tx.textContent = b[2].toUpperCase();
+  });
+  sv("line", { x1:CH.x0, x2:CH.x1, y1:CH.y1, y2:CH.y1, class:"axis" }, chart);
+  [0,3,6,9,12].forEach(function(m){ var x = cx(m/12); sv("line", { x1:x, x2:x, y1:CH.y1, y2:CH.y1+5, class:"axis" }, chart); var t = sv("text", { x:x, y:CH.y1+20, "text-anchor":"middle" }, chart); t.textContent = m + ":00"; });
+  [100,150,200].forEach(function(T){ var y = cy(T); sv("line", { x1:CH.x0-4, x2:CH.x0, y1:y, y2:y, class:"axis" }, chart); var t = sv("text", { x:CH.x0-8, y:y+4, "text-anchor":"end" }, chart); t.textContent = T; });
+  sv("line", { x1:cx(CRACK), x2:cx(CRACK), y1:CH.y0, y2:CH.y1, class:"crack" }, chart);
+  var fc = sv("text", { x:cx(CRACK)-8, y:CH.y1-8, "text-anchor":"end", style:"fill:var(--sc-accent)" }, chart); fc.textContent = "FIRST CRACK";
+})();
+var curveBg = sv("path", { d:curveD, class:"curve-bg" }, chart);
+var cdefs = sv("defs", {}, chart), ccp = sv("clipPath", { id:"curveClip" }, cdefs), cclip = sv("rect", { x:CH.x0-6, y:0, width:0, height:270 }, ccp);
+var curve = sv("path", { d:curveD, class:"curve", "clip-path":"url(#curveClip)" }, chart);
+var dot = sv("circle", { r:7, class:"dot", cx:cx(0), cy:cy(200) }, chart);
+
+/* drum */
+var cv = document.getElementById("drum"), ctx = cv.getContext("2d");
+var beans = (function(){ var r = rng(2024), a = []; for (var i = 0; i < 170; i++) a.push({ u:r(), v:r(), ph:r()*6.28, sp:0.6+r()*1.2, rot:r()*3.14, sz:0.8+r()*0.4, jump:r() }); return a; })();
+var DR = 450;
+var T_now = 0, T_drawn = -1, dropped = null, onScreen = true, tStart = performance.now();
+var dropBtn = document.getElementById("drop"), undoBtn = document.getElementById("undo"), note = document.getElementById("drop-note");
+var yours = document.getElementById("yours"), yoursV = document.getElementById("yours-v");
+function drawDrum(t, now){
+  var s = now/1000;
+  ctx.clearRect(0, 0, 900, 900);
+  ctx.save(); ctx.translate(450, 420);
+  // drum body
+  var rg = ctx.createRadialGradient(0, -60, 80, 0, 0, 392);
+  rg.addColorStop(0, "#1b2a22"); rg.addColorStop(1, "#0b130f");
+  ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(0, 0, 392, 0, 6.2832); ctx.fill();
+  ctx.lineWidth = 14; ctx.strokeStyle = "#3a4a40"; ctx.stroke();
+  ctx.lineWidth = 2; ctx.strokeStyle = "rgba(240,233,216,.2)"; ctx.beginPath(); ctx.arc(0, 0, 372, 0, 6.2832); ctx.stroke();
+  // drum paddles rotating
+  var rot = dropped ? 0 : s*0.9;
+  ctx.save(); ctx.rotate(rot);
+  for (var k = 0; k < 6; k++){ ctx.rotate(Math.PI/3); ctx.fillStyle = "rgba(240,233,216,.07)"; ctx.fillRect(100, -7, 262, 14); }
+  ctx.restore();
+  // flame under
+  if (!dropped || true){
+    var fl = 0.7 + 0.3*Math.sin(s*9) + 0.1*Math.sin(s*23);
+    ctx.globalAlpha = dropped ? 0.25 : 1;
+    for (var f = -2; f <= 2; f++){ var fx = f*34, fh = (50 + (f%2 ? 14 : 30))*fl*(1.2 - Math.abs(f)*0.12);
+      var fb = 452, fg = ctx.createLinearGradient(0, fb, 0, fb - fh); fg.addColorStop(0, "rgba(242,163,58,.95)"); fg.addColorStop(1, "rgba(242,163,58,0)");
+      ctx.fillStyle = fg; ctx.beginPath(); ctx.moveTo(fx-16, fb); ctx.quadraticCurveTo(fx, fb - fh*1.2, fx+16, fb); ctx.fill(); }
+    ctx.globalAlpha = 1;
+  }
+  // beans: a tumbling bed in the lower part of the drum
+  var col = beanColor(t), puff = 1 + clamp((t - CRACK)/0.14, 0, 1)*0.12;
+  var tilt = dropped ? 0 : Math.sin(s*0.9)*0.1;
+  var cracking = !dropped && t >= CRACK && t < CRACK + 0.05;
+  ctx.save(); ctx.rotate(tilt);
+  beans.forEach(function(b){
+    var ang = Math.PI*(0.12 + 0.76*b.u);                         // arc across the bottom
+    var depth = Math.sqrt(b.v);                                  // 0 surface .. 1 wall
+    var rad = 356 - depth*170 + Math.sin(s*b.sp + b.ph)*8;
+    var bx = Math.cos(ang)*rad*1.0, by = Math.sin(ang)*rad*0.86 - 36 + Math.sin(s*b.sp*1.3 + b.ph)*(dropped ? 0 : 7);
+    var surf = 1 - depth;                                        // surface beans leap
+    if (!dropped && b.jump > 0.82) by -= (Math.abs(Math.sin(s*b.sp*1.1 + b.ph))*90 + 18)*surf;
+    var rr = 17*b.sz*puff*(cracking ? 1 + 0.14*Math.sin((t - CRACK)*160) : 1);
+    ctx.save(); ctx.translate(bx, by); ctx.rotate(b.rot + (dropped ? 0 : s*b.sp*0.7));
+    var lum = 0.78 + depth*0.28;
+    ctx.fillStyle = "rgb("+(col[0]*lum|0)+","+(col[1]*lum|0)+","+(col[2]*lum|0)+")";
+    ctx.beginPath(); ctx.ellipse(0, 0, rr*1.22, rr*0.88, 0, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,"+(0.08 + (1-t)*0.05)+")"; ctx.beginPath(); ctx.ellipse(-rr*0.25, -rr*0.3, rr*0.7, rr*0.3, -0.3, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,"+(0.35 + t*0.25)+")"; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(-rr*1.0, 0); ctx.quadraticCurveTo(0, rr*0.28, rr*1.0, -rr*0.05); ctx.stroke();
+    ctx.restore();
+  });
+  ctx.restore();
+  // smoke after first crack
+  if (t > CRACK - 0.02){
+    var sm = clamp((t - CRACK)/0.3, 0, 1) * (dropped ? 0.35 : 1);
+    for (var q = 0; q < 14; q++){ var ph2 = (s*0.22 + q/14) % 1, xx = Math.sin(q*12.9)*130 + Math.sin(s + q)*14, yy = -ph2*330 - 20;
+      ctx.fillStyle = "rgba(220,210,190,"+(0.10*sm*(1-ph2))+")"; ctx.beginPath(); ctx.arc(xx, yy, 24 + ph2*46, 0, 6.2832); ctx.fill(); }
+  }
+  // crack flash
+  if (cracking){ var fa = 1 - (t - CRACK)/0.05; ctx.strokeStyle = "rgba(242,163,58,"+(0.7*fa)+")"; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, 372 + (1-fa)*26, 0, 6.2832); ctx.stroke(); }
+  ctx.restore();
+}
+
+function roastP(){
+  var st = getComputedStyle(roastEl).getPropertyValue("--sc-p");
+  var p = parseFloat(st); if (isNaN(p)) p = 0;
+  return clamp((p - 0.1)/0.76, 0, 1);       // roast runs across the middle of the pin, with a hold at each end
+}
+var lastLevel = null;
+function fmtTime(t){ var s = Math.round(t*TOTAL_S), m = Math.floor(s/60); s = s % 60; return (m<10?"0":"") + m + ":" + (s<10?"0":"") + s; }
+var bedG = document.getElementById("bed-g"), bedM = document.getElementById("bed-m"), bedD = document.getElementById("bed-d");
+function sstep(a, b, x){ var u = clamp((x - a)/(b - a), 0, 1); return u*u*(3-2*u); }
+function updateRoast(now){
+  var t = dropped ? dropped.t : roastP();
+  T_now = t;
+  var toM = sstep(0.26, 0.62, t), toD = sstep(0.74, 0.95, t);
+  bedG.style.opacity = (0.8 * (1 - toM)).toFixed(3); bedM.style.opacity = (0.8 * toM * (1 - toD)).toFixed(3); bedD.style.opacity = (0.8 * toD).toFixed(3);
+  var Tc = profile(t);
+  document.getElementById("t-time").textContent = fmtTime(t);
+  document.getElementById("t-temp").innerHTML = Math.round(Tc) + "&nbsp;°C";
+  document.getElementById("t-phase").textContent = dropped ? "Dropped" : phaseAt(t);
+  cclip.setAttribute("width", (cx(t) - CH.x0 + 6).toFixed(1));
+  dot.setAttribute("cx", cx(t).toFixed(1)); dot.setAttribute("cy", cy(Tc).toFixed(1));
+  var lv = levelAt(t);
+  if (!dropped){
+    dropBtn.disabled = !lv;
+    dropBtn.textContent = lv ? "Drop the roast" : "Drop the roast";
+    if (lv !== lastLevel){ lastLevel = lv;
+      note.innerHTML = lv ? "Drop now for a <b>" + LEVEL_NAME[lv].toLowerCase() + "</b> roast, or keep going." : "Waiting for first crack."; }
+  }
+  drawDrum(t, now);
+}
+function setMatch(level){
+  document.querySelectorAll(".lot").forEach(function(l){ l.dataset.match = (level && l.dataset.level === level) ? "1" : "0"; });
+  var h = document.getElementById("close-h"), o = document.getElementById("order-cta");
+  yours.dataset.on = level ? "1" : "0"; yoursV.textContent = level ? LEVEL_NAME[level] : "";
+  if (level){ o.textContent = "Reserve " + LOT_NAME[level]; }
+  else { o.textContent = "Reserve a bag"; }
+}
+function drop(level, t){
+  dropped = { level:level, t:t };
+  dropBtn.disabled = true; undoBtn.hidden = false;
+  note.innerHTML = "Dropped at <b>" + fmtTime(t) + "</b>, " + Math.round(profile(t)) + " °C. That is a <b>" + LEVEL_NAME[level].toLowerCase() + "</b> roast: <b>" + LOT_NAME[level] + "</b>.";
+  try { localStorage.setItem("altura-roast", level); } catch(e){}
+  setMatch(level);
+}
+dropBtn.addEventListener("click", function(){ var lv = levelAt(T_now); if (lv) drop(lv, T_now); });
+undoBtn.addEventListener("click", function(){ dropped = null; undoBtn.hidden = true; lastLevel = "x"; try { localStorage.removeItem("altura-roast"); } catch(e){} setMatch(null); });
+
+/* order link */
+document.getElementById("order-cta").addEventListener("click", function(e){
+  e.preventDefault();
+  var lv = dropped ? dropped.level : null;
+  var body = "Hello Altura,\n\nI'd like to reserve a 250 g bag" + (lv ? " of " + LOT_NAME[lv] + " (" + LEVEL_NAME[lv].toLowerCase() + " roast, dropped at " + fmtTime(dropped.t) + ")" : "") + ".\n\nName:\nAddress:\n";
+  location.href = "mailto:" + CONTACT + "?subject=" + encodeURIComponent("Reserve a bag") + "&body=" + encodeURIComponent(body);
+});
+document.querySelectorAll("[data-order]").forEach(function(a){ a.addEventListener("click", function(e){ e.preventDefault(); document.getElementById("order").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block:"start" }); }); });
+
+/* restore a previous drop */
+try { var saved = localStorage.getItem("altura-roast"); if (saved && LEVEL_NAME[saved]) drop(saved, { light:0.68, medium:0.8, dark:0.93 }[saved]); } catch(e){}
+
+/* loop */
+new IntersectionObserver(function(en){ onScreen = en[0].isIntersecting; }, { rootMargin:"20% 0px" }).observe(roastEl);
+function frame(now){
+  if (onScreen || T_drawn < 0){ updateRoast(now); T_drawn = 1; }
+  altitude();
+  requestAnimationFrame(frame);
+}
+if (reduced) document.querySelector(".range").setAttribute("data-sc-span", "1");   // the rail becomes a native scroll region under reduced motion
+ScrollCraft.mount(document.body);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

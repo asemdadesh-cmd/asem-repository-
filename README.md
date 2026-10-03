@@ -44,6 +44,28 @@ Use `--quick` for day-to-day calls; full mode is for decisions you'd regret
 quietly for a year. Claims are labelled `FACT` / `INFERENCE` / `ASSUMPTION` /
 `UNKNOWN`, and a recommendation resting on assumptions has to say so.
 
+## `web/`: websites you can sell
+
+Five scroll-driven demo sites and the sales site that presents them, built on the
+MIT [scroll-craft](https://github.com/nateherkai/scroll-craft) engine. Static files,
+no build step.
+
+| Site | Business | Grammar | The one thing it does |
+|---|---|---|---|
+| `web/index.html` | Northlight Studio (placeholder name) | split stage | template vs yours, then the offer |
+| `web/demos/haldane-rowe/` | Estate agent | gallery | houses draw and build themselves |
+| `web/demos/altura/` | Coffee roaster | filmic | scroll runs a real roast |
+| `web/demos/iron-round/` | Boxing gym | rhythmic cutlist | the page is one 3-minute round |
+| `web/demos/tannour/` | Restaurant (EN/AR) | typographic poster | walk into the Arabic name, true RTL |
+| `web/demos/sundial/` | Solar installer | live surface | a working roof estimator |
+
+```bash
+python3 -m http.server 4500 --directory web    # http://localhost:4500
+```
+
+See `web/README.md` (run, deploy, go-live checklist), `marketing/LAUNCH-KIT.md`
+(Facebook, Instagram, pricing, outreach) and `web/BRIEFS-AND-FINGERPRINTS.md`.
+
 ## Install (available in all your projects)
 
 In Claude Code, run:
@@ -84,6 +106,8 @@ That's it — the skill now loads in every project. To update later, use
 │               └── reference/
 │                   ├── checklist.md
 │                   └── rewrite-guide.md
+├── web/                           # sales site + five demo sites (static)
+├── marketing/LAUNCH-KIT.md        # how to sell them
 ├── PROJECT.md                     # living single source of truth
 ├── TASKS.md                       # work checklist
 ├── DECISIONS.md                   # technical decision log

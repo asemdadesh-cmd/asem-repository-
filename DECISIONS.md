@@ -4,9 +4,44 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-03_
 
 ---
+
+### 2026-10-02 — One repository per deliverable; guard deploys with a pre-deploy check
+**Decision:** Every site or app gets its own repo (root = deployable, `main` = production, host config at root). This tooling repo is
+not linked to a host. Deploys are preceded by `predeploy.mjs`.
+**Why:** This repo accumulated unrelated apps on separate branches and in subfolders, and two Vercel projects are linked to it with an
+unset Root Directory, so each push builds both projects, builds target the wrong folder, and production (`main`) holds no app. The
+owner's instinct (a repo per build) is right: it removes branch/folder ambiguity, gives each project its own history and
+environment, and makes the Vercel setup a two-click import. Trade-off: a repo must be created by the owner (the Claude GitHub
+connection cannot create repos), and old projects need their Vercel settings fixed by hand.
+
+### 2026-10-02 — Generate photographic stills by rendering them locally
+**Decision:** Produce photographic-looking assets with three.js rendered in headless Chromium (`web/tools/render`) instead of
+using a paid or hosted image generator.
+**Why:** The owner asked for a free solution. ChatGPT Plus has no API access, Gamma charged 70 credits for a single
+image, and the sandbox network blocks every image host (Gamma CDN, Unsplash, Canva), so hosted generation could not be used
+anyway. Local rendering needs only npm packages, costs nothing, is deterministic (one seed gives matching frames for
+crossfades) and licence-free. Trade-off: it suits objects that can be modelled (beans, roofs, bags, terrain), not faces,
+food or arbitrary scenes. Only Altura uses photographic stills because the other grammars forbid or do not need photography.
+
+### 2026-10-02 — Sell the sites with six different grammars, and keep the art procedural
+**Decision:** Build the sales site and the five demos as six *structurally different* scroll-craft grammars
+(split stage, gallery, filmic, cutlist, typographic poster, live surface) instead of one shared template with six
+palettes. Draw all artwork as original SVG / canvas / CSS rather than stock or generated photos. Vendor the
+scroll-craft engine unmodified. Keep every site a single static HTML file with relative paths and no third-party
+runtime requests.
+**Why:** The point of the product is "not a template", and scroll-craft's own finding is that re-skinning one
+skeleton looks like a template; the fingerprint gate (6 of 6 dimensions differ between every pair) enforces that.
+Each demo shows a different thing a client can buy: a catalogue, a story, an energy brand, a bilingual brand, a tool.
+The sandbox had no image-generation key and blocked stock hosts, which turned out to be an advantage: procedural art
+is licence-free, tiny, resolution-independent and cannot misrepresent a real place or person. Static, self-hosted
+output means free hosting, no monthly bill for clients, and nothing that breaks when a CDN does. Trade-offs:
+no photography (a premium tier could add it via kie.ai), `mailto:` forms instead of a backend, and the engine
+being unmodified means bespoke behaviour lives in each page's own JS.
+**Also:** Brand name "Northlight" and all prices are placeholders; demos are `noindex` and labelled fictional; no
+testimonials or statistics are invented anywhere.
 
 ### 2026-10-02 — Stash targets Libya: LYD, interest-free framing, English UI first
 **Decision:** Default Stash to the Libyan dinar with Libya-specific categories and

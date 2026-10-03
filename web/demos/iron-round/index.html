@@ -1,0 +1,368 @@
+<!doctype html>
+<!--
+  Iron Round: concept site for a beginner-friendly boxing gym (fictional brand, sample times and prices).
+  Grammar: rhythmic cutlist. Short hard-cut sections, painted grounds, no pinning, no dwell, no drift.
+  Signature move: the page is one three-minute round. The clock in the chrome counts down with the visitor's scroll,
+  not with time. The last ten seconds take over the screen, and the bell lands on the final cut.
+  The peak lives in the fixed chrome, not in an act, so the acts stay short.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Iron Round · Boxing gym</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Concept site: a boxing gym for people who have never boxed. The page is one three-minute round, and it only runs while you scroll.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230C0C0B'/><path d='M7 9h18v14H7z' fill='%23FF4A1C'/></svg>">
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../assets/vendor/scrollcraft.css">
+<style>
+  :root {
+    --sc-canvas: #0C0C0B;
+    --sc-surface: #171715;
+    --sc-ink: #F0ECE2;
+    --sc-ink-soft: #B3AEA2;
+    --sc-accent: #FF4A1C;
+    --sc-accent-ink: #0C0C0B;
+    --sc-font-display: "Anton", Impact, sans-serif;
+    --sc-font-text: "Barlow", system-ui, sans-serif;
+    --sc-font-mono: "Barlow", system-ui, sans-serif;
+    --bone: #EFEBE1; --black: #0C0C0B; --orange: #FF4A1C; --orange-ink: #C93208;
+    --bar: 64px;
+  }
+  html { scroll-behavior: auto; }
+  body { background: var(--black); font-weight: 500; }
+  .sc-grain { opacity: .06; }
+  h1, h2, h3 { font-family: var(--sc-font-display); font-weight: 400; text-transform: uppercase; letter-spacing: .005em; line-height: .9; margin: 0; }
+
+  /* ---- loud bar ---- */
+  .bar { position: fixed; inset: 0 0 auto 0; z-index: 80; height: var(--bar); display: grid; grid-template-columns: auto minmax(0,1fr) auto auto; align-items: stretch; background: var(--black); color: var(--bone); border-bottom: 3px solid var(--orange); }
+  .bar > * { display: flex; align-items: center; }
+  .mark { padding: 0 1.2rem; font: 400 1.75rem/1 var(--sc-font-display); letter-spacing: .02em; text-transform: uppercase; text-decoration: none; background: var(--orange); color: var(--black); }
+  .tick { overflow: hidden; border-left: 3px solid var(--black); mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+  .tick__in { display: inline-flex; gap: 2.4rem; padding-left: 2.4rem; white-space: nowrap; animation: tick 34s linear infinite; font: 600 .95rem var(--sc-font-text); text-transform: uppercase; letter-spacing: .12em; color: var(--sc-ink-soft); }
+  .tick__in b { color: var(--orange); font-weight: 700; }
+  @keyframes tick { to { transform: translateX(-50%); } }
+  .clock { padding: 0 1.1rem; gap: .6rem; border-left: 3px solid var(--bone); font-family: var(--sc-font-display); font-size: 1.9rem; letter-spacing: .04em; font-variant-numeric: tabular-nums; min-width: 8.2rem; justify-content: center; }
+  .clock small { font: 700 .62rem var(--sc-font-text); letter-spacing: .14em; color: var(--sc-ink-soft); text-transform: uppercase; line-height: 1.1; text-align: right; }
+  .clock.is-final { color: var(--orange); }
+  .book { padding: 0 1.4rem; font: 400 1.5rem/1 var(--sc-font-display); letter-spacing: .03em; text-transform: uppercase; text-decoration: none; background: var(--bone); color: var(--black); cursor: pointer; transition: background 120ms var(--sc-ease-out), color 120ms var(--sc-ease-out); }
+  .book:active { background: var(--orange); }
+  @media (hover:hover) and (pointer:fine) { .book:hover { background: var(--orange); } }
+  .bar.bell { animation: bell .5s steps(2, jump-none) 3; }
+  @keyframes bell { 0% { background: var(--orange); } 100% { background: var(--black); } }
+  @media (max-width: 860px) {
+    :root { --bar: 56px; }
+    .tick { display: none; }
+    .bar { grid-template-columns: auto 1fr auto auto; }
+    .mark { padding: 0 .8rem; font-size: 1.35rem; }
+    .clock { font-size: 1.5rem; min-width: 0; padding: 0 .7rem; justify-self: end; }
+    .clock small { display: none; }
+    .book { padding: 0 .9rem; font-size: 1.2rem; }
+  }
+
+  /* ---- shared cut ---- */
+  .cut { position: relative; overflow: clip; padding: calc(var(--bar) + 2rem) var(--sc-gutter) 3rem; min-height: 100svh; display: grid; align-content: center; }
+  .cut--orange { background: var(--orange); color: var(--black); --sc-ink: #0C0C0B; --sc-ink-soft: #2a1209; }
+  .cut--bone { background: var(--bone); color: var(--black); --sc-ink: #0C0C0B; --sc-ink-soft: #3b372f; --sc-accent: #C93208; }
+  .cut--black { background: var(--black); color: var(--bone); }
+  .cut .line { font: 600 clamp(1.05rem, .9rem + .7vw, 1.55rem)/1.25 var(--sc-font-text); max-width: 30ch; margin: 1.1rem 0 0; text-wrap: balance; }
+  .cut--short { min-height: 0; }
+
+  /* ---- 1 · hero ---- */
+  .hero { padding-top: calc(var(--bar) + 1rem); min-height: 100svh; }
+  .hero h1 { font-size: clamp(5rem, 12.4vw, 14rem); position: relative; z-index: 2; max-width: 7.2ch; color: var(--bone); }
+  .hero h1 span { color: var(--orange); }
+  .hero .sub { position: relative; z-index: 2; font: 600 clamp(1.1rem, 1rem + .6vw, 1.5rem)/1.25 var(--sc-font-text); max-width: 26ch; margin: 1.5rem 0 0; }
+  .hero .glove { position: absolute; right: 1vw; top: 50%; width: min(48vw, 76svh); translate: 0 -46%; z-index: 1; will-change: transform; transform: rotate(calc(-14deg + var(--sc-p, 0) * 22deg)) scale(calc(1 + var(--sc-p, 0) * .22)); transform-origin: 50% 80%; }
+  .hero .halftone { position: absolute; inset: auto 0 0 0; height: 40%; background-image: radial-gradient(var(--orange) 24%, transparent 26%); background-size: 14px 14px; opacity: .22; mask-image: linear-gradient(0deg, #000, transparent); z-index: 0; }
+  @media (max-width: 860px) { .hero .glove { top: auto; bottom: -3%; right: -8vw; width: 66vw; translate: 0 0; } .hero h1 { font-size: 22vw; max-width: 6.5ch; } .hero .sub { max-width: 20ch; } }
+
+  /* ---- 2 · marquee ---- */
+  .runner { min-height: 0; padding-block: 3.2rem; display: block; }
+  .runner__in { display: flex; width: max-content; gap: 3vw; font: 400 clamp(5rem, 15vw, 15rem)/.9 var(--sc-font-display); text-transform: uppercase; white-space: nowrap; will-change: transform; }
+  .runner__in span:nth-child(even) { -webkit-text-stroke: 3px var(--black); color: transparent; }
+
+  /* ---- 3 · skip ---- */
+  .skip .word { font-size: clamp(6rem, 27vw, 30rem); }
+  .skip .rope { position: absolute; right: 2vw; top: 50%; width: min(48vw, 70svh); translate: 0 -50%; rotate: calc(var(--sc-p, 0) * 540deg); }
+  .skip .rope path { fill: none; stroke: var(--black); stroke-width: 12; stroke-linecap: round; }
+  .skip .rope rect { fill: var(--black); }
+  @media (max-width: 860px) { .skip .rope { width: 90vw; right: -18vw; top: 72%; } }
+
+  /* ---- 4 · shadow ---- */
+  .shadow { text-align: center; }
+  .shadow .stack { position: relative; display: inline-block; justify-self: center; }
+  .shadow .word { font-size: clamp(5rem, 22vw, 26rem); position: relative; color: var(--bone); }
+  .shadow .echo::before { content: attr(data-t); }
+  .shadow .echo { position: absolute; inset: 0; font: inherit; -webkit-text-stroke: 2px var(--orange); color: transparent; pointer-events: none; }
+  .shadow .e1 { translate: calc(var(--sc-p, .5) * -9vw + 4vw) 0; opacity: .85; }
+  .shadow .e2 { translate: calc(var(--sc-p, .5) * -18vw + 8vw) 0; opacity: .55; }
+  .shadow .e3 { translate: calc(var(--sc-p, .5) * -27vw + 12vw) 0; opacity: .3; }
+  .shadow .line { justify-self: center; text-align: center; }
+
+  /* ---- 5 · pads ---- */
+  .pads { padding-inline: 0; }
+  .pads__grid { display: grid; grid-template-columns: 1fr 1fr; min-height: 80svh; align-items: stretch; }
+  .pads__txt { padding: 2rem var(--sc-gutter); display: grid; align-content: center; }
+  .pads .word { font-size: clamp(5.5rem, 20vw, 22rem); }
+  .pads__art { position: relative; display: grid; place-items: center; overflow: hidden; background: var(--orange); border-left: 4px solid var(--black); }
+  .pad { position: absolute; width: 34%; aspect-ratio: 3 / 4; background: var(--black); border: 4px solid var(--black); border-radius: 14px; box-shadow: inset 0 0 0 10px var(--orange), inset 0 0 0 14px var(--black); }
+  .pad--l { left: calc(8% + var(--sc-p, 0) * 18%); rotate: -8deg; top: 30%; }
+  .pad--r { right: calc(8% + var(--sc-p, 0) * 18%); rotate: 8deg; top: 30%; }
+  .pow { position: absolute; left: 50%; top: 50%; width: 46%; translate: -50% -50%; scale: clamp(0, calc((var(--sc-p, 0) - .42) * 14), 1.1); rotate: 8deg; fill: var(--bone); stroke: var(--black); stroke-width: 6; }
+  .pows { position: absolute; left: 50%; top: 50%; translate: -50% -50%; rotate: 8deg; font: 400 clamp(2.4rem, 7vw, 6rem) var(--sc-font-display); color: var(--black); scale: clamp(0, calc((var(--sc-p, 0) - .42) * 14), 1); text-transform: uppercase; }
+  @media (max-width: 860px) { .pads__grid { grid-template-columns: 1fr; } .pads__art { min-height: 44svh; border-left: 0; border-top: 4px solid var(--black); } }
+
+  /* ---- 6 · bag ---- */
+  .bag { overflow: clip; }
+  .bag .word { position: absolute; left: .5rem; bottom: 2rem; writing-mode: vertical-rl; transform: rotate(180deg); font-size: clamp(6rem, 24vw, 26rem); line-height: .85; }
+  .bag__txt { margin-left: clamp(8rem, 28vw, 24rem); }
+  .bag svg { position: absolute; right: 8vw; top: 0; width: min(36vw, 52svh); transform-origin: 50% 0; rotate: calc(sin(var(--sc-p, 0) * 12.5) * 9deg); }
+  @media (max-width: 860px) { .bag { align-content: end; } .bag svg { width: 44vw; right: 4vw; } .bag__txt { margin-left: 0; margin-top: 1rem; } .bag .word { position: static; writing-mode: horizontal-tb; transform: none; font-size: 36vw; line-height: .85; } }
+
+  /* ---- 7 · timetable ---- */
+  .table { padding-inline: 0; }
+  .table h2 { font-size: clamp(3.6rem, 11vw, 11rem); padding-inline: var(--sc-gutter); color: var(--orange); }
+  .tt { width: 100%; border-collapse: collapse; margin-top: 1.6rem; font-size: clamp(.95rem, .85rem + .45vw, 1.3rem); }
+  .tt th, .tt td { text-align: left; padding: .8rem var(--sc-gutter) .8rem 0; border-top: 2px solid var(--sc-ink-soft); vertical-align: top; }
+  .tt tr:last-child th, .tt tr:last-child td { border-bottom: 2px solid var(--sc-ink-soft); }
+  .tt th { font: 400 clamp(1.6rem, 1.2rem + 1.4vw, 2.6rem) var(--sc-font-display); letter-spacing: .02em; text-transform: uppercase; width: 1%; padding-left: var(--sc-gutter); white-space: nowrap; }
+  .tt td { font-weight: 600; } .tt td b { color: var(--orange); font-weight: 700; margin-right: .4rem; font-variant-numeric: tabular-nums; }
+  .tt td span { display: block; margin-bottom: .15rem; }
+  .tt .none { color: var(--sc-ink-soft); }
+  @media (max-width: 860px) { .tt th, .tt td { display: block; padding: .3rem 1.25rem; border: 0; width: auto; } .tt tr { display: block; border-top: 2px solid var(--sc-ink-soft); padding: .8rem 0; } .tt tr:last-child { border-bottom: 2px solid var(--sc-ink-soft); } }
+
+  /* ---- 8 · rules ---- */
+  .rules { padding-inline: 0; align-content: stretch; padding-block: var(--bar) 0; }
+  .rule { flex: 1; display: grid; align-content: center; padding: 1rem var(--sc-gutter); border-bottom: 4px solid var(--black); font: 400 clamp(4.6rem, 17vw, 19rem)/.88 var(--sc-font-display); text-transform: uppercase; overflow: clip; }
+  .rule:nth-child(2) { background: var(--black); color: var(--orange); text-align: right; }
+  .rule:last-child { border-bottom: 0; }
+  .rules { display: flex; flex-direction: column; }
+
+  /* ---- 9 · plans ---- */
+  .plans h2 { font-size: clamp(3.6rem, 11vw, 11rem); }
+  .plan { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) auto; gap: 1rem 2rem; align-items: baseline; padding: 1.2rem 0; border-top: 4px solid var(--black); text-decoration: none; color: inherit; transition: background 120ms var(--sc-ease-out), color 120ms var(--sc-ease-out), padding 120ms var(--sc-ease-out); }
+  .plan:last-of-type { border-bottom: 4px solid var(--black); }
+  .plan h3 { font-size: clamp(2.4rem, 1.4rem + 4vw, 5rem); }
+  .plan p { margin: 0; font-weight: 600; font-size: clamp(1rem, .9rem + .5vw, 1.35rem); max-width: 32ch; }
+  .plan b { font: 400 clamp(2.4rem, 1.4rem + 4vw, 5rem)/1 var(--sc-font-display); font-variant-numeric: tabular-nums; }
+  @media (hover:hover) and (pointer:fine) { .plan:hover { background: var(--black); color: var(--bone); padding-inline: 1.2rem; } }
+  .plan:focus-visible { outline-color: var(--black); }
+  @media (max-width: 860px) { .plan { grid-template-columns: 1fr auto; } .plan p { grid-column: 1 / -1; grid-row: 2; } }
+  .sample { font: 600 .8rem var(--sc-font-text); letter-spacing: .1em; text-transform: uppercase; margin-top: 1rem; }
+
+  /* ---- 10 · first session ---- */
+  .first h2 { font-size: clamp(3.6rem, 12vw, 12rem); max-width: 12ch; }
+  .first ul { margin: 2rem 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: .8rem; }
+  .first li { font: 400 clamp(1.8rem, 1rem + 3vw, 3.6rem)/1 var(--sc-font-display); text-transform: uppercase; border: 4px solid var(--orange); color: var(--orange); padding: .5rem 1.1rem .4rem; }
+
+  /* ---- 11 · final ---- */
+  .final { padding: 0; display: block; min-height: 100svh; }
+  .final a.big { position: absolute; inset: 0; display: grid; align-content: center; padding: calc(var(--bar) + 1rem) var(--sc-gutter) 5rem; text-decoration: none; color: var(--black); background: var(--orange); transition: background 140ms var(--sc-ease-out); }
+  @media (hover:hover) and (pointer:fine) { .final a.big:hover { background: #ff6a40; } }
+  .final a.big:focus-visible { outline: 6px solid var(--black); outline-offset: -14px; }
+  .final h2 { font-size: clamp(4.2rem, 12.6vw, 14.5rem); max-width: 12ch; position: relative; z-index: 2; }
+  .final .arrow { font: 400 clamp(2rem, 4.6vw, 5rem) var(--sc-font-display); margin-top: 1.4rem; text-transform: uppercase; display: inline-flex; align-items: center; gap: 1rem; position: relative; z-index: 2; }
+  .final .small { position: absolute; left: var(--sc-gutter); right: var(--sc-gutter); bottom: 1.1rem; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font: 600 .8rem var(--sc-font-text); letter-spacing: .06em; text-transform: uppercase; z-index: 3; }
+
+  /* the last ten seconds: the chrome clock takes the screen */
+  .big-clock { position: fixed; inset: 0; z-index: 70; display: grid; place-items: end end; padding: 0 2vw 9vh 0; pointer-events: none; opacity: 0; font: 400 min(40vw, 62svh)/.8 var(--sc-font-display); letter-spacing: .01em; font-variant-numeric: tabular-nums; color: transparent; -webkit-text-stroke: 3px var(--black); transition: opacity 160ms linear; }
+  .big-clock.on { opacity: .55; }
+  .big-clock small { position: absolute; bottom: 5vh; right: 2vw; font: 700 1rem var(--sc-font-text); letter-spacing: .2em; -webkit-text-stroke: 0; color: var(--black); text-transform: uppercase; }
+  .flash { position: fixed; inset: 0; z-index: 90; background: var(--bone); opacity: 0; pointer-events: none; }
+  .flash.on { animation: flash .38s steps(3, jump-none) 1; }
+  @keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .tick__in { animation: none; } .bar.bell, .flash.on { animation: none; } }
+</style>
+</head>
+<body>
+
+<header class="bar" id="bar">
+  <a class="mark" href="#top" aria-label="Iron Round, top of page">Iron Round</a>
+  <div class="tick" aria-hidden="true"><div class="tick__in" id="tick"></div></div>
+  <div class="clock" id="clock" role="timer" aria-label="Round clock. It counts down as you scroll."><small>Round<br>1 of 1</small><span id="clock-v">3:00</span></div>
+  <a class="book" href="#book">Book a free session</a>
+</header>
+
+<main id="top">
+
+  <!-- 1 -->
+  <section class="cut hero cut--black" data-sc-act="flow">
+    <div class="halftone" aria-hidden="true"></div>
+    <svg class="glove" viewBox="0 0 640 640" aria-hidden="true">
+      <defs>
+        <pattern id="dots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="2.4" fill="#0C0C0B" opacity=".5"/></pattern>
+        <clipPath id="gloveClip"><path id="gloveBody" d="M170 470C120 420 108 300 150 220C196 132 330 100 420 150C500 196 530 300 486 392C466 434 440 462 440 462Z"/></clipPath>
+      </defs>
+      <!-- cuff -->
+      <path d="M190 456h260l14 150H176z" fill="#EFEBE1"/>
+      <path d="M190 456h260l6 60H184z" fill="#C9C3B3"/>
+      <rect x="176" y="530" width="288" height="26" fill="#0C0C0B"/>
+      <path d="M200 580h240" stroke="#0C0C0B" stroke-width="10"/>
+      <!-- fist -->
+      <path d="M170 470C120 420 108 300 150 220C196 132 330 100 420 150C500 196 530 300 486 392C466 434 440 462 440 462Z" fill="#FF4A1C"/>
+      <g clip-path="url(#gloveClip)">
+        <path d="M110 480L560 480L560 330C470 380 330 400 120 380Z" fill="#C93208"/>
+        <rect x="100" y="260" width="460" height="260" fill="url(#dots)" opacity=".7"/>
+        <path d="M190 200C240 150 330 138 400 168C330 168 250 190 214 250Z" fill="#FF9A74"/>
+        <path d="M420 190C470 230 490 320 462 392" fill="none" stroke="#0C0C0B" stroke-width="7" stroke-linecap="round"/>
+      </g>
+      <!-- thumb -->
+      <path d="M156 292C96 288 74 372 128 424C160 452 214 438 224 394C232 358 206 296 156 292Z" fill="#FF4A1C"/>
+      <path d="M156 292C96 288 74 372 128 424" fill="none" stroke="#0C0C0B" stroke-width="7" stroke-linecap="round"/>
+      <path d="M128 424C160 452 214 438 224 394" fill="none" stroke="#C93208" stroke-width="12" stroke-linecap="round"/>
+      <path d="M150 220C196 132 330 100 420 150C500 196 530 300 486 392C466 434 440 462 440 462L170 470C120 420 108 300 150 220Z" fill="none" stroke="#0C0C0B" stroke-width="8" stroke-linejoin="round"/>
+      <!-- finger seams -->
+      <path d="M262 150C250 220 258 280 290 330M342 142C336 210 344 270 372 320" fill="none" stroke="#0C0C0B" stroke-width="6" stroke-linecap="round"/>
+    </svg>
+    <h1 data-sc-in>Box like you <span>mean it.</span></h1>
+    <p class="sub" data-sc-in>A boxing gym for people who have never boxed, and the ones who never stopped.</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="cut cut--bone runner" aria-label="No experience. No ego.">
+    <div class="runner__in" id="runner"><span>No experience.</span><span>No ego.</span><span>No mirrors.</span><span>Just rounds.</span><span>No experience.</span><span>No ego.</span></div>
+  </section>
+
+  <!-- 3 -->
+  <section class="cut cut--orange skip" data-sc-act="flow">
+    <h2 class="word" data-sc-in>Skip.</h2>
+    <p class="line" data-sc-in>Ten minutes of rope first. Your calves will file a complaint.</p>
+    <svg class="rope" viewBox="0 0 400 400" aria-hidden="true"><path d="M70 330C-10 200 60 40 200 40C340 40 410 200 330 330"/><rect x="48" y="316" width="44" height="64" rx="10"/><rect x="308" y="316" width="44" height="64" rx="10"/></svg>
+  </section>
+
+  <!-- 4 -->
+  <section class="cut cut--black shadow" data-sc-act="flow">
+    <div class="stack"><h2 class="word" data-sc-in>Shadow.</h2><span class="echo e1 word" aria-hidden="true" data-t="Shadow."></span><span class="echo e2 word" aria-hidden="true" data-t="Shadow."></span><span class="echo e3 word" aria-hidden="true" data-t="Shadow."></span></div>
+    <p class="line" data-sc-in>Throw it at nobody. Look good doing it.</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="cut cut--bone pads" data-sc-act="flow">
+    <div class="pads__grid">
+      <div class="pads__txt"><h2 class="word" data-sc-in>Pads.</h2><p class="line" data-sc-in>A coach holds. You hit. Combinations called out until they are not a surprise.</p></div>
+      <div class="pads__art" aria-hidden="true">
+        <div class="pad pad--l"></div><div class="pad pad--r"></div>
+        <svg class="pow" viewBox="0 0 200 200"><path d="M100 4l18 52 46-30-14 54 52 6-42 34 40 32-52 4 12 52-40-30-26 46-20-48-44 28 6-52-50-6 40-34-36-36 52-4-12-50 40 32z"/></svg>
+        <span class="pows">Pow.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="cut cut--orange bag" data-sc-act="flow">
+    <h2 class="word" aria-label="Bag." data-sc-in>Bag.</h2>
+    <div class="bag__txt"><p class="line" data-sc-in style="font-size:clamp(1.2rem,1rem + 1vw,2rem)">Thirty kilos of honest feedback. It never hits back, and it never lies about your jab.</p></div>
+    <svg viewBox="0 0 240 700" aria-hidden="true"><path d="M70 0v110M170 0v110M120 0v110" stroke="#0C0C0B" stroke-width="6"/><rect x="20" y="110" width="200" height="520" rx="46" fill="#0C0C0B"/><rect x="20" y="300" width="200" height="22" fill="#FF4A1C"/><rect x="20" y="520" width="200" height="14" fill="#FF4A1C"/><path d="M60 130v480" stroke="#3a3a36" stroke-width="10" stroke-linecap="round"/></svg>
+  </section>
+
+  <!-- 7 -->
+  <section class="cut cut--black table" aria-labelledby="tt-h">
+    <h2 id="tt-h" data-sc-in>The week</h2>
+    <table class="tt">
+      <tbody>
+        <tr><th scope="row">Mon</th><td><span><b>06:30</b>Fundamentals</span><span><b>18:30</b>Pads</span></td></tr>
+        <tr><th scope="row">Tue</th><td><span><b>12:30</b>Conditioning</span><span><b>19:00</b>Fundamentals</span></td></tr>
+        <tr><th scope="row">Wed</th><td><span><b>06:30</b>Pads</span><span><b>18:30</b>Sparring, by invite</span></td></tr>
+        <tr><th scope="row">Thu</th><td><span><b>12:30</b>Fundamentals</span><span><b>19:00</b>Conditioning</span></td></tr>
+        <tr><th scope="row">Fri</th><td><span><b>17:30</b>Open bag</span></td></tr>
+        <tr><th scope="row">Sat</th><td><span><b>10:00</b>Fundamentals</span><span><b>11:15</b>Pads</span></td></tr>
+        <tr><th scope="row">Sun</th><td class="none">Shut. Go for a walk.</td></tr>
+      </tbody>
+    </table>
+    <p class="sample" style="padding-inline:var(--sc-gutter);color:var(--sc-ink-soft)">Sample timetable for the concept.</p>
+  </section>
+
+  <!-- 8 -->
+  <section class="cut cut--orange rules" data-sc-act="flow" aria-label="Three rules">
+    <div class="rule" data-sc-reveal="left" data-sc-reveal-at="0.12 0.32">Hands up.</div>
+    <div class="rule" data-sc-reveal="right" data-sc-reveal-at="0.24 0.44">Chin down.</div>
+    <div class="rule" data-sc-reveal="left" data-sc-reveal-at="0.36 0.56">Breathe.</div>
+  </section>
+
+  <!-- 9 -->
+  <section class="cut cut--bone plans" aria-labelledby="pl-h">
+    <h2 id="pl-h" data-sc-in style="margin-bottom:1.6rem">Pick a corner</h2>
+    <a class="plan" href="#book" data-sc-in><h3>Drop in</h3><p>One session, no strings. Gloves and wraps to borrow.</p><b>£12</b></a>
+    <a class="plan" href="#book" data-sc-in><h3>Unlimited</h3><p>Every class, every week, one flat fee. Cancel any time.</p><b>£69</b></a>
+    <a class="plan" href="#book" data-sc-in><h3>Fight team</h3><p>Sparring, coaching and a corner on fight night. By invitation.</p><b>Ask</b></a>
+    <p class="sample">Sample prices for the concept.</p>
+  </section>
+
+  <!-- 10 -->
+  <section class="cut cut--black first" aria-labelledby="fs-h">
+    <h2 id="fs-h" data-sc-in>First session? Bring</h2>
+    <ul data-sc-in data-sc-stagger="40"><li>Water</li><li>Trainers</li><li>Nerve</li></ul>
+    <p class="line" data-sc-in style="color:var(--sc-ink-soft)">Wraps and gloves are on us. Nobody will ask what you do for a living.</p>
+  </section>
+
+  <!-- 11 -->
+  <section class="cut cut--orange final" id="book">
+    <a class="big" id="book-link" href="#">
+      <h2>Book a free session</h2>
+      <span class="arrow" aria-hidden="true">Ring the bell <span>&rarr;</span></span>
+    </a>
+    <div class="small"><span>Iron Round. Concept site, fictional gym.</span><span>Opens your email app. Nothing is sent from this page.</span></div>
+  </section>
+
+</main>
+
+<div class="big-clock" id="big-clock" aria-hidden="true"><span id="big-v">0:10</span><small>Last ten seconds</small></div>
+<div class="flash" id="flash" aria-hidden="true"></div>
+
+<script src="../../assets/vendor/scrollcraft.js"></script>
+<script>
+var CONTACT = "train@ironround.example";   // replace before going live
+var clamp = function(v,a,b){ return Math.max(a, Math.min(b, v)); };
+var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ticker */
+(function(){
+  var items = ["Fundamentals <b>/</b> Pads <b>/</b> Conditioning <b>/</b> Open bag <b>/</b> Sparring by invite <b>/</b> Wraps and gloves provided <b>/</b> Beginners welcome <b>/</b> "];
+  document.getElementById("tick").innerHTML = "<span>" + items[0].repeat(2) + "</span><span aria-hidden='true'>" + items[0].repeat(2) + "</span>";
+})();
+
+/* scroll-linked runner */
+var runner = document.getElementById("runner");
+/* the round clock: the whole page is one three-minute round that moves only while you scroll */
+var clock = document.getElementById("clock"), clockV = document.getElementById("clock-v"), bar = document.getElementById("bar");
+var big = document.getElementById("big-clock"), bigV = document.getElementById("big-v"), flash = document.getElementById("flash");
+var finalSec = document.getElementById("book"), rang = false, lastText = "";
+function fmt(s){ s = Math.max(0, Math.ceil(s)); return Math.floor(s/60) + ":" + String(s%60).padStart(2, "0"); }
+function update(){
+  var max = document.documentElement.scrollHeight - innerHeight;
+  var f = max > 0 ? clamp(scrollY / max, 0, 1) : 0;
+  var secs = 180 * (1 - f);
+  var txt = fmt(secs);
+  if (txt !== lastText){ lastText = txt; clockV.textContent = txt; bigV.textContent = secs <= 10 ? txt : "0:10"; }
+  var fin = secs <= 10.5 && f < 1;
+  var inFinal = secs <= 10.5;
+  clock.classList.toggle("is-final", inFinal);
+  big.classList.toggle("on", inFinal && f < 0.9995);
+  if (f >= 0.9995 && !rang){ rang = true; if (!reduced){ flash.classList.remove("on"); void flash.offsetWidth; flash.classList.add("on"); bar.classList.add("bell"); setTimeout(function(){ bar.classList.remove("bell"); }, 1600); } }
+  if (f < 0.97) rang = false;
+  // marquee runner
+  var r = runner.parentElement.getBoundingClientRect();
+  if (r.bottom > 0 && r.top < innerHeight){
+    var p = (innerHeight - r.top) / (innerHeight + r.height);
+    runner.style.transform = reduced ? "none" : "translate3d(" + (-p * (runner.scrollWidth - innerWidth * 0.6)).toFixed(1) + "px,0,0)";
+  }
+}
+addEventListener("scroll", function(){ requestAnimationFrame(update); }, { passive:true });
+addEventListener("resize", update);
+
+/* anchors and the order link */
+document.addEventListener("click", function(e){
+  var a = e.target.closest("a[href^='#']"); if (!a) return;
+  var id = a.getAttribute("href").slice(1);
+  if (a.id === "book-link"){ e.preventDefault(); location.href = "mailto:" + CONTACT + "?subject=" + encodeURIComponent("Free session") + "&body=" + encodeURIComponent("Hi Iron Round,\n\nI'd like to book a free first session.\n\nName:\nPreferred day and time:\nExperience (none is fine):\n"); return; }
+  var t = id === "top" ? document.body : document.getElementById(id);
+  if (t){ e.preventDefault(); window.scrollTo({ top: id === "top" ? 0 : t.getBoundingClientRect().top + scrollY, behavior: reduced ? "auto" : "smooth" }); }
+});
+
+ScrollCraft.mount(document.body);
+update(); setTimeout(update, 300);
+</script>
+</body>
+</html>

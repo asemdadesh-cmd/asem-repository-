@@ -1,0 +1,544 @@
+<!doctype html>
+<!--
+  Haldane & Rowe: concept site for an independent estate agent (fictional brand, fictional listings).
+  Grammar: gallery / catalogue. The page is one continuous street elevation drawn on a single datum line.
+  Signature move: each house is surveyed line by line, then built (fill wipe), then its windows light, driven by
+  that house's own distance from the viewport centre, not by the act's progress.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Haldane &amp; Rowe · Estate agents</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Concept site: an independent estate agent whose register of homes is drawn as one continuous street elevation.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230E1A26'/><path d='M6 26V14l10-8 10 8v12' fill='none' stroke='%23E8E6DF' stroke-width='2'/></svg>">
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../assets/vendor/scrollcraft.css">
+<style>
+  :root {
+    --sc-canvas: #E8E6DF;
+    --sc-surface: #F2F0EA;
+    --sc-ink: #0E1A26;
+    --sc-ink-soft: #3E4955;
+    --sc-accent: #2342FF;
+    --sc-accent-ink: #FFFFFF;
+    --sc-font-display: "Schibsted Grotesk", system-ui, sans-serif;
+    --sc-font-text: "Schibsted Grotesk", system-ui, sans-serif;
+    --sc-font-mono: "Geist Mono", ui-monospace, monospace;
+    --sc-shadow-color: 215 30% 12%;
+    --bar-h: 64px;
+    --stone: #D8D0BE; --stone2: #C6BBA3; --slate: #4B5663; --brick: #B2614A; --brick2: #9A513D;
+    --glass: #A7BBCC; --leaf: #93A88C; --leaf2: #7C9678; --timber: #A58660; --warm: #F3C76F;
+  }
+  html { scroll-behavior: auto; }
+  body { background: var(--sc-canvas); }
+  .sc-grain { opacity: .03; }
+
+  /* ---- bar: wordmark, index of objects, one CTA ---- */
+  .bar {
+    position: fixed; inset: 0 0 auto 0; height: var(--bar-h); z-index: 60;
+    display: flex; align-items: center; gap: clamp(1rem, 3vw, 3rem);
+    padding-inline: var(--sc-gutter);
+    background: color-mix(in oklab, var(--sc-canvas) 94%, transparent);
+    border-bottom: 1px solid var(--sc-hairline-strong);
+  }
+  .mark { font-weight: 700; font-size: 1.05rem; letter-spacing: -.02em; text-decoration: none; white-space: nowrap; }
+  .mark span { font-weight: 400; color: var(--sc-ink-soft); }
+  .index { display: flex; gap: .25rem; margin: 0 auto 0 0; padding: 0; list-style: none; overflow-x: auto; scrollbar-width: none; }
+  .index::-webkit-scrollbar { display: none; }
+  .index a {
+    display: block; padding: .55rem .7rem; min-height: 44px; line-height: 1.9;
+    font: 500 .74rem/1.9 var(--sc-font-mono); letter-spacing: .04em; text-decoration: none; white-space: nowrap;
+    color: var(--sc-ink-soft); border-bottom: 2px solid transparent;
+    transition: color 140ms var(--sc-ease-out), border-color 140ms var(--sc-ease-out);
+  }
+  .index a[aria-current="true"] { color: var(--sc-ink); border-color: var(--sc-accent); }
+  @media (hover:hover) and (pointer:fine) { .index a:hover { color: var(--sc-ink); } }
+  .cta {
+    display: inline-flex; align-items: center; gap: .6rem; min-height: 44px; padding: 0 1.15rem;
+    background: var(--sc-accent); color: var(--sc-accent-ink); border: 0; border-radius: 3px;
+    font: 600 .9rem var(--sc-font-text); text-decoration: none; white-space: nowrap; cursor: pointer;
+    transition: transform 120ms var(--sc-ease-out), background 140ms var(--sc-ease-out);
+  }
+  .cta:active { transform: scale(.97); }
+  @media (hover:hover) and (pointer:fine) { .cta:hover { background: #1a33d6; } }
+  .cta .n { font: 500 .78rem var(--sc-font-mono); opacity: .85; }
+
+  /* ---- the rail: one street ---- */
+  .street { height: 100%; align-items: stretch; padding: calc(var(--bar-h) + 1.4rem) 0 clamp(1rem, 3vh, 2rem) var(--sc-gutter); width: max-content; position: relative; }
+  .home {
+    flex: 0 0 auto; width: min(80vw, 1160px); height: 100%;
+    display: grid; grid-template-rows: auto minmax(0, 1fr) auto; margin-right: clamp(2rem, 7vw, 7rem);
+  }
+  .home__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding-bottom: .5rem; }
+  .ref { font: 500 .76rem var(--sc-font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .art { position: relative; min-height: 0; }
+  .art .drawing { position: absolute; inset: 0; }
+  .art svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
+  .ink path { fill: none; stroke: var(--sc-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; vector-effect: non-scaling-stroke; }
+  .ink .thin { stroke-width: 1; opacity: .5; }
+  .datum { stroke: var(--sc-ink); stroke-width: 1.6; vector-effect: non-scaling-stroke; fill: none; }
+  .tick { stroke: var(--sc-ink-soft); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .lit path { transition: none; }
+
+  .label { border-top: 1px solid var(--sc-ink); padding-top: .9rem; }
+  .label h2 { font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.7rem); font-weight: 600; letter-spacing: -.035em; line-height: 1; margin: 0 0 .35rem; }
+  .label .lede { margin: 0; color: var(--sc-ink-soft); font-size: .95rem; line-height: 1.45; max-width: 58ch; }
+  .spec { display: grid; grid-template-columns: repeat(6, auto); justify-content: start; gap: 0 clamp(1rem, 2.4vw, 2.6rem); margin: .9rem 0 .8rem; }
+  .spec div { min-width: 0; }
+  .spec dt { font: 500 .66rem var(--sc-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .spec dd { margin: .12rem 0 0; font: 500 clamp(.92rem, .86rem + .2vw, 1.05rem) var(--sc-font-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .spec dd.price { font-weight: 700; }
+  .label__foot { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .stat { font: 600 .74rem var(--sc-font-mono); letter-spacing: .06em; text-transform: uppercase; padding: .2rem .5rem; border: 1px solid var(--sc-ink); }
+  .stat--sale { background: var(--sc-ink); color: var(--sc-canvas); }
+  .save {
+    display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; padding: 0 .9rem; background: transparent; cursor: pointer;
+    border: 1px solid var(--sc-ink); border-radius: 3px; font: 600 .84rem var(--sc-font-text);
+    transition: transform 120ms var(--sc-ease-out), background 140ms var(--sc-ease-out), color 140ms var(--sc-ease-out);
+  }
+  .save:active { transform: scale(.97); }
+  .save[aria-pressed="true"] { background: var(--sc-ink); color: var(--sc-canvas); }
+  @media (hover:hover) and (pointer:fine) { .save:hover { background: color-mix(in oklab, var(--sc-ink) 8%, transparent); } .save[aria-pressed="true"]:hover { background: var(--sc-ink); } }
+  .save svg { width: 14px; height: 14px; }
+
+  /* the register title sits in the first home, typeset as a collection title, not a hero */
+  .reg { position: absolute; z-index: 2; left: 0; top: .6rem; font-size: clamp(.95rem, .85rem + .45vw, 1.25rem); font-weight: 600; letter-spacing: -.02em; line-height: 1.25; max-width: min(21rem, 86%); margin: 0; }
+  .reg span { color: var(--sc-ink-soft); font-weight: 500; }
+
+  /* ---- enquiry plate: typeset exactly like a label ---- */
+  .plate { flex: 0 0 auto; width: min(80vw, 900px); height: 100%; display: grid; grid-template-rows: auto 1fr; margin-right: var(--sc-gutter); }
+  .plate .art { display: grid; align-content: center; }
+  .plate .form { border-top: 1px solid var(--sc-ink); padding-top: 1rem; display: grid; gap: 1rem; max-width: 640px; }
+  .plate h2 { font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.7rem); font-weight: 600; letter-spacing: -.035em; line-height: 1; margin: 0; }
+  .plate p { margin: 0; color: var(--sc-ink-soft); max-width: 56ch; font-size: .95rem; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  .fields label { display: grid; gap: .25rem; font: 500 .66rem var(--sc-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .fields label.wide { grid-column: 1 / -1; }
+  .fields input, .fields select {
+    min-height: 46px; padding: 0 .8rem; background: var(--sc-surface); border: 1px solid var(--sc-ink); border-radius: 3px;
+    font: 500 1rem var(--sc-font-text); color: var(--sc-ink); text-transform: none; letter-spacing: 0;
+  }
+  .fields input::placeholder { color: #6a7581; }
+  .shortlist { font: 500 .8rem var(--sc-font-mono); letter-spacing: .02em; color: var(--sc-ink); min-height: 1.3em; }
+  .smallprint { font: 400 .74rem/1.5 var(--sc-font-mono); color: var(--sc-ink-soft); max-width: 70ch; }
+  .note { min-height: 1.3em; font: 500 .84rem var(--sc-font-text); color: var(--sc-ink); }
+
+  /* staggered settle of labels while the street slides (devices.md §3) */
+  @media (prefers-reduced-motion: no-preference) {
+    .home:not(:first-child) .label { opacity: calc(.86 + .14 * var(--arrive, 1)); }
+  }
+
+  @media (max-width: 860px) {
+    :root { --bar-h: 56px; }
+    .bar { gap: .75rem; padding-inline: 1rem; }
+    .cta .long { display: none; }
+    .index { flex: 1; min-width: 0; }
+    .index a { padding-inline: .5rem; }
+    .home { width: 88vw; margin-right: 2.5rem; }
+    .spec { grid-template-columns: repeat(3, auto); row-gap: .6rem; }
+    .label h2 { font-size: 1.6rem; }
+    .label .lede { font-size: .88rem; }
+    .plate { width: 90vw; }
+    .fields { grid-template-columns: 1fr; }
+    .street { padding-left: 1rem; }
+  }
+  @media (max-height: 640px) { .label .lede { display: none; } }
+  noscript .street-note { padding: 6rem 1.5rem; }
+</style>
+</head>
+<body>
+
+<span data-sc-progress aria-hidden="true"></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<header class="bar">
+  <a class="mark" href="#top" aria-label="Haldane &amp; Rowe, home">Haldane <span>&amp;</span> Rowe</a>
+  <nav aria-label="Register index">
+    <ul class="index" id="index"></ul>
+  </nav>
+  <a class="cta" href="#enquiry" id="cta-top">Book a valuation <span class="n" id="count" aria-live="polite"></span></a>
+</header>
+
+<main id="top">
+  <section data-sc-act="pan" data-sc-span="8.2" aria-label="The register">
+    <div data-sc-stage>
+      <div class="street" data-sc-pan="0.02" id="street">
+        <!-- homes are written as data below and rendered here; each carries real, readable text -->
+      </div>
+    </div>
+  </section>
+</main>
+<noscript><p class="street-note">This concept site draws its houses with JavaScript. The register: The Old Rectory, Calder Wharf Loft, 14 Linden Terrace, Greywether Barn, The Glasshouse, Harbour Row Cottage.</p></noscript>
+
+<script src="../../assets/vendor/scrollcraft.js"></script>
+<script>
+/* ===================================================================== data */
+var CONTACT = "hello@haldanerowe.example";           // replace before going live
+var HOMES = [
+  { ref:"HR-014", slug:"rectory",  name:"The Old Rectory",       place:"Ashcombe",        kind:"georgian", type:"Georgian rectory, c.1790",
+    beds:5, area:"412 m²", tenure:"Freehold", epc:"D", price:"£1,450,000", status:"For sale",
+    note:"Sash windows restored in 2023. Walled garden of 0.4 acre. Coach house, not yet converted." },
+  { ref:"HR-022", slug:"loft",     name:"Calder Wharf Loft",     place:"Brindley Basin",  kind:"loft",     type:"Warehouse conversion, 1880s",
+    beds:2, area:"138 m²", tenure:"Leasehold", epc:"C", price:"£2,150 pcm", status:"To let",
+    note:"Cast-iron columns retained. Canal frontage. The hoist beam stays on the façade." },
+  { ref:"HR-031", slug:"terrace",  name:"14 Linden Terrace",     place:"Millbrook",       kind:"terrace",  type:"Victorian terrace, 1893",
+    beds:3, area:"126 m²", tenure:"Freehold", epc:"D", price:"£625,000", status:"Under offer",
+    note:"Bay window and original cornicing to the front room. South-facing rear garden." },
+  { ref:"HR-038", slug:"barn",     name:"Greywether Barn",       place:"Ashby Moor",      kind:"barn",     type:"Barn conversion, converted 2019",
+    beds:4, area:"240 m²", tenure:"Freehold", epc:"C", price:"£895,000", status:"For sale",
+    note:"Oak frame from the 1740s. Glazed gable end looks east over open pasture." },
+  { ref:"HR-045", slug:"modern",   name:"The Glasshouse",        place:"Hale Common",     kind:"modern",   type:"Timber-frame house, 2021",
+    beds:4, area:"305 m²", tenure:"Freehold", epc:"A", price:"£1,975,000", status:"For sale",
+    note:"Triple glazing, air-source heat pump. The upper floor cantilevers over the terrace." },
+  { ref:"HR-051", slug:"cottage",  name:"Harbour Row Cottage",   place:"Staithe",         kind:"cottage",  type:"Fisherman’s cottage, c.1820",
+    beds:2, area:"96 m²", tenure:"Freehold", epc:"E", price:"£395,000", status:"Sold STC",
+    note:"Two minutes from the quay. Slate roof relaid 2022. Original stone flags in the kitchen." }
+];
+
+/* =============================================================== elevations
+   Every building is returned as { ink:[path d], thin:[d], fill:[[d,colour]], lit:[d] } on a 1000 x 640 sheet,
+   datum (ground line) at y = 560. */
+var G = 560;
+function R(x,y,w,h){ return "M"+x+" "+y+"h"+w+"v"+h+"h"+(-w)+"z"; }
+function Cc(cx,cy,r){ return "M"+(cx-r)+" "+cy+"a"+r+" "+r+" 0 1 0 "+(2*r)+" 0a"+r+" "+r+" 0 1 0 "+(-2*r)+" 0z"; }
+function Pl(pts, close){ return "M"+pts.map(function(p){return p[0]+" "+p[1];}).join("L")+(close?"z":""); }
+function Arch(x,y,w,h){ var r=w/2; return "M"+x+" "+(y+h)+"V"+(y+r)+"a"+r+" "+r+" 0 0 1 "+w+" 0V"+(y+h)+"z"; }
+function rng(seed){ var s=seed; return function(){ s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+function sash(o,x,y,w,h,rows,cols,fillGlass){
+  o.fill.push([R(x,y,w,h), fillGlass||"var(--glass)"]); o.lit.push(R(x+1.5,y+1.5,w-3,h-3));
+  o.ink.push(R(x,y,w,h));
+  for(var c=1;c<cols;c++) o.thin.push("M"+(x+w*c/cols)+" "+y+"v"+h);
+  for(var r=1;r<rows;r++) o.thin.push("M"+x+" "+(y+h*r/rows)+"h"+w);
+  o.ink.push("M"+(x-4)+" "+(y+h)+"h"+(w+8)); // sill
+}
+function tree(o,x,base,h,w){
+  o.fill.push([R(x-4,base-h*0.45,8,h*0.45),"var(--timber)"]);
+  o.ink.push("M"+(x-4)+" "+base+"V"+(base-h*0.45)+"M"+(x+4)+" "+base+"V"+(base-h*0.45));
+  var cs=[[0,-h*0.62,w*0.5],[-w*0.3,-h*0.5,w*0.36],[w*0.3,-h*0.5,w*0.36],[0,-h*0.86,w*0.32]];
+  cs.forEach(function(c,i){ o.fill.push([Cc(x+c[0],base+c[1],c[2]), i%2?"var(--leaf2)":"var(--leaf)"]); });
+}
+function hedge(o,x,w,h){ o.fill.push([R(x,G-h,w,h),"var(--leaf2)"]); o.ink.push("M"+x+" "+G+"V"+(G-h)+"h"+w+"V"+G); }
+
+var KINDS = {
+  georgian: function(){
+    var o={ink:[],thin:[],fill:[],lit:[]};
+    o.fill.push([R(220,230,560,330),"var(--stone)"]);
+    o.fill.push([Pl([[196,232],[300,150],[700,150],[804,232]],1),"var(--slate)"]);
+    o.fill.push([R(310,104,36,50),"var(--brick)"]); o.fill.push([R(654,104,36,50),"var(--brick)"]);
+    o.ink.push(R(220,230,560,330)); o.ink.push(Pl([[196,232],[300,150],[700,150],[804,232],[196,232]]));
+    o.ink.push(R(310,104,36,50)); o.ink.push(R(654,104,36,50));
+    o.thin.push("M306 104h44M650 104h44M206 222h588M220 244h560");
+    for(var i=0;i<6;i++) o.thin.push("M"+(260+i*40)+" 160l-"+(i*0)+" 66"); // slate rakes
+    o.ink.push("M220 440h560"); o.thin.push("M220 446h560");            // string course
+    o.fill.push([R(220,540,560,20),"var(--stone2)"]); o.thin.push("M220 540h560");
+    [280,390,610,720].forEach(function(cx){ sash(o,cx-23,452,46,82,3,2); });
+    [280,390,500,610,720].forEach(function(cx){ sash(o,cx-23,322,46,86,3,2); });
+    [280,390,500,610,720].forEach(function(cx){ sash(o,cx-20,254,40,52,2,2); });
+    // portico + door
+    o.fill.push([R(440,432,120,12),"var(--stone2)"]); o.ink.push(R(440,432,120,12));
+    o.fill.push([Pl([[436,432],[500,398],[564,432]],1),"var(--stone2)"]); o.ink.push(Pl([[436,432],[500,398],[564,432],[436,432]]));
+    o.ink.push(R(452,444,8,116)); o.ink.push(R(540,444,8,116)); o.fill.push([R(452,444,8,116),"var(--stone)"]); o.fill.push([R(540,444,8,116),"var(--stone)"]);
+    o.fill.push([R(468,470,64,90),"var(--sc-ink)"]); o.ink.push(R(468,470,64,90));
+    o.fill.push([Arch(468,448,64,32),"var(--glass)"]); o.lit.push(Arch(470,450,60,30)); o.ink.push(Arch(468,448,64,32));
+    o.thin.push("M500 450v26M484 492h32v30h-32zM484 530h32v24h-32z");
+    o.ink.push("M452 552h96v8h-96z");
+    hedge(o,150,54,70); hedge(o,796,54,70);
+    tree(o,100,G,220,150); tree(o,900,G,190,130);
+    return o; },
+
+  loft: function(){
+    var o={ink:[],thin:[],fill:[],lit:[]};
+    o.fill.push([R(210,170,580,390),"var(--brick)"]); o.ink.push(R(210,170,580,390));
+    o.fill.push([R(200,160,600,16),"var(--brick2)"]); o.ink.push(R(200,160,600,16));
+    var r=rng(7); for(var y=186;y<556;y+=14){ o.thin.push("M210 "+y+"h580"); }
+    for(var k=0;k<80;k++){ var yy=186+Math.floor(r()*26)*14, xx=210+r()*570; o.thin.push("M"+xx+" "+yy+"v14"); }
+    // arched windows, 5 bays, 3 storeys
+    [0,1,2,3,4].forEach(function(b){ var x=240+b*108;
+      [190,306].forEach(function(y,fl){ var w=64,h=96; o.fill.push([Arch(x,y,w,h),"var(--glass)"]); o.lit.push(Arch(x+2,y+2,w-4,h-4)); o.ink.push(Arch(x,y,w,h));
+        o.thin.push("M"+(x+w/2)+" "+y+"v"+h+"M"+x+" "+(y+h*0.55)+"h"+w+"M"+x+" "+(y+h*0.78)+"h"+w); });
+      if(b!==2){ var y=430; o.fill.push([Arch(x,y,64,110),"var(--glass)"]); o.lit.push(Arch(x+2,y+2,60,106)); o.ink.push(Arch(x,y,64,110)); o.thin.push("M"+(x+32)+" "+y+"v110M"+x+" "+(y+60)+"h64"); }
+    });
+    // loading door bay centre
+    o.fill.push([R(500,430,64,130),"var(--sc-ink)"]); o.ink.push(R(500,430,64,130)); o.thin.push("M532 430v130M504 470h56M504 520h56");
+    // hoist beam
+    o.ink.push("M470 160V92h150v12M620 92v50M620 142a8 8 0 1 0 .1 0"); o.fill.push([R(470,88,150,8),"var(--slate)"]);
+    o.ink.push("M620 150v40M612 190h16v14h-16z");
+    // columns/steps + canal
+    o.fill.push([R(160,G-12,680,12),"var(--stone2)"]); o.ink.push(R(160,G-12,680,12));
+    for(var w=0;w<7;w++){ o.thin.push("M"+(180+w*100)+" "+(G+22)+"q25 -8 50 0t50 0"); }
+    o.thin.push("M200 "+(G+44)+"h140M470 "+(G+44)+"h200M760 "+(G+44)+"h90");
+    // drainpipe
+    o.ink.push("M222 176V556M230 176V556");
+    tree(o,100,G,160,110); tree(o,920,G,140,100);
+    return o; },
+
+  terrace: function(){
+    var o={ink:[],thin:[],fill:[],lit:[]};
+    var x0=150, bw=233;
+    for(var b=0;b<3;b++){ var x=x0+b*bw; var col = b===1?"var(--brick)":"var(--brick2)"; if(b===1) col="var(--brick)";
+      o.fill.push([R(x,226,bw,334),col]); o.ink.push(R(x,226,bw,334));
+      // parapet + roof edge
+      o.fill.push([R(x-4,208,bw+8,18),"var(--stone2)"]); o.ink.push(R(x-4,208,bw+8,18));
+      o.fill.push([R(x+bw/2-26,150,52,58),"var(--stone2)"]); // gable-less attic hint (stack)
+      // 3 floors
+      sash(o,x+22,258,50,92,3,2); sash(o,x+bw-72,258,50,92,3,2);
+      sash(o,x+22,372,50,92,3,2);
+      // door / bay
+      if(b%2===0){ // bay window ground
+        o.fill.push([R(x+16,420,bw-110,140-0),"var(--stone)"]); o.ink.push(R(x+16,420,bw-110,140));
+        sash(o,x+24,448,28,86,3,1); sash(o,x+bw-110+16-28-6+24,448,28,86,3,1);
+        o.ink.push(Pl([[x+16,420],[x+16+ (bw-110)/2,408],[x+16+(bw-110),420]]));
+        o.fill.push([Arch(x+bw-82,438,56,122),"var(--sc-ink)"]); o.ink.push(Arch(x+bw-82,438,56,122)); o.thin.push("M"+(x+bw-54)+" 438v122");
+      } else {
+        o.fill.push([R(x+16,420,bw-110,140),"var(--stone)"]); o.ink.push(R(x+16,420,bw-110,140));
+        sash(o,x+24,448,28,86,3,1); sash(o,x+bw-110+16-28-6+24,448,28,86,3,1);
+        o.ink.push(Pl([[x+16,420],[x+16+ (bw-110)/2,408],[x+16+(bw-110),420]]));
+        o.fill.push([Arch(x+bw-82,438,56,122),"var(--slate)"]); o.ink.push(Arch(x+bw-82,438,56,122)); o.thin.push("M"+(x+bw-54)+" 438v122");
+      }
+      o.thin.push("M"+x+" 396h"+bw);
+    }
+    // chimney stacks on the party walls
+    [x0,x0+bw,x0+2*bw,x0+3*bw].forEach(function(x){ o.fill.push([R(x-18,128,36,82),"var(--brick2)"]); o.ink.push(R(x-18,128,36,82)); o.thin.push("M"+(x-22)+" 128h44M"+(x-12)+" 118h8M"+(x+4)+" 118h8"); });
+    o.fill.push([R(x0-40,G-10,bw*3+80,10),"var(--stone2)"]);
+    hedge(o,90,40,48); hedge(o,870,40,48); tree(o,930,G,170,110);
+    return o; },
+
+  barn: function(){
+    var o={ink:[],thin:[],fill:[],lit:[]};
+    var r=rng(31);
+    o.fill.push([Pl([[250,560],[250,330],[500,150],[750,330],[750,560]],1),"var(--stone)"]);
+    o.ink.push(Pl([[250,560],[250,330],[500,150],[750,330],[750,560]]));
+    // stone coursing
+    for(var k=0;k<90;k++){ var y=340+r()*210, x=262+r()*470; if(y>(560)) continue; o.thin.push("M"+x+" "+y+"h"+(10+r()*22)); }
+    // roof overhang / barge boards
+    o.fill.push([Pl([[232,334],[500,134],[768,334],[750,330],[500,150],[250,330]],1),"var(--slate)"]);
+    o.ink.push(Pl([[232,334],[500,134],[768,334]]));
+    // glazed gable (oak frame)
+    o.fill.push([Pl([[330,540],[330,350],[500,232],[670,350],[670,540]],1),"var(--glass)"]);
+    o.lit.push(Pl([[334,536],[334,352],[500,236],[666,352],[666,536]],1));
+    o.ink.push(Pl([[330,540],[330,350],[500,232],[670,350],[670,540],[330,540]]));
+    o.fill.push([R(322,350,8,190),"var(--timber)"]); o.fill.push([R(670,350,8,190),"var(--timber)"]);
+    o.ink.push("M500 232V540M330 400h340M330 460h340M330 350l170 -118M670 350L500 232M415 291v249M585 291v249");
+    o.ink.push("M394 350V540M606 350V540");
+    // central oak post + door
+    o.fill.push([R(470,440,60,100),"var(--timber)"]); o.ink.push(R(470,440,60,100)); o.thin.push("M500 440v100M470 490h60");
+    // lean-to
+    o.fill.push([Pl([[750,430],[860,470],[860,560],[750,560]],1),"var(--stone2)"]); o.ink.push(Pl([[750,430],[860,470],[860,560],[750,560]]));
+    o.fill.push([Pl([[744,426],[870,468],[870,478],[750,436]],1),"var(--slate)"]);
+    sash(o,790,490,36,52,2,1);
+    // stone step + wall
+    o.fill.push([R(310,G-8,380,8),"var(--stone2)"]); o.ink.push(R(310,G-8,380,8));
+    o.ink.push("M80 "+(G-30)+"h170M80 "+G+"V"+(G-30)); o.fill.push([R(80,G-30,170,30),"var(--stone2)"]);
+    for(var c=0;c<8;c++) o.thin.push("M"+(80+c*21)+" "+(G-30)+"v30");
+    tree(o,960,G,200,120); tree(o,120,G-30,150,90);
+    return o; },
+
+  modern: function(){
+    var o={ink:[],thin:[],fill:[],lit:[]};
+    // ground box (glazed)
+    o.fill.push([R(210,430,520,130),"var(--glass)"]); o.lit.push(R(212,432,516,126)); o.ink.push(R(210,430,520,130));
+    for(var i=1;i<6;i++) o.thin.push("M"+(210+i*86.7)+" 430v130");
+    o.ink.push("M210 430h520");
+    // slender columns
+    [210,384,556,730].forEach(function(x){ o.fill.push([R(x-4,430,8,130),"var(--sc-ink)"]); });
+    // upper cantilevered volume
+    o.fill.push([R(330,290,560,140),"var(--timber)"]); o.ink.push(R(330,290,560,140));
+    for(var j=0;j<28;j++) o.thin.push("M"+(342+j*19.5)+" 292v136");
+    o.fill.push([R(430,318,300,82),"var(--glass)"]); o.lit.push(R(432,320,296,78)); o.ink.push(R(430,318,300,82));
+    o.thin.push("M580 318v82M430 359h300");
+    o.fill.push([R(318,278,584,14),"var(--slate)"]); o.ink.push(R(318,278,584,14));
+    o.fill.push([R(200,418,540,14),"var(--slate)"]); o.ink.push(R(200,418,540,14));
+    // roof planter + pv slab hint
+    o.ink.push("M520 278v-22h120v22M520 266h120"); o.thin.push("M540 256v10M580 256v10M620 256v10");
+    // terrace deck
+    o.fill.push([R(160,G-8,720,8),"var(--timber)"]); o.ink.push(R(160,G-8,720,8));
+    // reflection diagonals
+    o.thin.push("M250 440l60 110M300 440l60 110M470 440l60 110");
+    // slim trees
+    tree(o,110,G,230,70); tree(o,940,G,210,80);
+    return o; },
+
+  cottage: function(){
+    var o={ink:[],thin:[],fill:[],lit:[]};
+    o.fill.push([R(250,380,500,180),"var(--stone)"]); o.ink.push(R(250,380,500,180));
+    var r=rng(11); for(var k=0;k<70;k++){ var x=256+r()*480, y=388+r()*166; o.thin.push("M"+x+" "+y+"h"+(8+r()*18)); }
+    // roof
+    o.fill.push([Pl([[222,386],[330,250],[670,250],[778,386]],1),"var(--slate)"]);
+    o.ink.push(Pl([[222,386],[330,250],[670,250],[778,386],[222,386]]));
+    for(var s=0;s<9;s++) o.thin.push("M"+(240+s*3)+" "+(386-s*15)+"h"+(520-s*6));
+    // chimney
+    o.fill.push([R(640,196,44,64),"var(--brick)"]); o.ink.push(R(640,196,44,64)); o.thin.push("M636 196h52");
+    // dormers
+    [380,560].forEach(function(x){ o.fill.push([R(x,296,64,64),"var(--stone2)"]); o.ink.push(R(x,296,64,64));
+      o.fill.push([Pl([[x-8,298],[x+32,262],[x+72,298]],1),"var(--slate)"]); o.ink.push(Pl([[x-8,298],[x+32,262],[x+72,298],[x-8,298]]));
+      sash(o,x+12,308,40,44,2,2); });
+    // porch
+    o.fill.push([R(450,440,100,120),"var(--stone2)"]); o.ink.push(R(450,440,100,120));
+    o.fill.push([Pl([[438,444],[500,396],[562,444]],1),"var(--slate)"]); o.ink.push(Pl([[438,444],[500,396],[562,444],[438,444]]));
+    o.fill.push([R(472,462,56,98),"var(--timber)"]); o.ink.push(R(472,462,56,98)); o.thin.push("M500 462v98M472 500h56");
+    // windows
+    sash(o,290,430,60,76,3,2); sash(o,650,430,60,76,3,2); sash(o,372,440,0.01,0.01,1,1);
+    // roses on porch (small circles)
+    for(var q=0;q<14;q++){ var cx=448+r()*8, cy=450+r()*100; o.fill.push([Cc(cx,cy,5+r()*3),"var(--leaf)"]); }
+    // fence
+    for(var p=0;p<16;p++){ var fx=170+p*38; if(fx>440&&fx<560) continue; o.ink.push("M"+fx+" "+G+"V"+(G-44)+"l5 -8l5 8V"+G); }
+    o.ink.push("M160 "+(G-30)+"h280M560 "+(G-30)+"h300");
+    // distant mast + horizon
+    o.thin.push("M880 "+G+"V380M880 400h38M880 430h30M880 470h-26"); o.thin.push("M820 "+(G-2)+"h120");
+    tree(o,130,G,180,100);
+    return o; }
+};
+
+/* ============================================================== rendering */
+var svgNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent){ var e=document.createElementNS(svgNS, tag); for(var k in attrs) e.setAttribute(k, attrs[k]); if(parent) parent.appendChild(e); return e; }
+var street = document.getElementById("street");
+var index = document.getElementById("index");
+var short = {}; try { short = JSON.parse(localStorage.getItem("hr-shortlist")||"{}"); } catch(e){}
+
+function buildHome(h, i){
+  var art = KINDS[h.kind]();
+  var s = document.createElement("article"); s.className="home"; s.id=h.slug; s.dataset.i=i;
+  var head = '<div class="home__head"><span class="ref">'+h.ref+' · '+h.type+'</span><span class="ref">'+h.place+'</span></div>';
+  var artwrap = '<div class="art">'+(i===0 ? '<h1 class="reg">Haldane &amp; Rowe sell and let homes in the north. <span>Six are on the register this autumn, drawn here as one street.</span></h1>' : '')+'<div class="drawing" role="img" aria-label="Elevation drawing of '+h.name+', '+h.type.toLowerCase()+'"></div></div>';
+  var label = '<div class="label">'+
+    '<h2>'+h.name+'</h2><p class="lede">'+h.note+'</p>'+
+    '<dl class="spec"><div><dt>Bedrooms</dt><dd>'+h.beds+'</dd></div><div><dt>Floor area</dt><dd>'+h.area+'</dd></div><div><dt>Tenure</dt><dd>'+h.tenure+'</dd></div><div><dt>EPC</dt><dd>'+h.epc+'</dd></div><div><dt>'+(h.status==="To let"?"Rent":"Guide price")+'</dt><dd class="price">'+h.price+'</dd></div><div><dt>Status</dt><dd>'+h.status+'</dd></div></dl>'+
+    '<div class="label__foot"><button class="save" type="button" data-ref="'+h.ref+'" data-name="'+h.name+'" aria-pressed="false"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5h8v11L7 9.5l-4 3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span>Shortlist</span></button></div></div>';
+  s.innerHTML = head + artwrap + label;
+  street.appendChild(s);
+
+  // svg
+  var svg = el("svg", { viewBox:"40 60 920 580", preserveAspectRatio:"xMidYMax meet", "aria-hidden":"true", focusable:"false" });
+  var defs = el("defs", {}, svg);
+  var cp = el("clipPath", { id:"wipe-"+i }, defs); var wr = el("rect", { x:-200, y:-50, width:0, height:760 }, cp);
+  var gFill = el("g", { "clip-path":"url(#wipe-"+i+")" }, svg);
+  art.fill.forEach(function(f){ el("path", { d:f[0], style:"fill:"+f[1] }, gFill); });
+  var gLit = el("g", { class:"lit" }, gFill);
+  art.lit.forEach(function(d){ el("path", { d:d, style:"fill:var(--warm);opacity:0" }, gLit); });
+  var gInk = el("g", { class:"ink" }, svg);
+  var paths = [];
+  art.ink.concat(art.thin.map(function(d){ return "T"+d; })).forEach(function(d){
+    var thin = d.charAt(0)==="T"; if(thin) d=d.slice(1);
+    var p = el("path", { d:d, pathLength:1 }, gInk); if(thin) p.setAttribute("class","thin"); paths.push(p);
+  });
+  // datum: continuous across all homes
+  el("line", { x1:-260, x2:1260, y1:G, y2:G, class:"datum" }, svg);
+  [ -220, -120, 1020, 1120 ].forEach(function(x){ el("line", { x1:x, x2:x, y1:G, y2:G+8, class:"tick" }, svg); });
+  [0,250,500,750,1000].forEach(function(x){ el("line", { x1:x, x2:x, y1:G, y2:G+8, class:"tick" }, svg); });
+  street.querySelector("#"+h.slug+" .drawing").appendChild(svg);
+  return { el:s, paths:paths, wr:wr, lit:gLit.children, last:-1 };
+}
+
+var plates = HOMES.map(buildHome);
+
+// enquiry plate
+(function(){
+  var p = document.createElement("section"); p.className="plate"; p.id="enquiry"; p.setAttribute("aria-label","Book a valuation");
+  p.innerHTML = '<div class="home__head"><span class="ref">HR-000 · Valuation</span><span class="ref">Free, written within 48 hours</span></div>'+
+  '<div class="art"><form class="form" id="enq" novalidate><h2>Book a valuation</h2>'+
+  '<p>Tell us where the home is. A partner visits, measures, and writes to you with a price and the reasoning behind it. No obligation, no board outside until you ask for one.</p>'+
+  '<div class="fields"><label>Name<input name="name" autocomplete="name" required placeholder="Your name"></label><label>Email<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>'+
+  '<label>Postcode<input name="postcode" autocomplete="postal-code" placeholder="e.g. LS1 4AB"></label><label>Looking to<select name="intent"><option>Sell</option><option>Let</option><option>Buy</option></select></label></div>'+
+  '<div class="shortlist" id="shortlist" aria-live="polite"></div>'+
+  '<div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap"><button class="cta" type="submit">Book a valuation</button><span class="note" id="note" role="status"></span></div>'+
+  '<p class="smallprint">Concept site. Haldane &amp; Rowe and these six properties are fictional. Submitting opens your email app with this enquiry written out; nothing is stored or sent from this page.</p></form></div>';
+  street.appendChild(p);
+})();
+
+/* ================================================== index, shortlist, form */
+HOMES.forEach(function(h, i){
+  var li = document.createElement("li"); li.innerHTML = '<a href="#'+h.slug+'" data-i="'+i+'" title="'+h.name+'">'+h.ref+'</a>'; index.appendChild(li);
+});
+function updateShortlist(){
+  var keys = Object.keys(short).filter(function(k){ return short[k]; });
+  document.getElementById("count").textContent = keys.length ? "· " + keys.length : "";
+  var sl = document.getElementById("shortlist");
+  sl.textContent = keys.length ? "Shortlist: " + keys.map(function(k){ return k + " " + short[k]; }).join(", ") : "Shortlist is empty. Save a home and it travels with your enquiry.";
+  document.querySelectorAll(".save").forEach(function(b){ var on = !!short[b.dataset.ref]; b.setAttribute("aria-pressed", on); b.querySelector("span").textContent = on ? "Shortlisted" : "Shortlist"; });
+  try { localStorage.setItem("hr-shortlist", JSON.stringify(short)); } catch(e){}
+}
+document.addEventListener("click", function(e){
+  var b = e.target.closest(".save"); if(!b) return;
+  if(short[b.dataset.ref]) delete short[b.dataset.ref]; else short[b.dataset.ref] = b.dataset.name;
+  updateShortlist();
+});
+updateShortlist();
+
+document.getElementById("enq").addEventListener("submit", function(e){
+  e.preventDefault();
+  var f = e.target, note = document.getElementById("note");
+  if(!f.name.value.trim() || !/.+@.+\..+/.test(f.email.value)){ note.textContent = "Add your name and a valid email so we can reply."; (f.name.value.trim()? f.email : f.name).focus(); return; }
+  var keys = Object.keys(short);
+  var body = "Name: "+f.name.value+"\nEmail: "+f.email.value+"\nPostcode: "+f.postcode.value+"\nLooking to: "+f.intent.value+"\nShortlist: "+(keys.length? keys.map(function(k){return k+" "+short[k];}).join(", ") : "none")+"\n";
+  note.textContent = "Opening your email app. If nothing opens, write to " + CONTACT + ".";
+  location.href = "mailto:"+CONTACT+"?subject="+encodeURIComponent("Valuation request")+"&body="+encodeURIComponent(body);
+});
+
+/* ======================================== per-house arrival (signature move) */
+var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+var clamp = function(v,a,b){ return Math.max(a, Math.min(b, v)); };
+var state = plates; var raf = 0;
+function tick(){
+  raf = 0;
+  var vw = innerWidth, cur = -1, best = 1e9;
+  state.forEach(function(s, i){
+    var r = s.el.getBoundingClientRect();
+    var centre = r.left + r.width*0.5;
+    var dist = Math.abs(centre - vw*0.42); if(dist < best){ best = dist; cur = i; }
+    var t = reduced ? 1 : clamp((vw*1.05 - centre) / (vw*0.62), 0, 1);   // 0 entering from the right, 1 settled
+    s.el.style.setProperty("--arrive", t.toFixed(3));
+    if(Math.abs(t - s.last) < 0.002) return; s.last = t;
+    var lp = clamp(t/0.62, 0, 1), fp = clamp((t-0.38)/0.5, 0, 1), wp = clamp((t-0.86)/0.14, 0, 1);
+    var n = s.paths.length;
+    for(var k=0;k<n;k++){ var local = clamp(lp*1.6 - (k/n)*0.6, 0, 1); s.paths[k].style.strokeDashoffset = (1-local).toFixed(3); }
+    s.wr.setAttribute("width", (fp*1500).toFixed(0));
+    for(var m=0;m<s.lit.length;m++) s.lit[m].style.opacity = (wp*0.6).toFixed(2);
+  });
+  document.querySelectorAll("#index a").forEach(function(a){ a.setAttribute("aria-current", String(+a.dataset.i === cur)); });
+}
+function queue(){ if(!raf) raf = requestAnimationFrame(tick); }
+addEventListener("scroll", queue, { passive:true }); addEventListener("resize", queue);
+if (reduced) document.querySelector("[data-sc-act]").setAttribute("data-sc-span", "1");
+ScrollCraft.mount(document.body);
+queue(); setTimeout(queue, 400);
+
+/* ========================================================= jump navigation */
+var act = document.querySelector("[data-sc-act]");
+/* reduced motion: the engine turns the street into a native horizontal scroll region, so it needs one screen, not eight */
+if (reduced) act.setAttribute("data-sc-span", "1");
+function jumpTo(el){
+  if (reduced){ var st = act.querySelector("[data-sc-stage]"); st.scrollTo({ left: el.offsetLeft - parseFloat(getComputedStyle(street).paddingLeft || 0), behavior:"auto" }); return; }
+  // estimate scroll from the pan geometry, then correct against the measured rect
+  var rail = document.getElementById("street");
+  var travel = Math.max(1, rail.scrollWidth - innerWidth);
+  var range = act.offsetHeight - innerHeight;
+  var actTop = act.getBoundingClientRect().top + scrollY;
+  var target = el.offsetLeft + el.offsetWidth/2 - innerWidth*0.42;
+  var y = actTop + clamp(target/travel, 0, 1) * range;
+  window.scrollTo({ top: y, behavior: reduced ? "auto" : "smooth" });
+  var tries = 0;
+  (function fix(){
+    if(tries++ > 6) return;
+    setTimeout(function(){
+      var r = el.getBoundingClientRect(); var err = (r.left + r.width/2) - innerWidth*0.42;
+      if(Math.abs(err) > 24){ window.scrollTo({ top: scrollY + err * (range/travel), behavior:"auto" }); fix(); }
+    }, tries===1 ? 900 : 120);
+  })();
+}
+document.addEventListener("click", function(e){
+  var a = e.target.closest('a[href^="#"]'); if(!a) return;
+  var id = a.getAttribute("href").slice(1); var t = id==="top" ? null : document.getElementById(id);
+  if(id==="top"){ e.preventDefault(); window.scrollTo({top:0}); return; }
+  if(t && (t.classList.contains("home") || t.classList.contains("plate"))){ e.preventDefault(); jumpTo(t); if(t.classList.contains("plate")) setTimeout(function(){ var n=t.querySelector("input"); if(n) n.focus({preventScroll:true}); }, 1100); }
+});
+// keyboard focus inside the rail must bring the panel into view
+document.addEventListener("focusin", function(e){
+  var h = e.target.closest && e.target.closest(".home, .plate"); if(!h) return;
+  var r = e.target.getBoundingClientRect(); if(r.left < 0 || r.right > innerWidth + 1) jumpTo(h);
+});
+</script>
+</body>
+</html>
