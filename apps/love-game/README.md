@@ -1,7 +1,8 @@
 # For Her 💗 — a tiny love game
 
-A mobile-first browser game: five mini-games that each earn a heart, then a
-Secret Room with a love letter, photo slideshow and video.
+A mobile-first browser game: she walks a 3D island (Three.js) as an avatar;
+five places each hold a mini-game that earns a heart, then a
+Secret Room cottage with a love letter, photo slideshow and video.
 
 | Room | Game |
 |---|---|

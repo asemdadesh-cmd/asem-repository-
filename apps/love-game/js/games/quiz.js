@@ -43,7 +43,7 @@ export function start(stage, { config, done, back }) {
   function finalQuestion() {
     stage.innerHTML = `
       <p class="step">Final question</p>
-      <h3 class="q">Do you love me? 🥺</h3>
+      <h3 class="q">Do you love me? 🥺 <span lang="ar">تحبني؟</span></h3>
       <div class="dodge-zone">
         <button class="btn primary yes">Yes 💗</button>
         <button class="btn no">No</button>

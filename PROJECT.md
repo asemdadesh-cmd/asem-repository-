@@ -137,17 +137,27 @@ _Last updated: 2026-10-03_
 
 ### For Her — love mini-game (`apps/love-game/`)
 - **What:** Mobile-first browser game made as a gift for the owner's
-  girlfriend. Five rooms each earn a heart — 🎨 Studio (paint to reveal a
+  girlfriend (Shahed, "Shahuda"). She walks a **3D island** (Three.js) as an
+  avatar — joystick on phones, WASD on desktop, drag to look — with the owner
+  as an NPC who speaks bilingual lines. Five places each earn a heart — 🎨 Studio (paint to reveal a
   photo), 🍳 Kitchen (catch ingredients), 💪 Gym (tap reps → compliments),
   🧠 Memory Lane (photo pairs), ❓ Quiz (ends with a dodging "No" button) —
-  then a 💌 Secret Room (typed love letter, slideshow, video).
-- **Stack:** Plain HTML + CSS + vanilla ES modules, no build, no deps.
-  Fonts from Google Fonts (Fraunces, Nunito). Canvas for paint/kitchen.
+  then a 💌 Secret Room — a cottage at the end of Memory Lane (a path lined
+  with framed photos) that unlocks with 5 hearts (typed love letter,
+  slideshow, video). A 2D card hub is the fallback when WebGL is unavailable.
+- **Stack:** Plain HTML + CSS + vanilla ES modules, no build. Three.js r170
+  vendored at `vendor/three.module.min.js` (~170 KB gzip, lazy-loaded only
+  when the world opens). Fonts: Fraunces, Nunito, Tajawal (Arabic).
 - **Structure:** `index.html`, `css/style.css`, `js/config.js` (ALL personal
-  content), `js/main.js` (hash router, hub, finale), `js/util.js`,
+  content), `js/main.js` (hash router: #world / #hub / #play/<id> / #finale),
+  `js/world.js` (3D island, avatar, NPC, colliders), `js/util.js`,
   `js/games/{paint,kitchen,gym,memory,quiz}.js` (each exports
   `start(stage, {config, done, back}) → cleanup`), `photos/`.
 - **Data:** progress in `localStorage` key `love-game:v1` (try/catch-safe).
+- **Music:** expects the owner's own copy of the song at `photos/idk.mp3`
+  (not shipped — copyright); the music button hides if the file is missing.
+- **Testing:** `?debug` exposes `window.__world.teleport(x, z)` for automated
+  walkthroughs (headless Chromium + SwiftShader).
 - **Privacy:** `photos/*` is **gitignored** because the repo is public — the
   real photos/video live only locally. Missing photos render placeholders.
 - **Deployment:** static. Vercel Root Directory `apps/love-game` (no build), or
@@ -235,6 +245,10 @@ _Last updated: 2026-10-03_
 
 ## Changelog
 
+- **2026-10-03** — For Her: replaced the card hub with a **walkable 3D island**
+  (Three.js), personalised for Shahuda (uni, first drive, "Talk Tik",
+  cinnamon buns, play-fighting), bilingual EN/AR touches, 5 more photos,
+  song hook for "IDK".
 - **2026-10-03** — Added **For Her** love mini-game in `apps/love-game/` (5 mini-games +
   secret room, config-driven, photos gitignored for privacy).
 

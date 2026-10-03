@@ -146,7 +146,7 @@ export function start(stage, { config, done, back }) {
     cancelAnimationFrame(raf);
     if (won) {
       done();
-      winPanel(stage, { title: `${k.dish} is served! 🍽️`, text: k.win, onNext: back });
+      winPanel(stage, { title: `${k.dish} are served! 🍽️`, text: k.win, img: k.photo, onNext: back });
     } else {
       overlay.hidden = false;
       overlay.innerHTML = `<p>The kitchen is on fire 🔥<br><small>(in a cute way)</small></p><button class="btn primary start">Try again</button>`;

@@ -1,5 +1,14 @@
 export const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+export function supportsWebGL() {
+  try {
+    const c = document.createElement('canvas');
+    return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')));
+  } catch {
+    return false;
+  }
+}
+
 export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 export function shuffle(arr) {

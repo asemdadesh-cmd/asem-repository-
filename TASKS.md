@@ -24,15 +24,18 @@ _Last updated: 2026-10-03_
 - [x] Build **Stash** money tracker (`apps/money-tracker/`) — Vercel-ready,
       tests + build passing
 - [x] Build **For Her** love mini-game (`apps/love-game/`) — 5 games + secret room
+- [x] For Her: walkable 3D island hub (Three.js) with avatar, NPC, Memory Lane
+- [x] For Her: personalise (name, quiz, inside jokes, letter, EN/AR lines)
 
 ## 🔄 In Progress
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
-- [ ] For Her: personalise config (her name, start date, real quiz answers, letter)
+- [ ] For Her: add `photos/idk.mp3` (owner's copy of the song)
+- [ ] For Her: confirm Arabic spelling of "Talk Tik" + exact start date
 - [ ] For Her: make repo private (or use Netlify Drop) so photos can be deployed
-- [ ] For Her: optional Arabic version of the text
+- [ ] For Her: optional full Arabic/RTL toggle (currently mixed EN/AR lines)
 - [x] Localise Stash for Libya (LYD, categories, sample data, Arabic digits)
 - [ ] Stash: Arabic UI with RTL layout (language toggle)
 - [ ] Stash: cash vs bank tracking (Libya's cash-liquidity reality)

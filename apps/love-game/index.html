@@ -9,7 +9,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Nunito:wght@400;600;800&family=Tajawal:wght@500;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css" />
     <script type="module" src="js/main.js"></script>
   </head>
@@ -22,7 +22,8 @@
         <div class="cover"></div>
         <p class="kicker">a tiny world, made just for</p>
         <h1 tabindex="-1"><span class="her-name"></span> 💗</h1>
-        <p class="sub">Five little games. Five hearts to collect.<br />One secret room at the end.</p>
+        <p class="sub-ar" dir="rtl" lang="ar"></p>
+        <p class="sub">Walk around our little island. Five places, five hearts —<br />and one locked cottage at the end of Memory Lane.</p>
         <button class="btn primary big start">Let's play ✨</button>
       </section>
 
@@ -32,14 +33,18 @@
           <h1 tabindex="-1">Our little world</h1>
           <p class="days"></p>
           <p class="hearts" role="img"></p>
+          <button class="btn ghost to-world">🌍 Back to the 3D world</button>
         </header>
         <nav class="rooms" aria-label="Games"></nav>
       </section>
 
+      <!-- Walkable 3D island (js/world.js) -->
+      <section id="world" class="screen world" hidden></section>
+
       <!-- Active game -->
       <section id="play" class="screen" hidden>
         <header class="play-head">
-          <button class="btn ghost back" aria-label="Back to the map">← Map</button>
+          <button class="btn ghost back" aria-label="Back to our world">← Back</button>
           <h2 class="play-title" tabindex="-1"></h2>
         </header>
         <div class="stage"></div>
@@ -57,7 +62,10 @@
         </article>
         <div class="slides" aria-label="Our photos"></div>
         <div class="video" hidden></div>
-        <button class="btn ghost replay">Play it all again ↺</button>
+        <div class="finale-actions">
+          <button class="btn primary to-world">Back to our world 🌍</button>
+          <button class="btn ghost replay">Play it all again ↺</button>
+        </div>
       </section>
     </main>
 

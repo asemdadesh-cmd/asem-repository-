@@ -8,6 +8,17 @@ _Last updated: 2026-10-03_
 
 ---
 
+### 2026-10-03 — For Her: walkable 3D island as the hub (supersedes the 2D-only call)
+**Decision:** Replace the card hub with a Three.js island she walks around as an
+avatar; each mini-game is a place, Memory Lane is a path of framed photos, the
+Secret Room is a cottage. Keep the 2D mini-games as the activities, and the
+card hub as a no-WebGL fallback. Vendor Three.js r170 and lazy-load it.
+**Why:** The owner explicitly wanted a 3D world she can move around in — the
+earlier "2D is enough" call was wrong for the brief. Low-poly primitives (no
+model files) keep it light and fast on phones; photos are shown on unlit
+planes so they keep true colour. Vendoring avoids a CDN dependency on her
+phone. Trade-off: +170 KB gzip and a one-time "building world" moment.
+
 ### 2026-10-03 — For Her: 2D static web game, photos kept out of git
 **Decision:** Build the love game as a no-build static site (vanilla ES modules,
 canvas + DOM) with all personal content in one `js/config.js`, instead of a 3D

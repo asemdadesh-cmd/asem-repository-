@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js';
-import { loadProgress, saveProgress, photo, hearts, escapeHtml, reducedMotion } from './util.js';
+import { loadProgress, saveProgress, photo, hearts, escapeHtml, reducedMotion, toast, supportsWebGL } from './util.js';
 
 const GAMES = [
   { id: 'paint', emoji: '🎨', title: 'The Studio', blurb: 'Paint a hidden masterpiece', load: () => import('./games/paint.js') },
@@ -12,6 +12,7 @@ const GAMES = [
 const screens = {
   intro: document.getElementById('intro'),
   hub: document.getElementById('hub'),
+  world: document.getElementById('world'),
   play: document.getElementById('play'),
   finale: document.getElementById('finale'),
 };
@@ -19,15 +20,19 @@ const progress = loadProgress();
 let cleanup = null;
 let slideTimer = 0;
 let typeTimer = 0;
+let world = null; // the 3D island, built once on first visit
+let worldFailed = !supportsWebGL();
+const home = () => (worldFailed ? '#hub' : '#world');
 
 document.title = `For ${CONFIG.herName} 💗`;
 
 // ── Intro ──────────────────────────────────────────────────────────────────
 document.querySelector('#intro .her-name').textContent = CONFIG.herName;
+document.querySelector('#intro .sub-ar').textContent = CONFIG.introLineAr || '';
 document.querySelector('#intro .cover').appendChild(photo(CONFIG.coverPhoto, `${CONFIG.herName} and ${CONFIG.myName}`));
 document.querySelector('#intro .start').addEventListener('click', () => {
   startMusic();
-  go('#hub');
+  go(home());
 });
 
 // ── Music (optional) ───────────────────────────────────────────────────────
@@ -38,7 +43,14 @@ if (CONFIG.music) {
   audio.loop = true;
   audio.volume = 0.5;
   musicBtn.hidden = false;
-  musicBtn.addEventListener('click', () => (audio.paused ? audio.play().catch(() => {}) : audio.pause()));
+  musicBtn.title = CONFIG.musicTitle || 'Music';
+  // No mp3 at that path yet → hide the button instead of showing a dead one.
+  audio.addEventListener('error', () => {
+    musicBtn.hidden = true;
+    audio = null;
+  });
+  audio.addEventListener('play', () => CONFIG.musicTitle && toast(`🎵 ${CONFIG.musicTitle}`), { once: true });
+  musicBtn.addEventListener('click', () => audio && (audio.paused ? audio.play().catch(() => {}) : audio.pause()));
   audio.addEventListener('play', () => musicBtn.setAttribute('aria-pressed', 'true'));
   audio.addEventListener('pause', () => musicBtn.setAttribute('aria-pressed', 'false'));
 }
@@ -48,6 +60,7 @@ function startMusic() {
 
 // ── Hub ────────────────────────────────────────────────────────────────────
 function renderHub() {
+  screens.hub.querySelector('.to-world').hidden = worldFailed;
   const doneCount = GAMES.filter((g) => progress.has(g.id)).length;
   const all = doneCount === GAMES.length;
   screens.hub.querySelector('.days').textContent = daysTogether();
@@ -77,9 +90,34 @@ function renderHub() {
 }
 
 function daysTogether() {
+  if (!CONFIG.startDate) return CONFIG.togetherText || '';
   const start = new Date(`${CONFIG.startDate}T00:00:00`);
   const days = Math.floor((Date.now() - start) / 86400000);
-  return Number.isFinite(days) && days >= 0 ? `${days.toLocaleString()} days of us` : '';
+  return Number.isFinite(days) && days >= 0 ? `${days.toLocaleString()} days of us` : CONFIG.togetherText || '';
+}
+
+// ── 3D world ───────────────────────────────────────────────────────────────
+async function renderWorld() {
+  document.body.classList.add('in-world');
+  try {
+    if (!world) {
+      const { createWorld } = await import('./world.js');
+      world = await createWorld(screens.world, {
+        config: CONFIG,
+        games: GAMES,
+        isDone: (id) => progress.has(id),
+        onEnter: (id) => go(`#play/${id}`),
+        onFinale: () => go('#finale'),
+        onLocked: (n) => toast(`Locked 🔒 Collect all ${GAMES.length} hearts first (${n}/${GAMES.length})`),
+        onList: () => go('#hub'),
+      });
+    }
+    if (location.hash === '#world') world.resume();
+  } catch (err) {
+    console.error(err);
+    worldFailed = true;
+    go('#hub', true);
+  }
 }
 
 // ── Play ───────────────────────────────────────────────────────────────────
@@ -93,7 +131,7 @@ async function renderPlay(id) {
   if (location.hash !== `#play/${id}`) return; // navigated away while loading
   cleanup = mod.start(stage, {
     config: CONFIG,
-    back: () => go('#hub'),
+    back: () => go(home()),
     done: () => {
       progress.add(id);
       saveProgress(progress);
@@ -157,6 +195,8 @@ function go(hash, replace = false) {
 }
 
 function route() {
+  world?.pause();
+  document.body.classList.remove('in-world');
   cleanup?.();
   cleanup = null;
   clearInterval(slideTimer);
@@ -164,6 +204,7 @@ function route() {
   const h = location.hash;
   let name = 'intro';
   if (h === '#hub') name = 'hub';
+  else if (h === '#world') name = worldFailed ? 'hub' : 'world';
   else if (h.startsWith('#play/')) name = 'play';
   else if (h === '#finale') {
     name = GAMES.every((g) => progress.has(g.id)) ? 'finale' : 'hub';
@@ -172,16 +213,19 @@ function route() {
   window.scrollTo(0, 0);
 
   if (name === 'hub') renderHub();
+  if (name === 'world') renderWorld();
   if (name === 'play') renderPlay(h.slice(6));
   if (name === 'finale') renderFinale();
   screens[name].querySelector('h1, h2')?.focus({ preventScroll: true });
 }
 
-screens.play.querySelector('.back').addEventListener('click', () => go('#hub'));
+screens.play.querySelector('.back').addEventListener('click', () => go(home()));
+screens.hub.querySelector('.to-world').addEventListener('click', () => go('#world'));
+screens.finale.querySelector('.to-world').addEventListener('click', () => go(home()));
 screens.finale.querySelector('.replay').addEventListener('click', () => {
   progress.clear();
   saveProgress(progress);
-  go('#hub');
+  go(home());
 });
 window.addEventListener('hashchange', route);
 route();
