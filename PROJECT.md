@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-10-03_
 
 ---
 
@@ -24,6 +24,9 @@ _Last updated: 2026-09-21_
 - **Target users:** The repository owner (NHT Estates) and any collaborator who
   runs Claude Code in this repo. End beneficiaries are the clients whose
   websites/landing pages get built through the skill.
+- **Apps:** `apps/money-tracker/` — **Stash**, a local-first money tracker web
+  app (Vite + React + TS) deployable to Vercel as its own project. See the
+  "Apps" section below.
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
   documentation (this file + TASKS.md + DECISIONS.md) being established now.
@@ -60,6 +63,8 @@ _Last updated: 2026-09-21_
   │               └── reference/
   │                   ├── checklist.md    # final pass/fail approval checklist
   │                   └── rewrite-guide.md # copywriting & conversion patterns
+  ├── apps/
+  │   └── money-tracker/              # Stash money tracker (self-contained Vite app)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -97,10 +102,44 @@ _Last updated: 2026-09-21_
 
 ---
 
+## Apps
+
+### Stash — Money Tracker (`apps/money-tracker/`)
+- **Market:** Libya — LYD default currency, Libya-specific categories and
+  sample data, interest-free (halal) growth framing with a conservative 3%
+  default, Arabic-Indic digit input. UI language: English (Arabic/RTL planned).
+- **What:** Local-first personal finance app — transactions, budgets, savings
+  goals, insights ("next moves") and a compound-growth planner. Goal: help the
+  user spend less and save more.
+- **Stack:** Vite 8 + React 19 + TypeScript 7, plain CSS with design tokens
+  (light/dark), hand-rolled SVG charts, Vitest for unit tests. No backend.
+- **Structure:**
+  ```
+  apps/money-tracker/
+  ├── index.html, vercel.json, vite.config.ts, package.json (+ lockfile)
+  ├── public/            # favicon.svg, manifest.webmanifest, robots.txt
+  └── src/
+      ├── lib/           # types, store (useReducer + localStorage), money, dates,
+      │                  # stats, insights, projection, io (validate/backup/CSV), sample
+      ├── components/    # Icon, Sheet (<dialog>), MoneyInput, MonthSwitch, Charts, forms
+      └── views/         # Overview, Activity, Budgets, Goals, Grow, Settings
+  ```
+- **Data:** `localStorage` key `stash:v1`; money stored as integer minor units.
+  All loaded/imported data passes `parseState()` validation. Multi-tab sync via
+  the `storage` event.
+- **Environment:** none — no env vars, no third-party services.
+- **Deployment (Vercel):** import the repo, set **Root Directory =
+  `apps/money-tracker`**, deploy (Vite auto-detected; `npm run build` → `dist`).
+  `vercel.json` adds CSP + security headers, immutable asset caching, SPA
+  fallback. `npm run preview` serves the same headers locally.
+- **Checks:** `npm test` (18 unit tests), `npm run build` (typecheck + build).
+
+---
+
 ## Database
 
-- **Not applicable.** The project has no database. (Section retained so it can
-  be filled in if a data-backed website/app is added later.)
+- **Repo:** no database. **Stash** stores data client-side in `localStorage`
+  (see Apps → Stash); there is no server database.
 - Tables / Relationships / Schema / Indexes / Migrations: _none yet._
 
 ---
@@ -125,7 +164,7 @@ _Last updated: 2026-09-21_
 
 ## Environment
 
-- **Required environment variables:** _none._
+- **Required environment variables:** _none_ (including for Stash).
 - **Third-party services:** GitHub (hosting/version control); Claude Code (the
   agent that consumes the skill).
 - **Setup instructions:**
@@ -143,6 +182,7 @@ _Last updated: 2026-09-21_
 - **Deployment steps:** Commit and push to the working branch
   (`git push -u origin claude/agency-review-framework-3a8hk8`). The skill is
   "deployed" simply by being present in `.claude/skills/`.
+- **Stash:** Vercel project with Root Directory `apps/money-tracker` (see Apps).
 - **Hosting configuration:** _N/A for the repo._ Websites built with the skill
   are hosted per-project (documented in this file when that happens).
 
@@ -150,7 +190,14 @@ _Last updated: 2026-09-21_
 
 ## Known Issues
 
+- **Wasma Facebook via Composio:** token has all `pages_*` scopes but no Page is
+  granted, so Page reads/writes fail with OAuth #100. Fix: remove the Composio app in
+  Facebook → Business integrations, then reconnect and select the Page. Meta's API
+  cannot rename Pages or set profile/cover photos — those stay manual.
+
 - **Bugs:** None known.
+- **Stash limitations:** data is per-browser (no cloud sync); clearing site
+  data deletes it unless backed up. No recurring transactions yet.
 - **Technical debt:** Documentation currently updated manually; no automated
   enforcement that it stays in sync with changes.
 - **Limitations:** None currently. `claude/agency-review-framework-3a8hk8` is
@@ -173,6 +220,24 @@ _Last updated: 2026-09-21_
 ---
 
 ## Changelog
+
+- **2026-10-03** — Added **Wasma Digital** brand kit (`brand/wasma/`): logo sheet and
+  Facebook Page copy + first 3 launch posts. Facebook Page renamed to "Wasma Digital"
+  (ID `113981666722471`). Publishing via Composio is blocked until the Page is granted
+  to the Composio app (token has page scopes but `/me/accounts` returns no Pages).
+
+- **2026-10-02** — Localised **Stash for Libya**: LYD default currency (LYD first in the
+  list), categories for generator/electricity, mobile & internet, car & fuel,
+  family support, zakat & sadaqah, weddings & Eid; LYD sample data (Tripoli
+  salary, car/wedding/Umrah goals); Grow page reframed for interest-free saving
+  (gold, Islamic products, property) with a 3% default; amount inputs accept
+  Arabic-Indic digits and the "د.ل" sign.
+
+- **2026-10-02** — Added **Stash money tracker** in `apps/money-tracker/` (Vite + React +
+  TS, local-first): overview with savings-rate + insights, transactions, budgets
+  with auto-suggest, savings goals, compound-growth planner, JSON backup/restore,
+  CSV export, dark mode. Self-contained with its own `vercel.json` for one-step
+  Vercel deploys (Root Directory = `apps/money-tracker`).
 
 - **2026-09-21** — Added the **`council` plugin**: a three-lens deliberation skill
   (Skeptic / Builder / Risk) for costly or hard-to-reverse decisions. Runs
