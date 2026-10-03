@@ -486,7 +486,7 @@ export async function createWorld(root, { config, games, isDone, onEnter, onFina
   him.g.position.set(NPC[0], 0, NPC[1]);
   scene.add(him.g);
   colliders.push({ x: NPC[0], z: NPC[1], r: 0.55 });
-  const himTag = label(config.myName === 'Me' ? 'Me 🙋‍♂️' : `${config.myName} 🙋‍♂️`, { height: 0.42 });
+  const himTag = label(`${config.myName} 🙋‍♂️`, { height: 0.42 });
   himTag.position.set(0, 2.55, 0);
   him.g.add(himTag);
 

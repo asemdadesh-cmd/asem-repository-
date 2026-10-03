@@ -8,7 +8,7 @@
 export const CONFIG = {
   herName: 'Shahuda',          // what the game calls her (شهودة)
   herNameAr: 'شهودة',
-  myName: 'Me',                // your name — signs the letter and labels you in the 3D world
+  myName: 'Asem',              // signs the letter and labels you in the 3D world
   // Exact day you met (YYYY-MM-DD) turns on a "N days of us" counter.
   // Unknown? Leave '' and `togetherText` is shown instead.
   startDate: '',
