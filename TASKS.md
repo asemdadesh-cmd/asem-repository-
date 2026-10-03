@@ -28,7 +28,8 @@ _Last updated: 2026-10-03_
 - [x] Wasma: rename FB Page to "Wasma Digital" (done by owner)
 - [x] Wasma: draft Facebook Page copy + 3 launch posts (`brand/wasma/facebook-kit.md`)
 - [ ] Wasma: grant the Page to Composio, then push About/description/contact fields
-- [ ] Wasma: design profile picture, cover (1640×624) and launch post visuals
+- [x] Wasma: launch post visual (`brand/wasma/post-01-launch.png`)
+- [ ] Wasma: cover (1640×624) + carousel visuals
 - [ ] Wasma: publish launch posts after owner approval
 - [ ] Wasma: Instagram Business account linked to the Page (after FB is live)
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +

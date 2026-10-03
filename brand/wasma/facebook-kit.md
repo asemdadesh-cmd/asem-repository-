@@ -64,7 +64,7 @@ toolkit once the Page is granted to the Composio app.
 >
 > #WebDesign #SmallBusiness #Automation #AI #وسمة
 
-_Visual:_ logo on off-white, lime square accent, tagline "Look sharp. Run smarter."
+_Visual:_ `post-01-launch.png` (1080×1350, source `post-01-launch.html`).
 
 ### Post 2 — Services carousel
 
