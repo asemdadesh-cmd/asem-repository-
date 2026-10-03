@@ -167,11 +167,14 @@ _Last updated: 2026-10-03_
   placeholders. **The key is never committed** — it exists only in the link.
   To change photos: update `photos/`, run `node scripts/encrypt-media.mjs <key>`
   (reuse the key so the existing link keeps working), commit `media/`, redeploy.
-- **Deployment:** its own Vercel project **`shahuda-world`** (separate from
-  every other project), Git-linked to this repo with Root Directory
-  `apps/love-game`, framework "Other", no build; only rebuilds when that folder
-  changes. Production is public at the project URL; she opens the link with
-  `#k=<key>` once. `noindex` meta + `X-Robots-Tag` header.
+- **Deployment:** lives in its own **private** repo
+  `asemdadesh-cmd/Shahed-world-` (game at repo root, real photos committed
+  there in `photos/`, no encryption needed). Deployed as its own Vercel project
+  imported from that repo (framework "Other", root `./`, no build) — fully
+  separate from every other project. `apps/love-game/` here is the dev copy;
+  sync changes to `Shahed-world-` to deploy. `noindex` meta + `X-Robots-Tag`.
+  (The encrypted-media path in `media/` + `js/media.js` remains as a fallback
+  for deploying from this public repo.)
 
 ---
 
@@ -255,6 +258,8 @@ _Last updated: 2026-10-03_
 
 ## Changelog
 
+- **2026-10-03** — For Her: moved deployment to private repo `Shahed-world-`
+  with plaintext photos; Vercel project imported from it.
 - **2026-10-03** — For Her: encrypted media (AES-GCM, key in link fragment)
   and deployed as separate Vercel project `shahuda-world`; NPC/letter now "Asem".
 - **2026-10-03** — For Her: replaced the card hub with a **walkable 3D island**
