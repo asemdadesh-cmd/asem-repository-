@@ -4,7 +4,7 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-03_
 
 ---
 
@@ -42,6 +42,32 @@ no photography (a premium tier could add it via kie.ai), `mailto:` forms instead
 being unmodified means bespoke behaviour lives in each page's own JS.
 **Also:** Brand name "Northlight" and all prices are placeholders; demos are `noindex` and labelled fictional; no
 testimonials or statistics are invented anywhere.
+
+### 2026-10-02 — Stash targets Libya: LYD, interest-free framing, English UI first
+**Decision:** Default Stash to the Libyan dinar with Libya-specific categories and
+sample data; replace "investment return" with "expected yearly growth" at a
+conservative 3% default; accept Arabic-Indic digits in amount fields. Keep
+money stored as 1/100 units and display LYD with at most 2 decimals.
+**Why:** The owner is in Libya. Libyan banks operate interest-free (Law No. 1 of
+2013), so a "6% index fund return" was misleading; savers there use gold,
+Islamic products, property or small businesses. LYD's ISO minor unit is 1/1000
+(dirham), but dirhams are not used in daily prices, so 2-decimal display avoids
+noise like "LYD 12.500" without a data migration. Arabic keyboards on phones
+type ٠-٩, which the parser previously dropped. Trade-off: UI stays English for
+now; a full Arabic/RTL translation is planned as its own change.
+
+### 2026-10-02 — Stash: local-first Vite SPA in its own folder
+**Decision:** Build the money tracker as a static Vite + React + TypeScript SPA
+in `apps/money-tracker/`, storing data in `localStorage` (integer minor units),
+with its own lockfile and `vercel.json`. Charts are hand-rolled SVG.
+**Why:** The brief was "deploys to Vercel with no trouble". A static build with
+no backend, no env vars and no auth has nothing to misconfigure; the folder is
+self-contained so Vercel only needs Root Directory set. Local-first also means
+financial data never leaves the device (no privacy/compliance surface). Vite
+over Next.js: no server features needed, smaller and simpler. SVG charts over a
+chart library: three simple charts didn't justify ~100KB+ of JS. Trade-off: no
+multi-device sync and data loss if browser storage is cleared — mitigated with
+JSON backup/restore; cloud sync is in the backlog.
 
 ### 2026-09-21 — Three lenses, not eighteen personas
 **Decision:** Build the `council` plugin around three functional lenses

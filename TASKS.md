@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-03_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -21,6 +21,8 @@ _Last updated: 2026-10-02_
 
 - [x] Create the `council` plugin (3-lens deliberation skill + 3 agents)
 - [x] Register `council` in the marketplace manifest
+- [x] Build **Stash** money tracker (`apps/money-tracker/`) — Vercel-ready,
+      tests + build passing
 
 - [x] Install scroll-craft (vendored engine in `web/assets/vendor/`, MIT licence kept)
 - [x] Build 5 demo sites in 5 industries / 5 grammars (`web/demos/`)
@@ -42,10 +44,18 @@ _Last updated: 2026-10-02_
 - [ ] Owner: open the Facebook Page and Instagram per `marketing/LAUNCH-KIT.md`
 - [ ] Swap `mailto:` forms for a real form endpoint (Formspree / Netlify Forms)
 - [ ] Add a first real case study + testimonial to the sales site once a client says yes
+- [x] Localise Stash for Libya (LYD, categories, sample data, Arabic digits)
+- [ ] Stash: Arabic UI with RTL layout (language toggle)
+- [ ] Stash: cash vs bank tracking (Libya's cash-liquidity reality)
+- [ ] Deploy Stash to Vercel (Root Directory `apps/money-tracker`)
+- [ ] Stash: recurring transactions (rent, salary, subscriptions)
+
 - [ ] Dogfood `council` on one real decision and tune the round word limits
 
 ## 💤 Backlog
 - [ ] Generate photographic assets (kie.ai) for a premium tier of demos
 - [ ] Arabic-first version of the sales site
+- [ ] Stash: optional cloud sync / accounts (e.g. Supabase) for multi-device use
+- [ ] Stash: offline service worker (full PWA)
 - [ ] Create a `website-scaffold` skill for consistent starter structure
 - [ ] Add per-website deployment notes once a real site is built
