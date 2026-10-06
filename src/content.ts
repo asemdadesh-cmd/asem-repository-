@@ -1,4 +1,4 @@
-// Her photos + drawings. Files live in public/assets/private (never committed).
+// Her photos + drawings. Never committed: served from private storage via /api/photo/.
 
 export interface Picture {
   id: string;
@@ -26,7 +26,7 @@ export const ARTWORKS: Picture[] = [
   { id: 'clay-cat', file: 'art-clay-cat', title: 'القط الكسول', caption: 'منحوتة صلصال — من يدين يسو 🐈 (هي اللي ألهمات مشيشة)', w: 761, h: 1280 },
 ];
 
-export const assetUrl = (file: string, small = false) => `/assets/private/${file}${small ? '-sm' : ''}.jpg`;
+export const assetUrl = (file: string, small = false) => `/api/photo/${file}${small ? '-sm' : ''}.jpg`;
 
 export const CLUB_RULES = [
   '١. ممنوع الزعاف… إلا فالمزاح 😤',

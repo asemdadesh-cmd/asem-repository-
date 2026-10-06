@@ -2,6 +2,22 @@ import { defineConfig, type Plugin, type PreviewServer, type ViteDevServer } fro
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { handle } from './server/handlers.ts';
 import { MemoryKV } from './server/store.ts';
+import type { PhotoStore } from './server/photos.ts';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+
+// Locally the "uploaded" photos are the resized files from `npm run assets`.
+const diskPhotos: PhotoStore = {
+  async get(name) {
+    const f = `private-assets/web/${name}`;
+    return existsSync(f) ? new Uint8Array(readFileSync(f)) : null;
+  },
+  async put() {
+    throw new Error('read-only locally');
+  },
+  async list() {
+    return existsSync('private-assets/web') ? readdirSync('private-assets/web').sort() : [];
+  },
+};
 
 // In dev/preview the Netlify Function runs as middleware against an in-memory
 // store, and two local MQTT brokers stand in for the public relays.
@@ -12,16 +28,16 @@ function localBackend(): Plugin {
       if (!req.url?.startsWith('/api/')) return next();
       const chunks: Buffer[] = [];
       for await (const c of req) chunks.push(c as Buffer);
-      const body = chunks.length ? Buffer.concat(chunks).toString('utf8') : undefined;
+      const body = chunks.length ? Buffer.concat(chunks) : undefined;
       const request = new Request(`http://localhost${req.url}`, {
         method: req.method,
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': String(req.headers['content-type'] ?? 'application/json') },
         body: req.method === 'GET' || req.method === 'HEAD' ? undefined : body,
       });
-      const response = await handle(request, { kv, now: Date.now, claimSettleMs: 50 });
+      const response = await handle(request, { kv, now: Date.now, claimSettleMs: 50, photos: diskPhotos });
       res.statusCode = response.status;
       response.headers.forEach((v, k) => res.setHeader(k, v));
-      res.end(await response.text());
+      res.end(Buffer.from(await response.arrayBuffer()));
     });
   };
   const brokers = async () => {

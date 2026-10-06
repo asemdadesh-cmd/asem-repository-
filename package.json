@@ -24,6 +24,10 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@gltf-transform/cli": "^4.5.1",
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
     "@netlify/functions": "^6.0.2",
     "@types/node": "^26.6.4",
     "@types/three": "^0.186.0",

@@ -65,10 +65,18 @@ buttons on the right, tap to walk, drag to look, pinch to zoom. The phone camera
 
 ## Private photos
 
-Her photos and drawings are **not in git**. They live in `private-assets/raw/` (gitignored).
-`npm run assets` writes resized copies to `public/assets/private/` (also gitignored), and the
-deploy copies those into the site. The site is `noindex`. If the folder is missing, the frames
-show 🖼️ placeholders.
+Her photos and drawings are **not in git and not in the build**. Originals live in
+`private-assets/raw/` (gitignored), and `npm run assets` writes resized copies to
+`private-assets/web/`. On the live site they're stored privately in Netlify Blobs and served from
+`/api/photo/*`. Upload them once, either way:
+
+```bash
+PRC_ADMIN_KEY=… node scripts/upload-photos.mjs https://pink-riot-club.netlify.app
+```
+
+or open `https://pink-riot-club.netlify.app/upload.html` on a phone, enter the key, and pick a
+photo for each slot (they're resized on the phone). Locally, the dev server serves
+`private-assets/web/` directly. Missing photos show 🖼️ placeholders.
 
 ## Develop
 
@@ -89,9 +97,14 @@ node tests/e2e/run.mjs http://localhost:5174/
 
 ## Deploy (Netlify)
 
-1. `bash scripts/stage-deploy.sh /tmp/pink-riot-deploy`. This builds a clean folder with the
-   source and the resized photos only.
-2. Deploy that folder to the Netlify site (Netlify CLI or the Netlify MCP `deploy-site`). Netlify
-   runs `npm run build` and bundles `netlify/functions/api.mts`. Blobs need no configuration.
+**Git (recommended):** in Netlify, open the `pink-riot-club` project → Project configuration →
+Build & deploy → **Link repository** → pick this repo, branch `main`. `netlify.toml` already sets
+the build (`npm run build` → `dist`) and the function. Every push redeploys.
+
+**Manual:** `bash scripts/stage-deploy.sh /tmp/pink-riot-deploy` builds a clean source-only
+folder; deploy it with the Netlify CLI or the MCP `deploy-site`.
+
+Required env var: `PRC_ADMIN_KEY` (secret, functions scope) for photo uploads. Blobs need no
+configuration.
 
 Configuration: `VITE_BROKERS` (comma-separated `wss://` URLs) overrides the relays at build time.

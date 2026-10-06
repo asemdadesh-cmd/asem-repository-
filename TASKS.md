@@ -13,10 +13,15 @@ Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 - [x] Shared drawing board + PNG export; her drawings + photos in the studio/gallery
 - [x] Lobby, invite link + QR, HUD, settings, map teleport, mobile controls
 - [x] Performance: static batching, merged character parts, adaptive resolution
-- [x] Unit tests (20) + two-device e2e (16/16)
+- [x] Unit tests (24) + two-device e2e (16/16)
+- [x] Photos served from private Netlify Blobs + admin upload (script and /upload.html), so Git-linked deploys work
+- [x] `PRC_ADMIN_KEY` set on the Netlify project
 
 ## 🔄 In progress
-- [ ] Deploy to Netlify (blocked: egress policy) and push to GitHub `pink-riot-club` (blocked: repo creation)
+- [ ] Push to GitHub `pink-riot-club`. Blocked until the owner creates the empty repo (the integration gets a 403 creating repos)
+- [ ] Link the Netlify project to the repo (owner, in Netlify UI), or open the egress policy so it can be deployed from here
+- [ ] Upload the photos (needs egress to the site, or the owner uses /upload.html)
+- [ ] Pro 3D upgrade: skinned models + mocap animations, HDRI + post-processing, paired interactions (hug, cheek kiss, blown kiss, high five, dance together, hold hands)
 
 ## ⬜ Planned
 - [ ] Verify the deployed site from two real phones (Morocco + Libya networks)

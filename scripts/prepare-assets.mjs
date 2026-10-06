@@ -1,11 +1,12 @@
 // Resizes the private photos/drawings in private-assets/raw into
-// public/assets/private (gitignored). Run: npm run assets
+// private-assets/web (gitignored). Upload them with scripts/upload-photos.mjs.
+// Run: npm run assets
 import sharp from 'sharp';
 import { mkdirSync, readdirSync, existsSync } from 'node:fs';
 import { join, parse } from 'node:path';
 
 const SRC = 'private-assets/raw';
-const OUT = 'public/assets/private';
+const OUT = 'private-assets/web';
 if (!existsSync(SRC)) {
   console.warn(`[assets] ${SRC} missing — the gallery will show placeholders.`);
   process.exit(0);

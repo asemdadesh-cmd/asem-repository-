@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>صور النادي — Upload</title>
+<style>
+  :root { --pink: #ff5fa2; --ink: #3b1830; --bg: #fff3f8; --card: #ffffff; --line: #f5c6dc; --ok: #20a37a; --bad: #d23c5a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.5 system-ui, "Segoe UI", Tahoma, sans-serif; background: var(--bg); color: var(--ink); }
+  main { max-width: 720px; margin: 0 auto; padding: 20px 16px 48px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  p.sub { margin: 0 0 18px; opacity: .75; font-size: .95rem; }
+  .key { display: flex; gap: 8px; margin-bottom: 18px; }
+  input[type=password] { flex: 1; min-width: 0; padding: 12px 14px; border: 2px solid var(--line); border-radius: 12px; font: inherit; direction: ltr; }
+  button { padding: 12px 16px; border: 0; border-radius: 12px; background: var(--pink); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .slot { background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .slot img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 10px; background: #fde4ef; }
+  .slot .t { font-weight: 700; }
+  .slot .f { font-size: .8rem; opacity: .6; direction: ltr; text-align: left; }
+  .slot label { display: block; text-align: center; padding: 10px; border: 2px dashed var(--pink); border-radius: 10px; color: var(--pink); font-weight: 700; cursor: pointer; }
+  .slot input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .st { font-size: .85rem; min-height: 1.3em; }
+  .st.ok { color: var(--ok); } .st.bad { color: var(--bad); }
+  #msg { margin: 0 0 14px; min-height: 1.4em; font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🖼️ صور نادي التخربيق</h1>
+  <p class="sub">Upload the gallery photos once. They're stored privately on Netlify, never in git. Each photo is resized on your phone before upload.</p>
+  <div class="key">
+    <input id="key" type="password" placeholder="Admin key" autocomplete="off" aria-label="Admin key" />
+    <button id="check" type="button">دخول</button>
+  </div>
+  <p id="msg" role="status"></p>
+  <div class="grid" id="grid"></div>
+</main>
+<script>
+  const SLOTS = [
+    ['photo-together', 'عاصم × يسو (الصورة المميزة)'],
+    ['photo-kaftan', 'القفطان'],
+    ['photo-teddy', 'الدبدوب'],
+    ['photo-night', 'ليلة ستايل'],
+    ['photo-garden', 'استراحة'],
+    ['photo-sun', 'سلام يا الشمس'],
+    ['photo-mirror', 'سيلفي'],
+    ['art-cat-watercolor', 'رسمة: قطة الضباب'],
+    ['art-hug', 'رسمة: حضن الألوان'],
+    ['art-clay-cat', 'منحوتة: القط الكسول'],
+  ];
+  const $ = (id) => document.getElementById(id);
+  const keyInput = $('key');
+  try { keyInput.value = sessionStorage.getItem('prc:admin') || ''; } catch {}
+  const msg = (t, bad) => { $('msg').textContent = t; $('msg').style.color = bad ? 'var(--bad)' : 'var(--ok)'; };
+
+  function render(existing) {
+    const grid = $('grid');
+    grid.textContent = '';
+    for (const [file, title] of SLOTS) {
+      const slot = document.createElement('div');
+      slot.className = 'slot';
+      const img = document.createElement('img');
+      img.alt = title;
+      if (existing.has(file + '-sm.jpg')) img.src = `/api/photo/${file}-sm.jpg?v=${Date.now()}`;
+      const t = document.createElement('div'); t.className = 't'; t.textContent = title;
+      const f = document.createElement('div'); f.className = 'f'; f.textContent = file + '.jpg';
+      const label = document.createElement('label');
+      label.textContent = existing.has(file + '.jpg') ? 'تبديل الصورة' : 'اختار صورة';
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/*';
+      label.appendChild(input);
+      const st = document.createElement('div'); st.className = 'st';
+      st.textContent = existing.has(file + '.jpg') ? '✓ مرفوعة' : '—';
+      if (existing.has(file + '.jpg')) st.classList.add('ok');
+      input.onchange = async () => {
+        const src = input.files && input.files[0];
+        if (!src) return;
+        st.className = 'st'; st.textContent = '… جاري الرفع';
+        try {
+          const big = await resize(src, 1600, 0.84);
+          const small = await resize(src, 640, 0.8);
+          await put(file + '.jpg', big);
+          await put(file + '-sm.jpg', small);
+          img.src = URL.createObjectURL(small);
+          st.className = 'st ok'; st.textContent = '✓ مرفوعة';
+          label.firstChild.textContent = 'تبديل الصورة';
+        } catch (e) {
+          st.className = 'st bad'; st.textContent = '✗ ' + e.message;
+        }
+        input.value = '';
+      };
+      slot.append(img, t, f, label, st);
+      grid.appendChild(slot);
+    }
+  }
+
+  async function resize(file, max, quality) {
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise((ok, no) => c.toBlob((b) => (b ? ok(b) : no(new Error('encode failed'))), 'image/jpeg', quality));
+  }
+
+  async function put(name, blob) {
+    const res = await fetch(`/api/admin/photo/${name}`, { method: 'PUT', headers: { 'x-admin-key': keyInput.value.trim(), 'content-type': 'image/jpeg' }, body: blob });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || res.status);
+  }
+
+  async function login() {
+    const key = keyInput.value.trim();
+    if (!key) return msg('دخّل المفتاح', true);
+    const res = await fetch('/api/admin/photos', { headers: { 'x-admin-key': key } });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { $('grid').textContent = ''; return msg(data.message || 'Error ' + res.status, true); }
+    try { sessionStorage.setItem('prc:admin', key); } catch {}
+    const have = new Set(data.photos);
+    msg(`✓ ${SLOTS.filter(([f]) => have.has(f + '.jpg')).length}/${SLOTS.length} مرفوعين`);
+    render(have);
+  }
+  $('check').onclick = login;
+  keyInput.onkeydown = (e) => { if (e.key === 'Enter') login(); };
+  if (keyInput.value) login();
+</script>
+</body>
+</html>

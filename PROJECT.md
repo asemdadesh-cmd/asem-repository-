@@ -30,10 +30,11 @@ src/world/                  sky, water shaders, terrain, props, World (areas + b
 src/game/                   Game loop, Avatar, input/camera, football, pool, drawing, fx, audio
 src/ui/                     lobby, HUD, panels (lightbox, drawing, invite, settings…), CSS
 src/content.ts              photo/drawing captions, rules, quick lines
-scripts/                    prepare-assets (sharp), local-broker (aedes), stage-deploy
+scripts/                    prepare-assets (sharp), upload-photos, local-broker (aedes), stage-deploy
 tests/                      vitest (rules, API), e2e (Playwright two-device), screenshot tools
+public/upload.html          admin page: resize + upload gallery photos from a phone
 private-assets/raw/         ORIGINAL photos (gitignored)
-public/assets/private/      resized photos (gitignored, shipped with the deploy)
+private-assets/web/         resized photos (gitignored; uploaded to Blobs, never bundled)
 ```
 
 ## Data model (Netlify Blobs, store `pink-riot-prod` / `pink-riot-preview`)
@@ -42,6 +43,7 @@ public/assets/private/      resized photos (gitignored, shipped with the deploy)
 - `room/{code}/ev/{football|pool}/{ts13}-{scorer}-{reporter}-{eventId}` — one key per score attempt
 - `room/{code}/canvas/{1|2}` — `{epoch, strokes[]}` (each seat writes only its own key)
 - `room/{code}/canvas-epoch` — `{epoch}` (incremented by "clear")
+- Store `pink-riot-photos` (shared by all deploy contexts): `{name}.jpg` / `{name}-sm.jpg` JPEG bytes
 
 ## API
 | Method | Path | Body / query | Notes |
@@ -54,6 +56,9 @@ public/assets/private/      resized photos (gitignored, shipped with the deploy)
 | POST | /api/score | code, token, game, eventId, scorer? / from,to | dedupe, rate limit, presence, pool bounds |
 | GET/POST | /api/canvas | code, token, epoch, strokes | per-seat stroke lists |
 | POST | /api/canvas/clear | code, token | new epoch |
+| GET | /api/photo/{name}.jpg | — | private photo from Blobs (`noindex`, 1 h private cache) |
+| PUT | /api/admin/photo/{name}.jpg | raw JPEG, header `x-admin-key` | ≤ 3 MB, JPEG magic checked |
+| GET | /api/admin/photos | header `x-admin-key` | list uploaded photos |
 
 Rules: football round to 3 (min 2.5 s between goals), pool round to 5 (0.55 s per thrower),
 2.5 s round break, scoring requires the friend's heartbeat within 45 s, seats are leased for 75 s.
@@ -62,21 +67,29 @@ Rules: football round to 3 (min 2.5 s between goals), pool round to 5 (0.55 s pe
 - Seat tokens (24 random bytes) are stored hashed. Every write needs a valid token.
 - Relay traffic is AES-GCM encrypted. The topic and key only reach seated players.
 - Inputs are validated strictly (names, codes, characters, strokes, positions). Payloads are capped at 3 MB.
-- `X-Robots-Tag: noindex` plus security headers in `netlify.toml`. Photos never go into git.
+- `X-Robots-Tag: noindex` plus security headers in `netlify.toml`. Photos never go into git or
+  the deploy bundle: they live in Netlify Blobs and uploads need `PRC_ADMIN_KEY`.
 
 ## Environment
-- No secrets or env vars are required. Optional: `VITE_BROKERS` (relay list at build time).
+- `PRC_ADMIN_KEY` (secret, functions scope; already set on the Netlify project) unlocks photo
+  uploads. A local copy lives in `private-assets/admin-key.env` (gitignored).
+- Optional: `VITE_BROKERS` (relay list at build time).
 - Dev/test flags: `PRC_NO_LOCAL_BROKER=1`, `PRC_LOCAL_RELAYS=1` (build against local relays),
   and `?lowfx=1` (low-res rendering for automated tests).
 
 ## Deployment
 - Netlify project (standalone; not linked to any other project). Build: `npm run build`, publish `dist`.
-- Deploy from `scripts/stage-deploy.sh` output (source + resized photos only).
-- **Status:** not yet deployed. The session's egress policy blocks the Netlify deploy
-  endpoint, and the GitHub integration can't create repos (see Known issues).
+- **Preferred:** link the Netlify project to the GitHub repo `pink-riot-club`. Every push to
+  `main` builds and deploys. Git builds contain no photos, which is fine: the gallery reads
+  them from Blobs.
+- **Alternative:** CLI/MCP deploy of the `scripts/stage-deploy.sh` output (source only).
+- **Photos (once):** `PRC_ADMIN_KEY=… node scripts/upload-photos.mjs https://pink-riot-club.netlify.app`,
+  or open `/upload.html` on a phone and upload them per slot.
+- **Status:** not yet deployed. The GitHub integration can't create repos, and the session's
+  egress policy blocks Netlify hosts (see Known issues).
 
 ## Testing
-- `npm test`: 20 unit tests (scoring replay, dedupe races, rooms, capacity, leases, canvas).
+- `npm test`: 24 unit tests (scoring replay, dedupe races, rooms, capacity, leases, canvas, photo storage/auth).
 - `node tests/e2e/run.mjs`: 16 two-device checks. **16/16 passing locally** (2026-10-06).
 
 ## Known issues / limitations
@@ -92,6 +105,9 @@ Rules: football round to 3 (min 2.5 s between goals), pool round to 5 (0.55 s pe
 - Character customisation (outfit colours), more emotes, a sound toggle per effect.
 
 ## Changelog
+- **2026-10-06** — Photos moved to private Netlify Blobs (`/api/photo/*`), with an admin upload
+  API, `scripts/upload-photos.mjs` and `/upload.html`. Builds are now photo-free, so a
+  GitHub-linked Netlify deploy works. `PRC_ADMIN_KEY` set on the project. Tests: 24 unit, 16/16 e2e.
 - **2026-10-06** — Initial build: 8 characters, island world, football/pool/drawing/gallery,
   Netlify API + Blobs, dual-relay encrypted realtime, reconnection, adaptive quality,
   unit + two-device e2e tests.

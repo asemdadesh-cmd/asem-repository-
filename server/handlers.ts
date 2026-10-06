@@ -16,12 +16,17 @@ import type {
 import { inPool, PRESENCE_FRESH_MS, SEAT_LEASE_MS, type GameKind, type Seat } from '../shared/world.ts';
 import { eventKey, isValidEventId, parseEventKey, replay, type ScoreEvent } from './rules.ts';
 import type { KV } from './store.ts';
+import { isJpeg, MAX_PHOTO_BYTES, PHOTO_NAME, type PhotoStore } from './photos.ts';
 
 export interface Ctx {
   kv: KV;
   now: () => number;
   /** Delay before confirming a seat claim (lets racing writes land). */
   claimSettleMs?: number;
+  /** Private photo storage (Blobs in prod, disk/memory locally). */
+  photos?: PhotoStore;
+  /** Secret for photo uploads (env PRC_ADMIN_KEY). Uploads are disabled when unset. */
+  adminKey?: string;
 }
 
 interface RoomMeta {
@@ -460,6 +465,43 @@ async function clearCanvas(req: Request, ctx: Ctx): Promise<Response> {
   return json({ ok: true, epoch });
 }
 
+// ---------- private photos ----------
+
+async function getPhoto(name: string, ctx: Ctx): Promise<Response> {
+  if (!PHOTO_NAME.test(name) || !ctx.photos) throw new HttpError(404, 'not-found', 'No such photo');
+  const bytes = await ctx.photos.get(name);
+  if (!bytes) throw new HttpError(404, 'not-found', 'No such photo');
+  return new Response(bytes as BodyInit, {
+    headers: {
+      'content-type': 'image/jpeg',
+      'cache-control': 'private, max-age=3600',
+      'x-robots-tag': 'noindex, nofollow, noarchive',
+    },
+  });
+}
+
+async function requireAdmin(req: Request, ctx: Ctx) {
+  const given = req.headers.get('x-admin-key') ?? '';
+  if (!ctx.adminKey || ctx.adminKey.length < 16) throw new HttpError(403, 'disabled', 'Uploads are disabled');
+  // compare digests so the check doesn't leak the key through timing
+  if (!given || (await sha256(given)) !== (await sha256(ctx.adminKey))) throw new HttpError(401, 'bad-key', 'Wrong key');
+}
+
+async function putPhoto(name: string, req: Request, ctx: Ctx): Promise<Response> {
+  await requireAdmin(req, ctx);
+  if (!PHOTO_NAME.test(name) || !ctx.photos) throw new HttpError(400, 'bad-name', 'Bad photo name');
+  const bytes = new Uint8Array(await req.arrayBuffer());
+  if (bytes.length > MAX_PHOTO_BYTES) throw new HttpError(413, 'too-big', 'Photo too large');
+  if (!isJpeg(bytes)) throw new HttpError(415, 'not-jpeg', 'JPEG only');
+  await ctx.photos.put(name, bytes);
+  return json({ ok: true, name, bytes: bytes.length });
+}
+
+async function listPhotos(req: Request, ctx: Ctx): Promise<Response> {
+  await requireAdmin(req, ctx);
+  return json({ ok: true, photos: ctx.photos ? await ctx.photos.list() : [] });
+}
+
 export async function handle(req: Request, ctx: Ctx): Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, '');
@@ -474,6 +516,9 @@ export async function handle(req: Request, ctx: Ctx): Promise<Response> {
     if (req.method === 'GET' && path === '/api/canvas') return await getCanvas(url, ctx);
     if (req.method === 'POST' && path === '/api/canvas') return await saveCanvas(req, ctx);
     if (req.method === 'POST' && path === '/api/canvas/clear') return await clearCanvas(req, ctx);
+    if (req.method === 'GET' && path.startsWith('/api/photo/')) return await getPhoto(path.slice(11), ctx);
+    if (req.method === 'PUT' && path.startsWith('/api/admin/photo/')) return await putPhoto(path.slice(17), req, ctx);
+    if (req.method === 'GET' && path === '/api/admin/photos') return await listPhotos(req, ctx);
     return json({ ok: false, error: 'not-found', message: 'Unknown endpoint' }, 404);
   } catch (err) {
     if (err instanceof HttpError) return json({ ok: false, error: err.code, message: err.message }, err.status);
