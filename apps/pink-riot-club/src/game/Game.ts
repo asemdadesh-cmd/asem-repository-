@@ -22,6 +22,13 @@ import { isSmall, isTouch } from '../ui/dom.ts';
 import { openChat, openDrawing, openInvite, openLightbox, openMap, openRules, openAbout, openSettings } from '../ui/panels.ts';
 import { metaFor } from '../characters/roster.ts';
 import { setMaxAnisotropy } from '../gfx/textures.ts';
+import { applyEnvironment } from '../gfx/env.ts';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
 
 interface Snap {
   t: number;
@@ -100,7 +107,7 @@ export class Game {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     setMaxAnisotropy(Math.min(8, this.renderer.capabilities.getMaxAnisotropy()));
     this.world = new World(mobile ? 'low' : 'high');
-    this.world.scene.environment = this.makeEnv();
+    applyEnvironment(this.renderer, this.world.scene, 0.5);
     this.world.scene.add(this.effects.group);
     this.cam = new FollowCamera(mobile);
     try {
@@ -199,6 +206,7 @@ export class Game {
     const peer = session.state.seats.find((s) => s.seat === session.peerSeat);
     if (peer) this.ensureRemote(peer.character, peer.name);
 
+    this.setupPost();
     addEventListener('resize', this.onResize);
     this.onResize();
     document.addEventListener('visibilitychange', this.onVis);
@@ -207,14 +215,27 @@ export class Game {
     if (!session.state.seats.some((s) => s.seat === session.peerSeat)) setTimeout(() => !session.isPeerOnline && this.invite(), 900);
   }
 
-  private makeEnv(): THREE.Texture {
-    const pm = new THREE.PMREMGenerator(this.renderer);
-    const s = new THREE.Scene();
-    s.background = new THREE.Color('#ffdbe6');
-    s.add(new THREE.HemisphereLight('#fff6f0', '#9fe3c0', 2.6));
-    const t = pm.fromScene(s, 0.04).texture;
-    pm.dispose();
-    return t;
+  /** Desktop-class GPUs: MSAA + gentle bloom on highlights + a soft vignette. */
+  private composer: EffectComposer | null = null;
+  private setupPost() {
+    if (this.lowfx || isTouch() || isSmall() || this.renderer.capabilities.maxSamples < 4) return;
+    const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
+    const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: 4 });
+    const c = new EffectComposer(this.renderer, rt);
+    c.addPass(new RenderPass(this.world.scene, this.cam.camera));
+    // threshold in linear HDR: only true highlights (water glints, gold, sun) glow
+    c.addPass(new UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.18, 0.4, 2.4));
+    c.addPass(new OutputPass());
+    const vignette = new ShaderPass(VignetteShader);
+    vignette.uniforms.offset.value = 0.95;
+    vignette.uniforms.darkness.value = 0.55;
+    c.addPass(vignette);
+    this.composer = c;
+  }
+
+  private dropPost() {
+    this.composer?.dispose();
+    this.composer = null;
   }
 
   start() {
@@ -229,6 +250,10 @@ export class Game {
     const w = innerWidth;
     const h = innerHeight;
     this.renderer.setSize(w, h, false);
+    if (this.composer) {
+      this.composer.setPixelRatio(this.renderer.getPixelRatio());
+      this.composer.setSize(w, h);
+    }
     this.cam.camera.aspect = w / h;
     this.cam.setMobile(isTouch() || isSmall());
     this.cam.camera.updateProjectionMatrix();
@@ -1030,7 +1055,8 @@ export class Game {
     this.renderClock += dt;
     if (!this.lowfx || this.renderClock > 0.1) {
       this.renderClock = 0;
-      this.renderer.render(this.world.scene, this.cam.camera);
+      if (this.composer) this.composer.render(dt);
+      else this.renderer.render(this.world.scene, this.cam.camera);
     }
   }
 
@@ -1044,7 +1070,10 @@ export class Game {
     p.frames = 0;
     p.time = 0;
     if (document.visibilityState !== 'visible') return;
-    if (fps < 40 && p.dpr > 0.75) {
+    if (fps < 45 && this.composer) {
+      // the post stack is the first thing to go on a struggling GPU
+      this.dropPost();
+    } else if (fps < 40 && p.dpr > 0.75) {
       p.dpr = Math.max(0.75, p.dpr - 0.25);
       this.renderer.setPixelRatio(p.dpr);
       this.onResize();
@@ -1068,6 +1097,7 @@ export class Game {
     removeEventListener('resize', this.onResize);
     document.removeEventListener('visibilitychange', this.onVis);
     this.closeModal?.();
+    this.dropPost();
     this.hud.dispose();
     this.local.dispose();
     this.remote?.dispose();

@@ -20,15 +20,30 @@ Social actions: **«بضربك😂»** (foam pool-noodle bonk with cartoon stars
 **«لم روحك 🤣»** reply button; يسو's characters answer by themselves. There's also an optional
 **«يا قندس 🦫»** tease (it can be switched off in settings), plus emotes, quick Darija lines and chat.
 
-**Characters (8):** عاصم (white qamis + black embroidered Libyan jacket), يسو (burgundy bangs,
-pink top), بطّوطة the swimming duck, مشيشة the mischievous cat from her drawing/clay cat, قندس
-the beaver, الكابتن (football captain, #10), يسو بالقفطان (cream-and-gold kaftan + yellow bag),
-and الدبدوب (the giant teddy with the pink bouquet). All are sculpted procedurally from smooth
-geometry, with expressive eyes, lids, brows, lips, fingers, hair and cloth that swings. They are
-animated procedurally: idle, walk/run, swim, jump, sit, kick, bonk, laugh, dance, wave, celebrate.
+**Moments together (💞 button or H):** 🤗 hug, 😘 cheek kisses (the bise, both cheeks), ✋ high
+five, 💃 dancing together and 🤝 holding hands while you walk. Each one is **asked first**: the
+friend sees «عاصم بغا/ت يعنقك 🤗» with **«آه 💗»** or **«لا، لم روحك 🤣»**, and nothing happens
+without a yes. Walking away ends a moment; «سيب يدي 🤝» lets go of a hand. 💋 **A blown kiss**
+needs no consent: it flies across the island and lands on the friend's cheek. During a moment the
+camera eases in to frame you both.
+
+**Characters (8):**
+- **عاصم, يسو, يسو بالقفطان, الكابتن** are professional rigged avatars with mocap animation
+  (idle, walk, jog, sprint, swim, sit, jump, kicks, throws, dances, cheers, greetings…) and
+  ARKit face shapes for blinks, smiles, laughs, kisses and blushes:
+  - عاصم: dark wavy hair and beard, black jacket with gold embroidery open over a white shirt
+  - يسو: burgundy hair, pink blazer, white shirt
+  - يسو بالقفطان: ivory kaftan with gold-embroidered lapels and cuffs, a row of gold *aakad*
+    buttons, a jewelled *mdamma* clasp, and a long robe that swings with every step
+  - الكابتن: Morocco kit, red #10 jersey with the green star
+- **بطّوطة** the duck, **مشيشة** the cat from her drawing, **قندس** the beaver and **الدبدوب**
+  the giant teddy with the pink bouquet are hand-sculpted with procedural animation.
+- The sculpted versions of the four humans load instantly, and the realistic avatars swap in
+  as soon as their models arrive.
 
 **Controls:** WASD/arrows to move, Shift to run, Space to jump, E to interact, F for the context
-action (kick or splash), B for بضربك, Q for قندس, 1–4 for emotes, T for chat, M for the map.
+action (kick or splash), B for بضربك, Q for قندس, H for moments together 💞, 1–4 for emotes,
+T for chat, M for the map.
 Click the ground to walk there; drag to orbit; scroll to zoom. **Phone:** joystick on the left,
 buttons on the right, tap to walk, drag to look, pinch to zoom. The phone camera sits closer.
 
@@ -88,7 +103,22 @@ npm test              # backend unit tests (rooms, scoring rules, canvas)
 npm run build         # typecheck + production build
 ```
 
-Two-device end-to-end test (desktop + iPhone emulation, 16 checks):
+3D asset pipeline (only needed when changing the avatars; the outputs in `public/models/` are
+committed):
+
+```bash
+node scripts/build-models.mjs   # vendor-src/*.glb → public/models/{yasso,asem,captain,anims}.glb
+node scripts/build-env.mjs      # vendor-src/*.hdr → public/models/env-sunrise.hdr
+```
+
+`vendor-src/` (gitignored) holds the original files listed under Credits. `build-models.mjs`
+compresses the meshes (meshopt), keeps only the face shapes the game uses, merges the
+animation libraries, and paints the outfits into the textures (`scripts/avatar-looks.mjs`,
+using a UV-space body position map from `scripts/paint-looks.mjs`). Clips are retargeted from
+the Quaternius rig to each avatar in the browser (`src/characters/retarget.ts`). Dev previews:
+`/skinned.html` (avatars + clips) and `/pair.html` (a moment between two avatars, offline).
+
+Two-device end-to-end test (desktop + iPhone emulation, 18 checks):
 
 ```bash
 bash tests/e2e/start-local.sh        # 2 local relays + production preview on :5174
@@ -98,8 +128,13 @@ node tests/e2e/run.mjs http://localhost:5174/
 ## Deploy (Netlify)
 
 **Git (recommended):** in Netlify, open the `pink-riot-club` project → Project configuration →
-Build & deploy → **Link repository** → pick this repo, branch `main`. `netlify.toml` already sets
-the build (`npm run build` → `dist`) and the function. Every push redeploys.
+Build & deploy → **Link repository** → pick the repo. `netlify.toml` already sets the build
+(`npm run build` → `dist`) and the function. Every push redeploys.
+
+- **While this lives in `asem-repository-`** (temporary home): pick that repo, set **Base
+  directory = `apps/pink-riot-club`**, and choose the branch to deploy.
+- **Once it has its own repo** (`git subtree split --prefix=apps/pink-riot-club -b pink-riot-club`,
+  then push that branch as `main`): link the new repo instead and clear the base directory.
 
 **Manual:** `bash scripts/stage-deploy.sh /tmp/pink-riot-deploy` builds a clean source-only
 folder; deploy it with the Netlify CLI or the MCP `deploy-site`.
@@ -108,3 +143,19 @@ Required env var: `PRC_ADMIN_KEY` (secret, functions scope) for photo uploads. B
 configuration.
 
 Configuration: `VITE_BROKERS` (comma-separated `wss://` URLs) overrides the relays at build time.
+
+## Credits & licences
+
+This is a private, **non-commercial** gift. Third-party assets and their terms:
+
+| Asset | Source | Licence |
+|---|---|---|
+| يسو / يسو بالقفطان base avatar | Avaturn, via [TalkingHead](https://github.com/met4citizen/TalkingHead) `avatars/avaturn.glb` | Non-commercial use |
+| عاصم base avatar | Avatar SDK / MetaPerson, via TalkingHead `avatars/avatarsdk.glb` | Non-commercial use |
+| الكابتن base avatar | Ready Player Me, via TalkingHead `avatars/brunette.glb` | CC BY-NC 4.0 |
+| Animations | [Quaternius Universal Animation Library](https://quaternius.com), via [Mesh2Motion](https://github.com/scottpetrovic/mesh2motion-app) | CC0 |
+| Lighting HDRI "Blouberg Sunrise 2" | [Poly Haven](https://polyhaven.com), via the three.js examples | CC0 |
+| 3D engine | [three.js](https://threejs.org) | MIT |
+
+Outfits, hair colours, the kaftan robe and all other characters/scenery are original to this
+project. Because of the avatar licences, **don't use this commercially**.

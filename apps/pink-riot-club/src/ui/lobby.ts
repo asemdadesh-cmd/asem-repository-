@@ -5,6 +5,7 @@ import type { CharacterRig } from '../characters/rig.ts';
 import { isSkinned, preloadCharacter, skinnedReady } from '../characters/skinned.ts';
 import { makeRig } from '../game/Avatar.ts';
 import { el } from './dom.ts';
+import { applyEnvironment } from '../gfx/env.ts';
 
 /** Starts downloading every skinned avatar (shared promises; safe to call often). */
 export function preloadAllCharacters(): Promise<boolean[]> {
@@ -85,7 +86,7 @@ class Preview {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.scene = studioScene().scene;
-    this.scene.environment = envFor(this.renderer);
+    applyEnvironment(this.renderer, this.scene, 0.8);
     const ground = new THREE.Mesh(new THREE.CircleGeometry(1.2, 48).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#ffd3e6', roughness: 1 }));
     this.scene.add(ground);
     let lx = 0;
@@ -173,16 +174,15 @@ export function defaultNameFor(ch: CharacterId): string {
 }
 
 export function characterGrid(selected: CharacterId, onPick: (id: CharacterId) => void): HTMLElement {
-  const thumbs = renderThumbnails();
-  // swap in the real avatars' portraits as they finish loading
-  void preloadAllCharacters().then(() => {
-    const fresh = renderThumbnails();
-    grid.querySelectorAll<HTMLButtonElement>('.char').forEach((b) => {
-      const img = b.querySelector('img');
-      const src = fresh.get(b.dataset.id as CharacterId);
-      if (img && src && img.src !== src) img.src = src;
-    });
-  });
+  // portraits are pre-rendered (scripts/render-thumbs.mjs); render live only if one is missing
+  const thumb = (id: CharacterId) => {
+    const img = el('img', { src: `${import.meta.env.BASE_URL}thumbs/${id}.webp`, alt: metaFor(id).name, width: 200, height: 250, decoding: 'async' }) as HTMLImageElement;
+    img.addEventListener('error', () => {
+      const src = renderThumbnails([id]).get(id);
+      if (src) img.src = src;
+    }, { once: true });
+    return img;
+  };
   const grid = el('div', { class: 'chars', role: 'group', 'aria-label': 'ختار الشخصية' });
   for (const c of CHARACTERS) {
     const b = el(
@@ -191,7 +191,7 @@ export function characterGrid(selected: CharacterId, onPick: (id: CharacterId) =
         grid.querySelectorAll('.char').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
         onPick(c.id);
       } },
-      el('img', { src: thumbs.get(c.id) ?? '', alt: c.name, loading: 'lazy' }),
+      thumb(c.id),
       el('b', {}, c.name),
     );
     grid.append(b);
