@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-06_
 
 ---
 
@@ -27,6 +27,9 @@ _Last updated: 2026-10-02_
 - **Apps:** `apps/money-tracker/` — **Stash**, a local-first money tracker web
   app (Vite + React + TS) deployable to Vercel as its own project. See the
   "Apps" section below.
+  `apps/pink-riot-club/` — **نادي التخربيق — Pink Riot Club**, a two-player 3D
+  friendship world (Vite + three.js + Netlify). Lives here **temporarily** until
+  its own repository exists (see Apps).
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
   documentation (this file + TASKS.md + DECISIONS.md) being established now.
@@ -64,7 +67,8 @@ _Last updated: 2026-10-02_
   │                   ├── checklist.md    # final pass/fail approval checklist
   │                   └── rewrite-guide.md # copywriting & conversion patterns
   ├── apps/
-  │   └── money-tracker/              # Stash money tracker (self-contained Vite app)
+  │   ├── money-tracker/              # Stash money tracker (self-contained Vite app)
+  │   └── pink-riot-club/             # Pink Riot Club 3D world (temporary home, own docs)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -133,6 +137,23 @@ _Last updated: 2026-10-02_
   `vercel.json` adds CSP + security headers, immutable asset caching, SPA
   fallback. `npm run preview` serves the same headers locally.
 - **Checks:** `npm test` (18 unit tests), `npm run build` (typecheck + build).
+
+### Pink Riot Club — 3D friendship world (`apps/pink-riot-club/`)
+- **What:** نادي التخربيق — a private two-player 3D browser world (a gift from
+  عاصم to يسو): pool splash battle, football, shared drawing board, photo
+  gallery, eight characters, real two-device multiplayer. Arabic/Darija UI.
+- **Status:** **Temporary home.** The owner asked for its own repository; the
+  Claude GitHub connection cannot create repos (403). Once an empty
+  `pink-riot-club` repo exists, split it out with history:
+  `git subtree split --prefix=apps/pink-riot-club -b pink-riot-club` and push
+  that branch as the new repo's `main`.
+- **Docs:** the app keeps its own `PROJECT.md`, `TASKS.md`, `DECISIONS.md` and
+  `README.md` inside its folder — those are the source of truth for it.
+- **Deployment (Netlify project `pink-riot-club`):** link the repo, set **Base
+  directory = `apps/pink-riot-club`** (build/publish/functions come from its
+  `netlify.toml`). Never link this repo to any other host project.
+- **Private data:** her photos are never committed; they are uploaded to Netlify
+  Blobs through the app's admin-key-protected `/upload.html`.
 
 ---
 
@@ -215,6 +236,27 @@ _Last updated: 2026-10-02_
 ---
 
 ## Changelog
+
+- **2026-10-06** — Root `netlify.toml` added: it points Netlify's `pink-riot-club` project at
+  `apps/pink-riot-club`, so the repo's default branch deploys the game and nothing else.
+
+- **2026-10-06** — **Pink Riot Club**: عاصم's avatar now wears a clean midnight-navy dinner suit
+  (satin shawl lapels, white shirt, burgundy tie, pink pocket square, black oxfords), replacing
+  the old jacket-and-jeans look. See `apps/pink-riot-club/DECISIONS.md`.
+
+- **2026-10-06** — **Pink Riot Club** 3D upgrade: rigged avatars with retargeted
+  mocap for the four human characters (outfits painted at build time), consent-
+  first moments together (hug, cheek kisses, high five, dance, holding hands,
+  blown kiss), HDRI lighting with post-processing on capable GPUs, pre-rendered
+  lobby portraits. Two-device e2e 18/18, unit tests 24/24. Details in
+  `apps/pink-riot-club/PROJECT.md`.
+
+- **2026-10-06** — Recovered **Pink Riot Club** into `apps/pink-riot-club/`. The
+  session that built it was cut off by a usage limit before pushing, and its
+  container was reclaimed; the code was rebuilt by replaying that session's
+  recorded file operations (both original commits reproduced exactly, build
+  byte-identical) and imported with `git subtree` so it can move to its own
+  repo unchanged.
 
 - **2026-10-02** — Localised **Stash for Libya**: LYD default currency (LYD first in the
   list), categories for generator/electricity, mobile & internet, car & fuel,

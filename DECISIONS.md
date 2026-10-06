@@ -4,9 +4,21 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-06_
 
 ---
+
+### 2026-10-06 — Pink Riot Club lives in `apps/pink-riot-club/` until it gets its own repo
+**Decision:** Push the recovered Pink Riot Club project into this repo under
+`apps/pink-riot-club/` (imported with `git subtree`, history preserved) as a
+temporary home, rather than keeping it only in the session container.
+**Why:** The owner wants it in its own repository, but the Claude GitHub
+connection cannot create repositories (403), and the first build was lost
+because it was never pushed anywhere. A self-contained folder (own lockfile,
+`netlify.toml`, docs) touches nothing else here and can be split out with one
+`git subtree split`. Trade-off: until the owner creates the repo, the code is
+public in this tooling repo (photos excluded; the owner had agreed the source
+could be pushed), and Netlify must use Base directory `apps/pink-riot-club`.
 
 ### 2026-10-02 — Stash targets Libya: LYD, interest-free framing, English UI first
 **Decision:** Default Stash to the Libyan dinar with Libya-specific categories and

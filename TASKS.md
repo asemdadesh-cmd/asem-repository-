@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-06_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -25,6 +25,12 @@ _Last updated: 2026-10-02_
       tests + build passing
 
 ## 🔄 In Progress
+- [ ] **Pink Riot Club** (`apps/pink-riot-club/`, temporary home) — recovered
+      and upgraded 2026-10-06 (rigged avatars, moments together, HDRI; e2e
+      18/18). Waiting on the owner to link Netlify (Base directory
+      `apps/pink-riot-club`). Detailed list: `apps/pink-riot-club/TASKS.md`.
+- [ ] Move Pink Riot Club to its own repo once the owner creates
+      `pink-riot-club` (`git subtree split --prefix=apps/pink-riot-club`)
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
