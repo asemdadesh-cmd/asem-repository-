@@ -1,6 +1,7 @@
 // Two-player end-to-end test: two separate browser contexts ("devices"),
 // one desktop + one phone. Verifies create/join, invite link, movement sync,
-// بضربك😂 + auto reply, drawing sync + persistence, server-validated scoring
+// بضربك😂 + auto reply, consent-based hugs (accept + decline),
+// drawing sync + persistence, server-validated scoring
 // (football + pool, duplicates rejected), room capacity, relay failover,
 // offline/online reconnection and page-reload seat reclaim.
 //
@@ -145,6 +146,33 @@ await check('يا قندس tease reaches the friend', async () => {
   await A.click('.reactions button:has-text("قندس")');
   await waitFor(B, () => window.__prc.remote.bubble.textContent.includes('قندس'), null, 20000, 'B sees the tease');
   return 'ok';
+});
+
+await check('💞 hug: B is asked first, accepts, and both devices play it', async () => {
+  // stand together on the plaza
+  await g(A, () => { const p = window.__prc; p.local.root.position.set(-0.6, 0.02, -7); p.vel.set(0, 0, 0); });
+  await g(B, () => { const p = window.__prc; p.local.root.position.set(0.6, 0.02, -7); p.vel.set(0, 0, 0); });
+  await waitFor(A, () => window.__prc.remote && window.__prc.remote.root.position.distanceTo(window.__prc.local.root.position) < 2.2, null, 20000, 'A sees B close');
+  await A.click('.reactions .love');
+  await A.click('.pair-menu button:has-text("عنقة")');
+  await B.waitForSelector('.pair-ask:not(.hidden)', { timeout: 20000 });
+  const ask = await B.textContent('.pair-ask .t');
+  await B.click('.pair-ask .btn:has-text("آه")');
+  await waitFor(A, () => window.__prc.pairs.active?.kind === 'hug', null, 20000, 'A plays the hug');
+  await waitFor(B, () => window.__prc.pairs.active?.kind === 'hug', null, 20000, 'B plays the hug');
+  await waitFor(A, () => !window.__prc.pairs.active, null, 60000, 'hug to finish');
+  return ask.trim();
+});
+
+await check('💞 no means no: B declines with «لم روحك 🤣», A is told', async () => {
+  await A.click('.reactions .love');
+  await A.click('.pair-menu button:has-text("بوسة على الخد")');
+  await B.waitForSelector('.pair-ask:not(.hidden)', { timeout: 20000 });
+  await B.click('.pair-ask .btn:has-text("لم روحك")');
+  await waitFor(A, () => [...document.querySelectorAll('.toast')].some((t) => t.textContent.includes('لم روحك')), null, 20000, 'A to get the answer');
+  const started = await g(A, () => !!window.__prc.pairs.active);
+  if (started) throw new Error('moment started after a no');
+  return 'declined, nothing played';
 });
 
 await check('shared drawing: B sees A strokes live', async () => {

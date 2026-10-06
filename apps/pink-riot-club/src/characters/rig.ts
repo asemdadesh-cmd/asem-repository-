@@ -265,6 +265,7 @@ export class Rig implements CharacterRig {
 
   point(name: BodyPoint, out: THREE.Vector3): THREE.Vector3 {
     const s = this.spec;
+    (name === 'chest' ? this.chest : this.head).updateWorldMatrix(true, false);
     if (name === 'pelvis') return this.hips.getWorldPosition(out);
     if (name === 'chest') return this.chest.localToWorld(out.set(0, s.chest * 0.45, 0));
     if (name === 'head') return this.head.localToWorld(out.set(0, s.headR, 0));

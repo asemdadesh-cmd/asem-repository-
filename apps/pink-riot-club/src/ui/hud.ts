@@ -2,7 +2,18 @@ import type { RoomState } from '../../shared/api-types.ts';
 import type { Seat } from '../../shared/world.ts';
 import type { ConnStatus } from '../net/session.ts';
 import type { Hud } from '../game/context.ts';
+import type { PairKind } from '../../shared/protocol.ts';
 import { el, isTouch } from './dom.ts';
+
+/** Paired moments offered in the 💞 menu (blowkiss needs no consent). */
+const PAIR_MENU: Array<[PairKind | 'blowkiss', string]> = [
+  ['hug', '🤗 عنقة'],
+  ['kiss', '😘 بوسة على الخد'],
+  ['blowkiss', '💋 بوسة فالهوا'],
+  ['highfive', '✋ تصفيقة'],
+  ['dance', '💃 شطحة مع بعض'],
+  ['hands', '🤝 شدّ يدي'],
+];
 
 export interface HudHandlers {
   onReaction: (k: 'bonk' | 'reply' | 'gandas' | 'laugh' | 'dance' | 'wave' | 'celebrate' | 'chat') => void;
@@ -12,6 +23,7 @@ export interface HudHandlers {
   onMap: () => void;
   onInvite: () => void;
   onRoomChip: () => void;
+  onPair: (k: PairKind | 'blowkiss') => void;
 }
 
 export class HudView implements Hud {
@@ -35,6 +47,11 @@ export class HudView implements Hud {
   joyKnob = el('div', { class: 'joy-knob' });
   private lastScores = { fb: '', pl: '' };
   private replyTimer = 0;
+  private pairMenu = el('div', { class: 'pair-menu hidden', role: 'menu', 'aria-label': 'لحظات مع صاحبك' });
+  private pairAskWrap = el('div', { class: 'pair-ask hidden', role: 'alertdialog', 'aria-live': 'assertive' });
+  private pairEndWrap = el('div', { class: 'pair-end hidden' });
+  private pairBtn: HTMLButtonElement;
+  private askTimer = 0;
 
   constructor(h: HudHandlers) {
     this.roomChip = el('button', { class: 'chip room-chip', title: 'نسخ رابط العرضة', onclick: () => h.onRoomChip() }, '—') as HTMLButtonElement;
@@ -52,10 +69,20 @@ export class HudView implements Hud {
       el('button', { class: 'icon-btn', 'aria-label': 'عرض صاحبك', title: 'عرض صاحبك', onclick: () => h.onInvite() }, '💌'),
     );
     this.gandasBtn = el('button', { onclick: () => h.onReaction('gandas'), title: 'Q' }, 'يا قندس 🦫') as HTMLButtonElement;
+    this.pairBtn = el('button', { class: 'love', onclick: () => this.togglePairMenu(), title: 'H', 'aria-label': 'لحظات مع صاحبك', 'aria-haspopup': 'menu', 'aria-expanded': 'false' }, '💞') as HTMLButtonElement;
+    for (const [k, label] of PAIR_MENU) {
+      this.pairMenu.append(
+        el('button', { role: 'menuitem', onclick: () => {
+          this.togglePairMenu(false);
+          h.onPair(k);
+        } }, label),
+      );
+    }
     const reactions = el(
       'div',
       { class: 'reactions', role: 'toolbar', 'aria-label': 'تفاعلات' },
       el('button', { class: 'hot', onclick: () => h.onReaction('bonk'), title: 'B' }, 'بضربك😂'),
+      this.pairBtn,
       el('button', { onclick: () => h.onReaction('reply') }, 'لم روحك 🤣'),
       this.gandasBtn,
       el('button', { onclick: () => h.onReaction('laugh'), title: '1', 'aria-label': 'ضحك' }, '😂'),
@@ -83,7 +110,7 @@ export class HudView implements Hud {
       el('div', {}, el('kbd', {}, 'E'), ' تفاعل · ', el('kbd', {}, 'F'), ' كورة/رشّ · ', el('kbd', {}, 'B'), ' بضربك😂'),
       el('div', {}, 'كليكي على الأرض باش تمشي · جر الماوس باش تدور'),
     );
-    this.root.append(top, scores, side, this.peerWait, this.toasts, this.bannerWrap, this.promptWrap, this.replyWrap, reactions);
+    this.root.append(top, scores, side, this.peerWait, this.toasts, this.bannerWrap, this.promptWrap, this.replyWrap, this.pairAskWrap, this.pairEndWrap, this.pairMenu, reactions);
     if (isTouch()) this.root.append(this.joyZone, touch);
     else this.root.append(help);
     document.body.append(this.labels, this.root);
@@ -186,6 +213,37 @@ export class HudView implements Hud {
 
   hideReply() {
     this.replyWrap.classList.add('hidden');
+  }
+
+  togglePairMenu(open = this.pairMenu.classList.contains('hidden')) {
+    this.pairMenu.classList.toggle('hidden', !open);
+    this.pairBtn.setAttribute('aria-expanded', String(open));
+    if (open) (this.pairMenu.firstElementChild as HTMLElement | null)?.focus({ preventScroll: true });
+  }
+
+  /** "X wants to hug you" with yes / «لا، لم روحك 🤣». */
+  pairAsk(text: string, onYes: () => void, onNo: () => void, seconds: number) {
+    clearTimeout(this.askTimer);
+    const bar = el('div', { class: 'bar', style: `animation-duration:${seconds}s` });
+    this.pairAskWrap.replaceChildren(
+      el('div', { class: 't' }, text),
+      el('div', { class: 'row' }, el('button', { class: 'btn', onclick: onYes }, 'آه 💗'), el('button', { class: 'btn ghost', onclick: onNo }, 'لا، لم روحك 🤣')),
+      bar,
+    );
+    this.pairAskWrap.classList.remove('hidden');
+    (this.pairAskWrap.querySelector('button') as HTMLButtonElement | null)?.focus({ preventScroll: true });
+    this.askTimer = window.setTimeout(() => this.hidePairAsk(), seconds * 1000);
+  }
+
+  hidePairAsk() {
+    clearTimeout(this.askTimer);
+    this.pairAskWrap.classList.add('hidden');
+  }
+
+  /** Shows a button to end a long moment (holding hands); null hides it. */
+  pairActive(text: string | null, onEnd: () => void) {
+    this.pairEndWrap.classList.toggle('hidden', !text);
+    if (text) this.pairEndWrap.replaceChildren(el('button', { class: 'btn ghost', onclick: onEnd }, text));
   }
 
   dispose() {

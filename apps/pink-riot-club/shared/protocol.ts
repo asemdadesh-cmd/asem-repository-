@@ -15,7 +15,11 @@ export type ActionKind =
   | 'wave'
   | 'celebrate'
   | 'gandas' // يا قندس tease
-  | 'reply'; // لم روحك 🤣
+  | 'reply' // لم روحك 🤣
+  | 'blowkiss'; // 💋 a kiss blown through the air (needs no consent)
+
+/** Moments that need both friends: always asked first, the friend can say no. */
+export type PairKind = 'hug' | 'kiss' | 'highfive' | 'dance' | 'hands';
 
 export type Msg =
   | { t: 'hello'; seat: Seat; name: string; ch: CharacterId; reply?: boolean }
@@ -48,6 +52,10 @@ export type Msg =
   | { t: 'undo'; id: string }
   | { t: 'clear'; epoch: number }
   | { t: 'cursor'; seat: Seat; x: number; y: number; on: boolean }
+  | { t: 'pair'; op: 'ask'; id: string; kind: PairKind; from: Seat }
+  | { t: 'pair'; op: 'no'; id: string; from: Seat }
+  | { t: 'pair'; op: 'go'; id: string; kind: PairKind; from: Seat; at: [number, number, number]; yaw: number; seed: number }
+  | { t: 'pair'; op: 'end'; id: string; from: Seat }
   | { t: 'ping'; ts: number }
   | { t: 'pong'; ts: number }
   | { t: 'bye'; seat: Seat };

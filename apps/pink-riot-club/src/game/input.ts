@@ -1,7 +1,7 @@
 // Keyboard, mouse (drag to orbit, click to move), touch (joystick, drag, pinch, tap).
 import * as THREE from 'three';
 
-export type ActionKey = 'jump' | 'interact' | 'bonk' | 'action' | 'kick' | 'chat' | 'emote1' | 'emote2' | 'emote3' | 'emote4' | 'escape' | 'gandas' | 'map';
+export type ActionKey = 'jump' | 'interact' | 'bonk' | 'action' | 'kick' | 'chat' | 'emote1' | 'emote2' | 'emote3' | 'emote4' | 'escape' | 'gandas' | 'map' | 'pair';
 
 const isTyping = () => {
   const a = document.activeElement as HTMLElement | null;
@@ -65,6 +65,7 @@ export class Input {
       '4': 'emote4',
       q: 'gandas',
       m: 'map',
+      h: 'pair',
       escape: 'escape',
     };
     const a = map[k];
@@ -199,6 +200,9 @@ export class FollowCamera {
   minDist: number;
   maxDist: number;
   target = new THREE.Vector3();
+  /** 1 = frame a moment between the two friends up close */
+  closeUp = 0;
+  private closeCur = 0;
   private idleTime = 0;
 
   constructor(public mobile: boolean) {
@@ -246,13 +250,16 @@ export class FollowCamera {
       this.yaw += d * Math.min(1, dt * (this.mobile ? 1.2 : 0.6));
     }
     const k = 1 - Math.exp(-10 * dt);
-    const want = new THREE.Vector3(focus.x, focus.y + height * (this.mobile ? 0.82 : 0.78), focus.z);
+    this.closeCur += (this.closeUp - this.closeCur) * (1 - Math.exp(-2.5 * dt));
+    const want = new THREE.Vector3(focus.x, focus.y + height * THREE.MathUtils.lerp(this.mobile ? 0.82 : 0.78, 0.72, this.closeCur), focus.z);
     this.target.lerp(want, k);
-    const c = Math.cos(this.pitch);
+    const dist = THREE.MathUtils.lerp(this.dist, Math.min(this.dist, this.mobile ? 2.6 : 3.1), this.closeCur);
+    const pitch = THREE.MathUtils.lerp(this.pitch, 0.2, this.closeCur);
+    const c = Math.cos(pitch);
     const pos = new THREE.Vector3(
-      this.target.x + Math.sin(this.yaw) * c * this.dist,
-      this.target.y + Math.sin(this.pitch) * this.dist,
-      this.target.z + Math.cos(this.yaw) * c * this.dist,
+      this.target.x + Math.sin(this.yaw) * c * dist,
+      this.target.y + Math.sin(pitch) * dist,
+      this.target.z + Math.cos(this.yaw) * c * dist,
     );
     const gy = groundAt(pos.x, pos.z) + 0.35;
     if (pos.y < gy) pos.y = gy;

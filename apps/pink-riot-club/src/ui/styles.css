@@ -243,3 +243,25 @@ canvas#game { position: fixed; inset: 0; width: 100%; height: 100%; display: blo
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+/* ---------- paired moments (hug, kiss, high five…) ---------- */
+.reactions button.love { background: linear-gradient(135deg, #ffd1e6, #ff9ccb); }
+.pair-menu { position: absolute; bottom: calc(76px + var(--safe-b)); left: 50%; transform: translateX(-50%); display: grid; grid-template-columns: repeat(3, auto); gap: 8px; padding: 10px; background: var(--glass); border-radius: 20px; box-shadow: var(--shadow); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 6; animation: pairIn 0.22s ease-out; }
+.pair-menu button { border: 0; border-radius: 14px; background: #fff; padding: 10px 12px; min-height: 46px; font-weight: 800; font-size: 15px; white-space: nowrap; box-shadow: 0 3px 0 #f3b6cf; }
+.pair-menu button:focus-visible, .pair-ask button:focus-visible, .pair-end button:focus-visible { outline: 3px solid var(--teal, #2ec4b6); outline-offset: 2px; }
+.pair-ask { position: absolute; top: 96px; left: 50%; transform: translateX(-50%); width: min(420px, calc(100vw - 32px)); background: #fff; border-radius: 22px; padding: 14px 16px 10px; box-shadow: var(--shadow); text-align: center; z-index: 7; animation: pairIn 0.35s cubic-bezier(0.2, 1.4, 0.4, 1); overflow: hidden; }
+.pair-ask .t { font-weight: 800; font-size: 18px; margin-bottom: 10px; }
+.pair-ask .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.pair-ask .row .btn { min-width: 120px; }
+.pair-ask .bar { position: absolute; left: 0; bottom: 0; height: 4px; width: 100%; background: linear-gradient(90deg, #ff8cc3, var(--pink-deep)); transform-origin: left; animation-name: shrink; animation-timing-function: linear; animation-fill-mode: forwards; }
+@keyframes pairIn { from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.92); } }
+@keyframes shrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.pair-end { position: absolute; bottom: calc(150px + var(--safe-b)); left: 50%; transform: translateX(-50%); }
+@media (max-width: 640px) {
+  .pair-menu { grid-template-columns: repeat(2, auto); bottom: calc(80px + var(--safe-b)); }
+  .pair-ask { top: 70px; }
+  .pair-end { bottom: calc(240px + var(--safe-b)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pair-menu, .pair-ask { animation: none; }
+}

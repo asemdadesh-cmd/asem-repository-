@@ -278,6 +278,8 @@ export class SkinnedRig implements CharacterRig {
   private shot: OneShot | null = null;
   private time = 0;
   private lookCur = new THREE.Vector2();
+  /** neck/head before last frame's look-turn (the mixer may not rewrite them) */
+  private turned: Array<[THREE.Object3D, THREE.Quaternion]> = [];
   /** last movement input (read by cloth in afterPose hooks) */
   speed = 0;
 
@@ -403,6 +405,8 @@ export class SkinnedRig implements CharacterRig {
   update(dt: number, input: AnimInput) {
     dt = Math.min(dt, 0.05);
     this.time += dt;
+    for (const [b, q] of this.turned) b.quaternion.copy(q);
+    this.turned.length = 0;
     const s = input.speed;
     this.speed = s;
     const goal: Record<LocoKey, number> = { idle: 0, walk: 0, jog: 0, sprint: 0, swimIdle: 0, swimFwd: 0, sit: 0, air: 0 };
@@ -466,6 +470,7 @@ export class SkinnedRig implements CharacterRig {
       [neck, 0.4],
       [head, 0.6],
     ] as const) {
+      this.turned.push([bone, bone.quaternion.clone()]);
       const turn = new THREE.Quaternion().setFromAxisAngle(up, this.lookCur.x * share);
       const pw = bone.parent!.getWorldQuaternion(new THREE.Quaternion());
       const w = pw.clone().multiply(bone.quaternion).premultiply(turn);

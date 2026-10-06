@@ -118,6 +118,20 @@ export class Sfx {
   join() {
     [659, 784, 988].forEach((f, i) => this.tone('sine', f, f, 0.2, 0.18, i * 0.09));
   }
+  /** "mwah": a short lip smack */
+  kiss() {
+    this.burst(0.05, 3200, 2.5, 0.35, 'bandpass');
+    this.tone('sine', 900, 1500, 0.09, 0.16, 0.02);
+  }
+  /** warm, soft chord for hugs */
+  hug() {
+    [392, 494, 587, 784].forEach((f, i) => this.tone('sine', f, f * 1.01, 0.9, 0.09, i * 0.05));
+  }
+  /** high-five clap */
+  clap() {
+    this.burst(0.07, 1800, 0.9, 0.6, 'bandpass');
+    this.burst(0.18, 5000, 0.6, 0.12, 'highpass', 0.02);
+  }
 
   private startAmbient() {
     if (!this.ctx || this.ambient) return;

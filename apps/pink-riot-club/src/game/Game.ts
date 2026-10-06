@@ -13,6 +13,8 @@ import { FollowCamera, Input, type ActionKey } from './input.ts';
 import { Football } from './football.ts';
 import { PoolBattle } from './poolBattle.ts';
 import { DrawingBoard } from './drawing.ts';
+import { PairManager } from './pairs.ts';
+import { restorePose } from '../characters/ik.ts';
 import { sfx } from './audio.ts';
 import { rid, type GameCtx } from './context.ts';
 import { HudView } from '../ui/hud.ts';
@@ -53,6 +55,7 @@ export class Game {
   football: Football;
   pool: PoolBattle;
   board: DrawingBoard;
+  pairs: PairManager;
   ctx: GameCtx;
   private clock = new THREE.Clock();
   private time = 0;
@@ -114,6 +117,12 @@ export class Game {
       onMap: () => this.action('map'),
       onInvite: () => this.invite(),
       onRoomChip: () => this.invite(),
+      onPair: (k) => {
+        sfx.unlock();
+        this.standUp();
+        if (k === 'blowkiss') this.pairs.blowKiss();
+        else this.pairs.request(k);
+      },
     });
     this.hud.setRoom(session.code);
     this.hud.setGandasVisible(this.gandasOn);
@@ -149,6 +158,17 @@ export class Game {
       nameOf: (s: Seat) => this.nameOf(s),
       now: () => this.time,
     };
+    this.pairs = new PairManager(this.ctx, {
+      ask: (text, yes, no, s) => this.hud.pairAsk(text, yes, no, s),
+      hideAsk: () => this.hud.hidePairAsk(),
+      setActive: (text, onEnd) => this.hud.pairActive(text, onEnd),
+      prepare: () => {
+        this.standUp();
+        this.target = null;
+        this.marker.classList.add('hidden');
+        this.vel.set(0, 0, 0);
+      },
+    });
     this.football = new Football(this.ctx);
     this.pool = new PoolBattle(this.ctx);
     this.board = new DrawingBoard(session, session.seat);
@@ -250,6 +270,7 @@ export class Game {
       void this.session.sendHello(false);
     } else {
       this.remote?.setStatus('مقطوع/ة 📡');
+      this.pairs.onPeerOffline();
       if (name) this.hud.toast(`${name} تقطع/ات… كنتسناو يرجع/ترجع 📡`, 'warn');
     }
   }
@@ -304,6 +325,9 @@ export class Game {
       case 'clear':
         this.board.onMsg(m);
         break;
+      case 'pair':
+        this.pairs.onMsg(m);
+        break;
     }
   }
 
@@ -335,6 +359,9 @@ export class Game {
         break;
       case 'kick':
         r.play('kick');
+        break;
+      case 'blowkiss':
+        this.pairs.remoteBlowKiss();
         break;
       default:
         r.play(m.kind);
@@ -446,6 +473,10 @@ export class Game {
         break;
       case 'escape':
         this.standUp();
+        this.hud.togglePairMenu(false);
+        break;
+      case 'pair':
+        this.hud.togglePairMenu();
         break;
     }
   }
@@ -684,7 +715,7 @@ export class Game {
 
   private collide(p: THREE.Vector3, r: number) {
     for (const c of this.world.colliders) this.resolve(p, r, c);
-    if (this.remote && this.session.isPeerOnline) {
+    if (this.remote && this.session.isPeerOnline && !this.pairs.active) {
       const o = this.remote.root.position;
       const d = Math.hypot(p.x - o.x, p.z - o.z);
       const min = r + this.remote.radius;
@@ -743,6 +774,23 @@ export class Game {
     if (this.sitting) {
       av.speed = 0;
       av.mode = 'sit';
+      return;
+    }
+    const pc = this.pairs.control(hasInput);
+    if (pc === 'cancel') this.pairs.end();
+    else if (pc) {
+      // a moment together: glide into place and let the choreography run
+      const k = 1 - Math.exp(-10 * dt);
+      p.x += (pc.pos.x - p.x) * k;
+      p.z += (pc.pos.z - p.z) * k;
+      p.y = this.world.groundAt(p.x, p.z) + 0.02;
+      let d = pc.yaw - av.root.rotation.y;
+      d = Math.atan2(Math.sin(d), Math.cos(d));
+      av.root.rotation.y += d * k;
+      this.vel.set(0, 0, 0);
+      this.onGround = true;
+      av.mode = 'ground';
+      av.speed = pc.speed;
       return;
     }
     const { fwd, right } = this.cam.basis();
@@ -873,6 +921,17 @@ export class Game {
       r.root.rotation.y += d * Math.min(1, dt * 10);
       this.applyAnim(r, last);
     }
+    const rc = this.pairs.remoteControl();
+    if (rc) {
+      const k = 1 - Math.exp(-10 * dt);
+      r.root.position.x += (rc.pos.x - r.root.position.x) * k;
+      r.root.position.z += (rc.pos.z - r.root.position.z) * k;
+      let d = rc.yaw - r.root.rotation.y;
+      d = Math.atan2(Math.sin(d), Math.cos(d));
+      r.root.rotation.y += d * k;
+      r.mode = 'ground';
+      r.speed = rc.speed;
+    }
     if (dt > 0) this.remoteVel.copy(r.root.position).sub(prev).divideScalar(dt).setY(0);
     if (this.remoteVel.length() > 15) this.remoteVel.setLength(15);
     // drop very old snapshots
@@ -922,8 +981,10 @@ export class Game {
 
     this.updateLocal(dt);
     this.updateRemote(dt);
+    restorePose();
     this.local.update(dt);
     this.remote?.update(dt);
+    this.pairs.update(dt);
     this.football.update(dt);
     this.pool.update(dt);
     this.effects.update(dt);
@@ -939,11 +1000,16 @@ export class Game {
       const dist = d.length();
       const rel = Math.atan2(d.x, d.z) - this.local.root.rotation.y;
       const relN = Math.atan2(Math.sin(rel), Math.cos(rel));
-      this.local.lookYaw = dist < 6 && Math.abs(relN) < 1.4 ? relN * 0.6 : 0;
+      this.local.lookYaw = !this.pairs.active && dist < 6 && Math.abs(relN) < 1.4 ? relN * 0.6 : 0;
     }
 
     const moving = this.local.speed > 0.5 && !this.target;
-    this.cam.update(dt, this.local.root.position, this.local.rig.height, this.local.root.rotation.y, moving && this.input.joyActive, (x, zz) => this.world.groundAt(x, zz));
+    // moments together: frame both friends up close
+    const pair = this.pairs.active;
+    const together = !!pair && pair.kind !== 'hands' && !!this.remote;
+    this.cam.closeUp = together ? 1 : 0;
+    const focus = together ? this.local.root.position.clone().lerp(this.remote!.root.position, 0.5) : this.local.root.position;
+    this.cam.update(dt, focus, this.local.rig.height, this.local.root.rotation.y, moving && this.input.joyActive, (x, zz) => this.world.groundAt(x, zz));
     const w = innerWidth;
     const h = innerHeight;
     this.local.updateLabels(this.cam.camera, w, h);
