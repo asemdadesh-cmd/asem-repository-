@@ -30,6 +30,8 @@ _Last updated: 2026-10-06_
   `apps/pink-riot-club/` — **نادي التخربيق — Pink Riot Club**, a two-player 3D
   friendship world (Vite + three.js + Netlify). Lives here **temporarily** until
   its own repository exists (see Apps).
+  `apps/madhaq-albasbousa/` — **مذاق البسبوسة**, an Arabic tray-based dessert
+  shop storefront that sends orders to WhatsApp (Vite + React + TS, Vercel).
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
   documentation (this file + TASKS.md + DECISIONS.md) being established now.
@@ -67,6 +69,7 @@ _Last updated: 2026-10-06_
   │                   ├── checklist.md    # final pass/fail approval checklist
   │                   └── rewrite-guide.md # copywriting & conversion patterns
   ├── apps/
+  │   ├── madhaq-albasbousa/          # مذاق البسبوسة tray shop → WhatsApp orders (Vite app)
   │   ├── money-tracker/              # Stash money tracker (self-contained Vite app)
   │   └── pink-riot-club/             # Pink Riot Club 3D world (temporary home, own docs)
   ├── PROJECT.md                      # this file — living project docs
@@ -137,6 +140,39 @@ _Last updated: 2026-10-06_
   `vercel.json` adds CSP + security headers, immutable asset caching, SPA
   fallback. `npm run preview` serves the same headers locally.
 - **Checks:** `npm test` (18 unit tests), `npm run build` (typecheck + build).
+
+### مذاق البسبوسة — tray shop storefront (`apps/madhaq-albasbousa/`)
+- **What:** V1 demo website for a Tripoli dessert shop (logo, phone 0914153311).
+  The business sells **whole trays / boxes / cakes, never pieces** — this drives
+  the whole UX: cards say "طاجين كامل · ابتداءً من 30 د.ل", the product sheet
+  offers صغير / وسط / كبير with serving estimates, cart quantity = number of
+  trays, and the WhatsApp message reads "2× طاجين بسبوسة بالقشطة · الحجم: وسط ·
+  45 د.ل × 2".
+- **Flow:** product → size → add → name/phone/area/address/when → opens
+  `wa.me/218914153311` with the formatted order (order no. `MB-####`). Cart and
+  contact details persist in `localStorage`; sheets use native `<dialog>` and
+  the back button closes them; products deep-link as `#/p/<id>`.
+- **Data (single place to edit):** `src/config/menu.ts` (products, `unitType`
+  tray/box/cake + optional `unitLabel` e.g. صينية, `variants` with price /
+  serves / optional dimensions / image; shared `SERVES` presets) and
+  `src/config/store.ts` (phone, hours, notes, delivery areas, `demoMode`).
+  **All prices, serving counts and photos are demo values.**
+- **Photos:** Unsplash, hotlinked from `images.unsplash.com` with CDN sizing
+  (credited in the footer). Replace with the shop's photos in `public/images/`.
+- **Stack:** Vite 8 + React 19 + TS 7, plain CSS tokens (browns from the logo),
+  Cairo variable font self-hosted, build-time pre-render (`entry-server.tsx` +
+  `scripts/prerender.mjs`) plus schema.org `Bakery` menu JSON-LD. No backend.
+- **Home / deployment:** lives in its **own repo**
+  `asemdadesh-cmd/madhaq-albasbousa` (app at the root, `main` = production;
+  pushed 2026-10-06 with history) with its own Git-linked Vercel project `madhaq-albasbousa`, kept
+  fully separate from the tray ledger (`dessert-shop-ledger`,
+  `dessert-ledger-redirect`). The Claude GitHub connection can't create repos
+  (403), so the owner creates the empty repo; then it's pushed with history
+  (`git subtree split --prefix=apps/madhaq-albasbousa`). The app now carries its
+  own CLAUDE.md / PROJECT / TASKS / DECISIONS, which become its source of truth.
+  The build runs `scripts/predeploy.mjs dist` and fails on broken references.
+- **Checks:** `npm test` (17 unit tests), `npm run build`; Playwright flow run
+  manually (phone + desktop, no console errors, no horizontal overflow).
 
 ### Pink Riot Club — 3D friendship world (`apps/pink-riot-club/`)
 - **What:** نادي التخربيق — a private two-player 3D browser world (a gift from
@@ -212,6 +248,9 @@ _Last updated: 2026-10-06_
 ## Known Issues
 
 - **Bugs:** None known.
+- **مذاق البسبوسة limitations:** demo prices/sizes/photos; delivery fee is not
+  computed (confirmed on WhatsApp); pickup location and hours are placeholders;
+  orders aren't stored anywhere except the WhatsApp chat.
 - **Stash limitations:** data is per-browser (no cloud sync); clearing site
   data deletes it unless backed up. No recurring transactions yet.
 - **Technical debt:** Documentation currently updated manually; no automated
@@ -236,6 +275,22 @@ _Last updated: 2026-10-06_
 ---
 
 ## Changelog
+
+- **2026-10-06** — مذاق البسبوسة pushed to its own repo `asemdadesh-cmd/madhaq-albasbousa`.
+  The Vercel connection can read but not create projects (403), so the owner imports
+  the repo at vercel.com/new (no settings to change). That repo's docs are now the
+  source of truth for the store.
+
+- **2026-10-06** — مذاق البسبوسة: photos re-curated (only whole trays/boxes/cakes;
+  new basbousa-Nutella, kunafa-Nutella, baklava tray and chocolate cake shots),
+  pre-deploy check wired into the build, standalone docs added; prepared to move
+  to its own repo + Vercel project.
+
+- **2026-10-06** — Added **مذاق البسبوسة** (`apps/madhaq-albasbousa/`): Arabic RTL
+  storefront built around full trays/boxes/cakes (no per-piece ordering), size
+  picker with serving estimates, tray cart, checkout → WhatsApp order message,
+  "كم شخص عندك؟" tray planner, Unsplash placeholder photography, logo extracted
+  from the owner's artwork. Vercel-ready (Root Directory `apps/madhaq-albasbousa`).
 
 - **2026-10-06** — Root `netlify.toml` added: it points Netlify's `pink-riot-club` project at
   `apps/pink-riot-club`, so the repo's default branch deploys the game and nothing else.

@@ -8,6 +8,23 @@ _Last updated: 2026-10-06_
 
 ---
 
+### 2026-10-06 — مذاق البسبوسة: sell whole trays, order over WhatsApp, menu in one config file
+**Decision:** Model every product as a whole unit (`unitType` tray/box/cake, Arabic word
+طاجين/صينية/بوكس/قالب) with size `variants` (price, serving estimate, optional dimensions/
+image). Cart quantity = number of trays. Checkout builds a formatted Arabic message and opens
+`wa.me/218914153311`; no backend. All prices/sizes/serving counts live in
+`src/config/menu.ts`, shop details in `src/config/store.ts`. Static Vite + React SPA with a
+build-time pre-render, deployed to Vercel from `apps/madhaq-albasbousa`.
+**Why:** The owner sells full trays for families and occasions, not pieces — a per-piece
+model would mislead customers and the shop. WhatsApp is how Libyan shops already take
+orders, so a ready-made message has zero setup and no payment/compliance surface. One
+config file makes swapping in the real menu a 5-minute edit. Pre-rendering gives instant
+first paint and real HTML for search/link previews without a server. Photos hotlink
+Unsplash (its CDN resizes them; the sandbox network couldn't download full-size copies)
+and are credited; they are placeholders until the shop's own photos arrive.
+**Trade-off:** orders exist only in WhatsApp (no dashboard); delivery fees are confirmed by
+chat rather than computed; stock photos don't show the shop's actual product.
+
 ### 2026-10-06 — Pink Riot Club lives in `apps/pink-riot-club/` until it gets its own repo
 **Decision:** Push the recovered Pink Riot Club project into this repo under
 `apps/pink-riot-club/` (imported with `git subtree`, history preserved) as a
