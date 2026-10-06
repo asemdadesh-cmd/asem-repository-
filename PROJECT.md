@@ -162,8 +162,9 @@ _Last updated: 2026-10-06_
 - **Stack:** Vite 8 + React 19 + TS 7, plain CSS tokens (browns from the logo),
   Cairo variable font self-hosted, build-time pre-render (`entry-server.tsx` +
   `scripts/prerender.mjs`) plus schema.org `Bakery` menu JSON-LD. No backend.
-- **Home / deployment:** moving to its **own repo** (`madhaq-albasbousa`, app at
-  the root) with its own Git-linked Vercel project `madhaq-albasbousa`, kept
+- **Home / deployment:** lives in its **own repo**
+  `asemdadesh-cmd/madhaq-albasbousa` (app at the root, `main` = production;
+  pushed 2026-10-06 with history) with its own Git-linked Vercel project `madhaq-albasbousa`, kept
   fully separate from the tray ledger (`dessert-shop-ledger`,
   `dessert-ledger-redirect`). The Claude GitHub connection can't create repos
   (403), so the owner creates the empty repo; then it's pushed with history
@@ -274,6 +275,11 @@ _Last updated: 2026-10-06_
 ---
 
 ## Changelog
+
+- **2026-10-06** — مذاق البسبوسة pushed to its own repo `asemdadesh-cmd/madhaq-albasbousa`.
+  The Vercel connection can read but not create projects (403), so the owner imports
+  the repo at vercel.com/new (no settings to change). That repo's docs are now the
+  source of truth for the store.
 
 - **2026-10-06** — مذاق البسبوسة: photos re-curated (only whole trays/boxes/cakes;
   new basbousa-Nutella, kunafa-Nutella, baklava tray and chocolate cake shots),
