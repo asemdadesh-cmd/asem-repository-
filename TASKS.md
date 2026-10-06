@@ -26,8 +26,9 @@ _Last updated: 2026-10-06_
 
 ## 🔄 In Progress
 - [ ] **Pink Riot Club** (`apps/pink-riot-club/`, temporary home) — recovered
-      2026-10-06; finishing the 3D upgrade and deploying to Netlify. Detailed
-      task list lives in `apps/pink-riot-club/TASKS.md`.
+      and upgraded 2026-10-06 (rigged avatars, moments together, HDRI; e2e
+      18/18). Waiting on the owner to link Netlify (Base directory
+      `apps/pink-riot-club`). Detailed list: `apps/pink-riot-club/TASKS.md`.
 - [ ] Move Pink Riot Club to its own repo once the owner creates
       `pink-riot-club` (`git subtree split --prefix=apps/pink-riot-club`)
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +

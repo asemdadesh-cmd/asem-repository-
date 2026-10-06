@@ -7,11 +7,6 @@ import { makeRig } from '../game/Avatar.ts';
 import { el } from './dom.ts';
 import { applyEnvironment } from '../gfx/env.ts';
 
-/** Starts downloading every skinned avatar (shared promises; safe to call often). */
-export function preloadAllCharacters(): Promise<boolean[]> {
-  return Promise.all(CHARACTERS.filter((c) => isSkinned(c.id)).map((c) => preloadCharacter(c.id)));
-}
-
 const thumbCache = new Map<CharacterId, string>();
 const thumbSkinned = new Set<CharacterId>();
 

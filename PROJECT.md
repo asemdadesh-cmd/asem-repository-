@@ -237,6 +237,13 @@ _Last updated: 2026-10-06_
 
 ## Changelog
 
+- **2026-10-06** — **Pink Riot Club** 3D upgrade: rigged avatars with retargeted
+  mocap for the four human characters (outfits painted at build time), consent-
+  first moments together (hug, cheek kisses, high five, dance, holding hands,
+  blown kiss), HDRI lighting with post-processing on capable GPUs, pre-rendered
+  lobby portraits. Two-device e2e 18/18, unit tests 24/24. Details in
+  `apps/pink-riot-club/PROJECT.md`.
+
 - **2026-10-06** — Recovered **Pink Riot Club** into `apps/pink-riot-club/`. The
   session that built it was cut off by a usage limit before pushing, and its
   container was reclaimed; the code was rebuilt by replaying that session's

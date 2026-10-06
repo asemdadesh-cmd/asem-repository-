@@ -16,12 +16,21 @@ Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 - [x] Unit tests (24) + two-device e2e (16/16)
 - [x] Photos served from private Netlify Blobs + admin upload (script and /upload.html), so Git-linked deploys work
 - [x] `PRC_ADMIN_KEY` set on the Netlify project
+- [x] Recovered the whole project after the first session's container was lost (replayed its
+      recorded operations; both original commits reproduced exactly)
+- [x] Pro 3D upgrade: rigged avatars + retargeted mocap for the 4 humans, outfits painted at build
+      time (burgundy hair, pink blazer, kaftan with robe/aakad/mdamma, Libyan jacket, Morocco kit)
+- [x] Moments together with consent: hug, cheek kisses, high five, dance together, holding
+      hands, plus a blown kiss 💋; cinematic close-up; e2e accept/decline checks
+- [x] HDRI image-based lighting, post-processing on capable GPUs, pre-rendered lobby portraits
+- [x] Fixed: name tags and bubbles pinned at the world origin; bone overrides compounding
 
 ## 🔄 In progress
-- [ ] Push to GitHub `pink-riot-club`. Blocked until the owner creates the empty repo (the integration gets a 403 creating repos)
-- [ ] Link the Netlify project to the repo (owner, in Netlify UI), or open the egress policy so it can be deployed from here
-- [ ] Upload the photos (needs egress to the site, or the owner uses /upload.html)
-- [ ] Pro 3D upgrade: skinned models + mocap animations, HDRI + post-processing, paired interactions (hug, cheek kiss, blown kiss, high five, dance together, hold hands)
+- [ ] Deploy: the code is on GitHub in `asem-repository-` under `apps/pink-riot-club` (temporary
+      home). The owner links the Netlify project with Base directory `apps/pink-riot-club`
+- [ ] Own repo: once the owner creates an empty `pink-riot-club` repo, split it out with
+      `git subtree split --prefix=apps/pink-riot-club` and relink Netlify
+- [ ] Upload the photos via `/upload.html` (needs `PRC_ADMIN_KEY`)
 
 ## ⬜ Planned
 - [ ] Verify the deployed site from two real phones (Morocco + Libya networks)
@@ -29,3 +38,5 @@ Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 ## 💤 Backlog
 - [ ] Optional paid realtime (Ably/Supabase) if the public relays prove flaky
 - [ ] More outfits / emotes
+- [ ] Skinned models for the duck/cat/beaver/teddy (Mesh2Motion fox-rig cat is a candidate)
+- [ ] Yasso's nose stud and earrings on the skinned avatar

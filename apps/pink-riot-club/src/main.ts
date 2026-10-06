@@ -1,6 +1,8 @@
 import './ui/styles.css';
 import { RoomSession, loadCreds } from './net/session.ts';
-import { preloadAllCharacters, showLobby } from './ui/lobby.ts';
+import { showLobby } from './ui/lobby.ts';
+import { preloadCharacter } from './characters/skinned.ts';
+import type { CharacterId } from '../shared/api-types.ts';
 import { el } from './ui/dom.ts';
 import type { Game } from './game/Game.ts';
 import { sfx } from './game/audio.ts';
@@ -78,6 +80,11 @@ async function boot() {
   lobby(invite);
 }
 
-// the realistic avatars download while the lobby is up
-void preloadAllCharacters();
+// the player's usual avatar starts downloading while the lobby is up
+// (the friend's loads in-game; sculpted stand-ins show until then)
+try {
+  void preloadCharacter((localStorage.getItem('prc:char') as CharacterId | null) ?? 'yasso');
+} catch {
+  void preloadCharacter('yasso');
+}
 void boot();

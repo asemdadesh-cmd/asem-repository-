@@ -6,6 +6,7 @@
 // whatever the network delay.
 import * as THREE from 'three';
 import type { Msg, PairKind } from '../../shared/protocol.ts';
+import type { CharacterId } from '../../shared/api-types.ts';
 import type { Seat } from '../../shared/world.ts';
 import type { Avatar } from './Avatar.ts';
 import { rid, type GameCtx } from './context.ts';
@@ -23,13 +24,26 @@ export interface PairUi {
   prepare(): void;
 }
 
-export const PAIR_INFO: Record<PairKind, { label: string; ask: string; emoji: string; dur: number; near: number; gap: number }> = {
-  hug: { label: 'عنقة', ask: 'يعنقك', emoji: '🤗', dur: 3.8, near: 3, gap: 0.36 },
-  kiss: { label: 'بوسة على الخد', ask: 'يبوسك على الخد', emoji: '😘', dur: 2.6, near: 3, gap: 0.42 },
-  highfive: { label: 'تصفيقة', ask: 'يصفق معاك', emoji: '✋', dur: 1.5, near: 3.5, gap: 0.72 },
-  dance: { label: 'شطحة مع بعض', ask: 'يشطح معاك', emoji: '💃', dur: 7, near: 5, gap: 1.3 },
-  hands: { label: 'نشدّو اليدين', ask: 'يشدّ ليك يدك', emoji: '🤝', dur: 60, near: 3, gap: 0.56 },
+/** `ask` is the Darija verb phrase in the masculine; `askF` in the feminine. */
+export const PAIR_INFO: Record<PairKind, { label: string; ask: string; askF: string; emoji: string; dur: number; near: number; gap: number }> = {
+  hug: { label: 'عنقة', ask: 'يعنقك', askF: 'تعنقك', emoji: '🤗', dur: 3.8, near: 3, gap: 0.36 },
+  kiss: { label: 'بوسة على الخد', ask: 'يبوسك على الخد', askF: 'تبوسك على الخد', emoji: '😘', dur: 2.6, near: 3, gap: 0.42 },
+  highfive: { label: 'تصفيقة', ask: 'يصفق معاك', askF: 'تصفق معاك', emoji: '✋', dur: 1.5, near: 3.5, gap: 0.72 },
+  dance: { label: 'شطحة مع بعض', ask: 'يشطح معاك', askF: 'تشطح معاك', emoji: '💃', dur: 7, near: 5, gap: 1.3 },
+  hands: { label: 'نشدّو اليدين', ask: 'يشدّ ليك يدك', askF: 'تشدّ ليك يدك', emoji: '🤝', dur: 60, near: 3, gap: 0.56 },
 };
+
+/** Characters voiced in the feminine (يسو, the captain, the duck and the cat). */
+const FEMININE = new Set<CharacterId>(['yasso', 'yasso-kaftan', 'captain', 'duck', 'cat']);
+
+/** Accepts only well-formed moment messages from the friend. */
+export function validPairMsg(m: Extract<Msg, { t: 'pair' }>): boolean {
+  const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && Math.abs(n) < 1000;
+  if (typeof m.id !== 'string' || m.id.length > 40 || (m.from !== 1 && m.from !== 2)) return false;
+  if ((m.op === 'ask' || m.op === 'go') && !(m.kind in PAIR_INFO)) return false;
+  if (m.op === 'go') return Array.isArray(m.at) && m.at.length === 3 && m.at.every(finite) && finite(m.yaw) && finite(m.seed);
+  return m.op === 'ask' || m.op === 'no' || m.op === 'end';
+}
 
 interface Active {
   id: string;
@@ -78,6 +92,11 @@ export class PairManager {
     return this.ctx.nameOf(this.ctx.mySeat === 1 ? 2 : 1);
   }
 
+  /** the friend's character is voiced in the feminine */
+  private get fem() {
+    return FEMININE.has(this.ctx.remote?.characterId ?? 'yasso');
+  }
+
   // ------------------------------------------------------------------ asking
 
   /** Ask the friend for a moment together. */
@@ -90,7 +109,7 @@ export class PairManager {
       return;
     }
     if (!s || !r || !this.ctx.peerOnline()) {
-      this.ctx.hud.toast('صاحبك/ة ماشي هنا دابا 📡', 'warn');
+      this.ctx.hud.toast(this.fem ? 'صاحبتك ماشي هنا دابا 📡' : 'صاحبك ماشي هنا دابا 📡', 'warn');
       return;
     }
     if (me.mode === 'swim' || r.mode === 'swim' || me.mode === 'air' || r.mode === 'air') {
@@ -98,7 +117,7 @@ export class PairManager {
       return;
     }
     if (me.root.position.distanceTo(r.root.position) > PAIR_INFO[kind].near) {
-      this.ctx.hud.toast('قرّب من صاحبك/ة شوية 👣');
+      this.ctx.hud.toast(`قرّب من ${this.name} شوية 👣`);
       return;
     }
     if (this.outgoing) clearTimeout(this.outgoing.timer);
@@ -146,7 +165,7 @@ export class PairManager {
   }
 
   onMsg(m: Extract<Msg, { t: 'pair' }>) {
-    if (m.from === this.ctx.mySeat) return;
+    if (m.from === this.ctx.mySeat || !validPairMsg(m)) return;
     switch (m.op) {
       case 'ask': {
         if (this.active) {
@@ -155,7 +174,8 @@ export class PairManager {
         }
         this.incoming = { id: m.id, kind: m.kind };
         const info = PAIR_INFO[m.kind];
-        this.ui.ask(`${this.ctx.nameOf(m.from)} بغا/ت ${info.ask} ${info.emoji}`, () => this.accept(m.id, m.kind, m.from), () => this.decline(m.id), 10);
+        const ask = this.fem ? `بغات ${info.askF}` : `بغا ${info.ask}`;
+        this.ui.ask(`${this.ctx.nameOf(m.from)} ${ask} ${info.emoji}`, () => this.accept(m.id, m.kind, m.from), () => this.decline(m.id), 10);
         this.ctx.remote?.say(`${info.emoji}؟`, 2.2);
         sfx.pop();
         break;
@@ -166,7 +186,7 @@ export class PairManager {
         this.outgoing = null;
         this.ctx.remote?.play('reply');
         this.ctx.remote?.say('لم روحك 🤣', 2.4);
-        this.ctx.hud.toast(`${this.name} قال/ت: لم روحك 🤣`);
+        this.ctx.hud.toast(`${this.name} ${this.fem ? 'قالت' : 'قال'}: لم روحك 🤣`);
         sfx.laugh();
         break;
       case 'go':
@@ -453,7 +473,7 @@ export class PairManager {
             this.ctx.effects.emojiBurst(end, '💖', 7, 0.3);
             k.to.rig.setMood('shy', 2.2);
             k.to.say('🙈💗', 1.6);
-            if (k.to === this.ctx.local) this.ctx.hud.toast(`${this.name} صيفط/ات ليك بوسة 💋`, 'good');
+            if (k.to === this.ctx.local) this.ctx.hud.toast(`${this.name} ${this.fem ? 'صيفطات' : 'صيفط'} ليك بوسة 💋`, 'good');
           }
         }
       }

@@ -2,6 +2,38 @@
 
 _Last updated: 2026-10-06_
 
+### 2026-10-06 — Moments together are always asked first
+**Decision:** Hugs, cheek kisses, high fives, dancing together and holding hands need the
+friend's explicit yes («آه 💗»). Declining answers «لا، لم روحك 🤣» and nothing plays. Only the
+blown kiss 💋 skips the question, because it touches no one and just lands.
+**Why:** The owner wanted to "hug, kiss, do stuff like that". Asking first keeps every moment
+wholesome and mutual, and the decline button turns "no" into the friends' own running joke.
+Both devices compute the same meeting spot from one `go` message and pose both avatars
+locally, so it looks right on each screen whatever the lag.
+
+### 2026-10-06 — Realistic rigged avatars for the four humans; sculpted animals stay
+**Decision:** عاصم, يسو, يسو بالقفطان and the captain use artist-made rigged avatars
+(Avaturn, Avatar SDK, Ready Player Me, all from the TalkingHead repo) driven by the CC0
+Quaternius mocap library, which is retargeted in the browser. Outfits are painted into the
+textures at build time, and the kaftan robe, buttons and clasp are added at runtime. The duck,
+cat, beaver and teddy stay hand-sculpted.
+**Why:** The owner asked for "an actual nice looking 3D game that's not AI" with "the best 3D
+models". Real rigs with mocap and ARKit faces are the biggest visible jump. The asset hosts
+(Quaternius, Poly Haven, Sketchfab…) are blocked from this environment but GitHub isn't, and
+TalkingHead and Mesh2Motion carry suitable avatars and animations. Painting by a UV-space body
+position map lets one avatar wear a pink blazer, a kaftan or a Libyan jacket without new meshes.
+The sculpted rigs remain as an instant fallback while models load.
+**Trade-off:** About 6.5 MB of models (only the needed ones download, and the browser caches
+them). Two avatars are licensed for non-commercial use only, which suits a private gift; this
+is noted in the README credits.
+
+### 2026-10-06 — Image-based lighting from a clamped HDRI, post only on capable GPUs
+**Decision:** Light PBR materials with a CC0 beach-sunrise HDRI reduced to 256×128 with the sun
+clamped. Desktop-class GPUs get MSAA, a highlights-only bloom and a vignette; phones don't, and
+the adaptive-quality loop drops the post stack first.
+**Why:** Realistic avatars look flat under a flat ambient. Clamping the sun keeps the scene's
+directional light the only hard light, so there are no double highlights. Phones need every frame.
+
 ### 2026-10-06 — Photos served from Netlify Blobs, not bundled
 **Decision:** The gallery loads photos from `/api/photo/*`, which reads a private Blobs store.
 Uploads go through an admin-key-protected endpoint (script or `/upload.html`).
@@ -28,7 +60,7 @@ a transport module that can be swapped out.
 **Why:** Netlify Blobs has no transactions. Replay makes concurrent writes safe and
 deterministic. Duplicates, rate limits and round breaks are judged identically everywhere.
 
-### 2026-10-06 — Procedural characters instead of downloaded models
+### 2026-10-06 — Procedural characters instead of downloaded models (partly superseded)
 **Decision:** Sculpt all 8 characters from smooth parametric geometry (lathes, ellipsoids,
 swept ribbons, alpha-masked shells), with procedural animation.
 **Why:** It needs no licensing or downloads, everything stays on-palette and personal (her

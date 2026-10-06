@@ -107,7 +107,7 @@ export class HudView implements Hud {
       'div',
       { class: 'help' },
       el('div', {}, el('kbd', {}, 'WASD'), ' مشي · ', el('kbd', {}, 'Shift'), ' جري · ', el('kbd', {}, 'Space'), ' نقز'),
-      el('div', {}, el('kbd', {}, 'E'), ' تفاعل · ', el('kbd', {}, 'F'), ' كورة/رشّ · ', el('kbd', {}, 'B'), ' بضربك😂'),
+      el('div', {}, el('kbd', {}, 'E'), ' تفاعل · ', el('kbd', {}, 'F'), ' كورة/رشّ · ', el('kbd', {}, 'B'), ' بضربك😂 · ', el('kbd', {}, 'H'), ' 💞'),
       el('div', {}, 'كليكي على الأرض باش تمشي · جر الماوس باش تدور'),
     );
     this.root.append(top, scores, side, this.peerWait, this.toasts, this.bannerWrap, this.promptWrap, this.replyWrap, this.pairAskWrap, this.pairEndWrap, this.pairMenu, reactions);
