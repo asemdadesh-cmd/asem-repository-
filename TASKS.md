@@ -24,6 +24,9 @@ _Last updated: 2026-10-06_
 - [x] Build **Stash** money tracker (`apps/money-tracker/`) — Vercel-ready,
       tests + build passing
 
+- [x] Build **مذاق البسبوسة** V1 demo (`apps/madhaq-albasbousa/`) — tray-based
+      menu, size picker, cart, WhatsApp checkout; tests + build passing
+
 ## 🔄 In Progress
 - [ ] **Pink Riot Club** (`apps/pink-riot-club/`, temporary home) — recovered
       and upgraded 2026-10-06 (rigged avatars, moments together, HDRI; e2e
@@ -35,6 +38,10 @@ _Last updated: 2026-10-06_
       `/plugin install agency-review@nht-skills`)
 
 ## ⬜ Planned
+- [ ] مذاق البسبوسة: replace demo prices, sizes, serving counts with the owner's real menu (`src/config/menu.ts`)
+- [ ] مذاق البسبوسة: swap Unsplash placeholders for the shop's own tray photos
+- [ ] مذاق البسبوسة: confirm hours, pickup location, delivery areas/fees; set `demoMode: false`
+- [ ] مذاق البسبوسة: deploy to Vercel (Root Directory `apps/madhaq-albasbousa`) + custom domain
 - [x] Localise Stash for Libya (LYD, categories, sample data, Arabic digits)
 - [ ] Stash: Arabic UI with RTL layout (language toggle)
 - [ ] Stash: cash vs bank tracking (Libya's cash-liquidity reality)
@@ -43,6 +50,7 @@ _Last updated: 2026-10-06_
 - [ ] Dogfood `council` on one real decision and tune the round word limits
 
 ## 💤 Backlog
+- [ ] مذاق البسبوسة: per-area delivery fees in the total; owner-side order log (e.g. Supabase)
 - [ ] Stash: optional cloud sync / accounts (e.g. Supabase) for multi-device use
 - [ ] Stash: offline service worker (full PWA)
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
