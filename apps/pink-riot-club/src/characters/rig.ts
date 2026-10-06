@@ -51,6 +51,32 @@ export const ACTION_DURATION: Record<ActionName, number> = {
   reply: 1.6,
 };
 
+/** Moods requested by social moments (hugs, kisses…), mapped per rig type. */
+export type Mood = 'love' | 'kiss' | 'shy' | 'laugh' | 'surprise' | 'smile';
+export type Side = 'L' | 'R';
+export type BodyPoint = 'chest' | 'head' | 'mouth' | 'pelvis';
+
+/** What the game needs from any character rig (procedural or skinned). */
+export interface CharacterRig {
+  readonly root: THREE.Object3D;
+  readonly spec: RigSpec;
+  readonly height: number;
+  readonly currentAction: ActionName | null;
+  readonly skinned: boolean;
+  play(name: ActionName, seed?: number): void;
+  update(dt: number, inp: AnimInput): void;
+  setMood(m: Mood, seconds: number): void;
+  /** [upper arm, forearm, hand] joints, for IK reaches */
+  arm(side: Side): [THREE.Object3D, THREE.Object3D, THREE.Object3D];
+  /** joints used to lean the body and tilt the head */
+  bend(): { spine: THREE.Object3D; head: THREE.Object3D };
+  /** world position of a body landmark */
+  point(name: BodyPoint, out: THREE.Vector3): THREE.Vector3;
+  dispose(): void;
+}
+
+const MOOD_EXPR: Record<Mood, Expression> = { love: 'happy', kiss: 'happy', shy: 'smile', laugh: 'laugh', surprise: 'surprised', smile: 'smile' };
+
 export interface AnimInput {
   speed: number; // horizontal m/s
   mode: 'ground' | 'swim' | 'air' | 'sit';
@@ -140,7 +166,8 @@ export class Skirt {
   }
 }
 
-export class Rig {
+export class Rig implements CharacterRig {
+  readonly skinned = false;
   root = new THREE.Group();
   body: Joint;
   hips: Joint;
@@ -220,7 +247,39 @@ export class Rig {
     return this.spec.hipY + this.spec.spine + this.spec.chest + this.spec.neck + this.spec.headR * 2.1;
   }
 
-  play(name: ActionName) {
+  private mood: Expression | null = null;
+  private moodUntil = 0;
+
+  setMood(m: Mood, seconds: number) {
+    this.mood = MOOD_EXPR[m];
+    this.moodUntil = this.time + seconds;
+  }
+
+  arm(side: Side): [THREE.Object3D, THREE.Object3D, THREE.Object3D] {
+    return side === 'L' ? [this.shoulderL, this.elbowL, this.wristL] : [this.shoulderR, this.elbowR, this.wristR];
+  }
+
+  bend() {
+    return { spine: this.spine as THREE.Object3D, head: this.head as THREE.Object3D };
+  }
+
+  point(name: BodyPoint, out: THREE.Vector3): THREE.Vector3 {
+    const s = this.spec;
+    if (name === 'pelvis') return this.hips.getWorldPosition(out);
+    if (name === 'chest') return this.chest.localToWorld(out.set(0, s.chest * 0.45, 0));
+    if (name === 'head') return this.head.localToWorld(out.set(0, s.headR, 0));
+    return this.head.localToWorld(out.set(0, s.headR * 0.75, s.headR * 0.95));
+  }
+
+  dispose() {
+    this.root.removeFromParent();
+    this.root.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m.isMesh) m.geometry.dispose();
+    });
+  }
+
+  play(name: ActionName, _seed?: number) {
     this.action = { name, t: 0, dur: ACTION_DURATION[name] };
     if (name === 'hit') this.dizzy = 1.6;
     if (this.props.noodle) this.props.noodle.visible = name === 'bonk';
@@ -402,6 +461,7 @@ export class Rig {
       }
     }
 
+    if (this.mood && this.time < this.moodUntil) expr = this.mood;
     if (this.dizzy > 0) {
       this.dizzy -= dt;
       expr = 'dizzy';

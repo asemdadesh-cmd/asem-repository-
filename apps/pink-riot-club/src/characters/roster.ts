@@ -460,7 +460,7 @@ function quiltTexture() {
 }
 
 let kaftanSkirtCache: THREE.CanvasTexture | null = null;
-function kaftanSkirtTexture() {
+export function kaftanSkirtTexture() {
   if (kaftanSkirtCache) return kaftanSkirtCache;
   const c = document.createElement('canvas');
   c.width = 1024;

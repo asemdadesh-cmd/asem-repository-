@@ -1,6 +1,6 @@
 import './ui/styles.css';
 import { RoomSession, loadCreds } from './net/session.ts';
-import { showLobby } from './ui/lobby.ts';
+import { preloadAllCharacters, showLobby } from './ui/lobby.ts';
 import { el } from './ui/dom.ts';
 import type { Game } from './game/Game.ts';
 import { sfx } from './game/audio.ts';
@@ -78,4 +78,6 @@ async function boot() {
   lobby(invite);
 }
 
+// the realistic avatars download while the lobby is up
+void preloadAllCharacters();
 void boot();

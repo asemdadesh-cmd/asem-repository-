@@ -1,9 +1,18 @@
 import * as THREE from 'three';
-import { CHARACTERS, buildCharacter, metaFor } from '../characters/roster.ts';
+import { CHARACTERS, metaFor } from '../characters/roster.ts';
 import type { CharacterId } from '../../shared/api-types.ts';
+import type { CharacterRig } from '../characters/rig.ts';
+import { isSkinned, preloadCharacter, skinnedReady } from '../characters/skinned.ts';
+import { makeRig } from '../game/Avatar.ts';
 import { el } from './dom.ts';
 
+/** Starts downloading every skinned avatar (shared promises; safe to call often). */
+export function preloadAllCharacters(): Promise<boolean[]> {
+  return Promise.all(CHARACTERS.filter((c) => isSkinned(c.id)).map((c) => preloadCharacter(c.id)));
+}
+
 const thumbCache = new Map<CharacterId, string>();
+const thumbSkinned = new Set<CharacterId>();
 
 function studioScene(): { scene: THREE.Scene; env: THREE.Texture | null } {
   const scene = new THREE.Scene();
@@ -27,9 +36,10 @@ function envFor(renderer: THREE.WebGLRenderer): THREE.Texture {
   return t;
 }
 
-/** Render 8 portrait thumbnails once (cached as data URLs). */
-export function renderThumbnails(): Map<CharacterId, string> {
-  if (thumbCache.size) return thumbCache;
+/** Renders portrait thumbnails (cached as data URLs); skinned ones re-render once loaded. */
+export function renderThumbnails(ids: CharacterId[] = CHARACTERS.map((c) => c.id)): Map<CharacterId, string> {
+  const todo = ids.filter((id) => !thumbCache.has(id) || (isSkinned(id) && skinnedReady(id) && !thumbSkinned.has(id)));
+  if (!todo.length) return thumbCache;
   const r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
   r.setSize(200, 250, false);
   r.setPixelRatio(1);
@@ -38,8 +48,10 @@ export function renderThumbnails(): Map<CharacterId, string> {
   const { scene } = studioScene();
   scene.environment = envFor(r);
   const cam = new THREE.PerspectiveCamera(26, 200 / 250, 0.05, 50);
-  for (const c of CHARACTERS) {
-    const rig = buildCharacter(c.id);
+  for (const id of todo) {
+    const c = metaFor(id);
+    const rig = makeRig(c.id);
+    if (rig.skinned) thumbSkinned.add(c.id);
     rig.root.rotation.y = 0.35;
     for (let i = 0; i < 20; i++) rig.update(1 / 60, { speed: 0, mode: 'ground' });
     scene.add(rig.root);
@@ -48,8 +60,7 @@ export function renderThumbnails(): Map<CharacterId, string> {
     cam.lookAt(0, h * 0.55, 0);
     r.render(scene, cam);
     thumbCache.set(c.id, r.domElement.toDataURL('image/png'));
-    scene.remove(rig.root);
-    rig.root.traverse((o) => (o as THREE.Mesh).isMesh && (o as THREE.Mesh).geometry.dispose());
+    rig.dispose();
   }
   r.dispose();
   r.forceContextLoss();
@@ -60,7 +71,8 @@ class Preview {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   cam = new THREE.PerspectiveCamera(30, 1, 0.05, 50);
-  rig: ReturnType<typeof buildCharacter> | null = null;
+  rig: CharacterRig | null = null;
+  private id: CharacterId | null = null;
   private raf = 0;
   private last = performance.now();
   private t = 0;
@@ -92,12 +104,11 @@ class Preview {
   }
 
   set(id: CharacterId) {
-    if (this.rig) {
-      this.scene.remove(this.rig.root);
-      this.rig.root.traverse((o) => (o as THREE.Mesh).isMesh && (o as THREE.Mesh).geometry.dispose());
-    }
-    this.rig = buildCharacter(id);
+    this.id = id;
+    this.rig?.dispose();
+    this.rig = makeRig(id);
     this.scene.add(this.rig.root);
+    if (isSkinned(id) && !this.rig.skinned) void preloadCharacter(id).then((ok) => ok && this.id === id && !this.rig?.skinned && this.set(id));
     this.rig.play('wave');
     const h = this.rig.height;
     this.cam.position.set(0, h * 0.62, h * 1.7 + 1.1);
@@ -163,6 +174,15 @@ export function defaultNameFor(ch: CharacterId): string {
 
 export function characterGrid(selected: CharacterId, onPick: (id: CharacterId) => void): HTMLElement {
   const thumbs = renderThumbnails();
+  // swap in the real avatars' portraits as they finish loading
+  void preloadAllCharacters().then(() => {
+    const fresh = renderThumbnails();
+    grid.querySelectorAll<HTMLButtonElement>('.char').forEach((b) => {
+      const img = b.querySelector('img');
+      const src = fresh.get(b.dataset.id as CharacterId);
+      if (img && src && img.src !== src) img.src = src;
+    });
+  });
   const grid = el('div', { class: 'chars', role: 'group', 'aria-label': 'ختار الشخصية' });
   for (const c of CHARACTERS) {
     const b = el(

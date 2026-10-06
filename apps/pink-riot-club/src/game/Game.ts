@@ -669,8 +669,13 @@ export class Game {
     return inPool(p.x, p.z) ? POOL.waterY : SEA_LEVEL;
   }
 
-  private swimDepth(moving: number): number {
+  private swimDepth(moving: number, hs: number): number {
     const s = this.local.rig.spec;
+    if (this.local.rig.skinned) {
+      // mocap swimmers: upright treading water when still, flat front crawl when moving
+      const f = THREE.MathUtils.smoothstep(hs, 0.3, 1.2);
+      return THREE.MathUtils.lerp(this.local.rig.height * 0.765, 0.24, f);
+    }
     if (s.floats) return s.hipY * 0.75 + s.spine * 0.4;
     const still = s.hipY * 0.72 + s.spine + s.chest * 0.55;
     const move = s.hipY * 0.5 + 0.1;
@@ -793,7 +798,7 @@ export class Game {
     const water = inP ? POOL.waterY : SEA_LEVEL;
     const ground = inP ? POOL.floorY : this.world.groundAt(p.x, p.z);
     const moveF = THREE.MathUtils.clamp(hs / 2.4, 0, 1);
-    const swimY = water - this.swimDepth(moveF);
+    const swimY = water - this.swimDepth(moveF, hs);
     if ((inP || seaSwim) && p.y <= swimY + 0.05 + (swimming ? 0.4 : 0)) {
       // in the water
       if (!swimming && this.vel.y < -2) {

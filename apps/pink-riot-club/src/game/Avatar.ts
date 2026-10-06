@@ -2,13 +2,20 @@
 import * as THREE from 'three';
 import type { CharacterId } from '../../shared/api-types.ts';
 import { buildCharacter, metaFor } from '../characters/roster.ts';
-import type { ActionName, Rig } from '../characters/rig.ts';
+import type { ActionName, CharacterRig } from '../characters/rig.ts';
+import { buildSkinned, isSkinned, preloadCharacter, skinnedReady } from '../characters/skinned.ts';
 
-const tmp = new THREE.Vector3();
+const off = new THREE.Vector3();
+const labelPos = new THREE.Vector3();
+
+/** The best available rig: the skinned avatar once its model has loaded, else the sculpted one. */
+export function makeRig(id: CharacterId): CharacterRig {
+  return isSkinned(id) && skinnedReady(id) ? buildSkinned(id) : buildCharacter(id);
+}
 
 export class Avatar {
   root = new THREE.Group();
-  rig!: Rig;
+  rig!: CharacterRig;
   characterId!: CharacterId;
   speed = 0;
   mode: 'ground' | 'swim' | 'air' | 'sit' = 'ground';
@@ -17,6 +24,9 @@ export class Avatar {
   private bubbleUntil = 0;
   private status: string | null = null;
   lookYaw = 0;
+  /** called after the rig is swapped (e.g. the skinned model finished loading) */
+  onRig: (() => void) | null = null;
+  private disposed = false;
 
   constructor(
     characterId: CharacterId,
@@ -37,20 +47,20 @@ export class Avatar {
   }
 
   setCharacter(id: CharacterId) {
-    if (this.rig && this.characterId === id) return;
-    if (this.rig) {
-      this.root.remove(this.rig.root);
-      this.rig.root.traverse((o) => {
-        const m = o as THREE.Mesh;
-        if (m.isMesh) {
-          m.geometry.dispose();
-        }
-      });
-    }
+    if (this.rig && this.characterId === id && (this.rig.skinned || !skinnedReady(id))) return;
+    const old = this.rig;
     this.characterId = id;
-    this.rig = buildCharacter(id);
+    this.rig = makeRig(id);
+    if (old) old.dispose();
     this.root.add(this.rig.root);
     this.refreshTag();
+    this.onRig?.();
+    // upgrade to the skinned avatar as soon as its model is ready
+    if (isSkinned(id) && !this.rig.skinned) {
+      void preloadCharacter(id).then((ok) => {
+        if (ok && !this.disposed && this.characterId === id && !this.rig.skinned) this.setCharacter(id);
+      });
+    }
   }
 
   setName(n: string) {
@@ -95,8 +105,9 @@ export class Avatar {
   }
 
   headPos(out = new THREE.Vector3()): THREE.Vector3 {
+    if (this.rig.skinned) return this.rig.point('head', out).add(off.set(0, 0.06, 0));
     const h = this.mode === 'swim' ? this.rig.spec.hipY * 0.6 + this.rig.spec.headR * 2 : this.rig.height;
-    return out.copy(this.root.position).add(tmp.set(0, h + 0.05, 0));
+    return out.copy(this.root.position).add(off.set(0, h + 0.05, 0));
   }
 
   update(dt: number) {
@@ -104,7 +115,7 @@ export class Avatar {
   }
 
   updateLabels(camera: THREE.Camera, w: number, h: number, maxDist = 40) {
-    const p = this.headPos(tmp).add(new THREE.Vector3(0, 0.28, 0));
+    const p = this.headPos(labelPos).add(off.set(0, 0.28, 0));
     const dist = camera.position.distanceTo(p);
     p.project(camera);
     const visible = p.z < 1 && p.z > -1 && dist < maxDist;
@@ -119,6 +130,8 @@ export class Avatar {
   }
 
   dispose() {
+    this.disposed = true;
+    this.rig.dispose();
     this.tag.remove();
     this.bubble.remove();
     this.root.removeFromParent();
