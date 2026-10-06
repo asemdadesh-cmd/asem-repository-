@@ -18,6 +18,10 @@ hangouts. Arabic + Moroccan Darija UI. See README.md for the feature tour.
       locomotion clips bake at load, the actions bake the first time they play.
     - Faces use ARKit morph targets.
     - Runtime extras in `looks.ts`: the kaftan robe, aakad buttons and mdamma clasp.
+    - Outfits are painted into the textures at build time (`scripts/avatar-looks.mjs`). عاصم
+      wears a midnight-navy dinner suit: black satin shawl lapels, a white shirt with a
+      burgundy tie, a pink pocket square and black oxfords. Shirt-only rebuild:
+      `node scripts/build-models.mjs asem`.
   - **Sculpted procedural rigs** for the duck, cat, beaver and teddy (`roster.ts`). They are
     also the instant stand-ins for the four humans until their models load.
 - **Moments together:** `src/game/pairs.ts` handles the consent flow (ask, then yes or no), the
@@ -141,6 +145,11 @@ Rules: football round to 3 (min 2.5 s between goals), pool round to 5 (0.55 s pe
 - Character customisation (outfit colours), more emotes, a sound toggle per effect.
 
 ## Changelog
+- **2026-10-06** — عاصم's outfit redone as a clean midnight-navy dinner suit: black satin shawl
+  lapels, a white shirt and collar with a burgundy tie, a pink pocket square, a pressed trouser
+  crease and polished black oxfords. Also on the sculpted stand-in. The face is cleaner too:
+  freckles evened out, no darkening around the eyes. `build-models.mjs` and `render-thumbs.mjs`
+  can rebuild a single model or portrait.
 - **2026-10-06** — Recovered the project, which was lost with the first session's container
   (replayed its recorded operations; both commits reproduced exactly).
   - **3D upgrade:** rigged avatars with retargeted mocap for the four humans, with outfits

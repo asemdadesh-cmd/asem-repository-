@@ -1,5 +1,6 @@
 // Dev-only: skinned + sculpted characters side by side for visual checks.
 // /skinned.html?ids=asem,yasso,captain&clip=Walk&t=0.4&view=full|face&action=dance&speed=1.4&mode=ground
+// (&sculpted shows the instant stand-ins instead of the realistic avatars)
 import * as THREE from 'three';
 import { buildCharacter } from '../characters/roster.ts';
 import { buildSkinned, isSkinned, preloadCharacter, type SkinnedRig } from '../characters/skinned.ts';
@@ -45,7 +46,7 @@ const gap = Number(q.get('gap') ?? 0.9);
 const camera = new THREE.PerspectiveCamera(view === 'face' ? 14 : 30, innerWidth / innerHeight, 0.05, 100);
 
 const ok = await Promise.all(ids.map((id) => preloadCharacter(id)));
-const rigs: CharacterRig[] = ids.map((id, i) => (isSkinned(id) && ok[i] ? buildSkinned(id) : buildCharacter(id)));
+const rigs: CharacterRig[] = ids.map((id, i) => (isSkinned(id) && ok[i] && !q.has('sculpted') ? buildSkinned(id) : buildCharacter(id)));
 rigs.forEach((r, i) => {
   r.root.position.x = (i - (rigs.length - 1) / 2) * gap;
   r.root.rotation.y = Number(q.get('yaw') ?? 0);

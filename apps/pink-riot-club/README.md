@@ -31,7 +31,8 @@ camera eases in to frame you both.
 - **عاصم, يسو, يسو بالقفطان, الكابتن** are professional rigged avatars with mocap animation
   (idle, walk, jog, sprint, swim, sit, jump, kicks, throws, dances, cheers, greetings…) and
   ARKit face shapes for blinks, smiles, laughs, kisses and blushes:
-  - عاصم: dark wavy hair and beard, black jacket with gold embroidery open over a white shirt
+  - عاصم: dark hair and beard, a midnight-navy dinner suit with black satin shawl lapels, a white
+    shirt with a burgundy silk tie, a blush-pink pocket square and polished black oxfords
   - يسو: burgundy hair, pink blazer, white shirt
   - يسو بالقفطان: ivory kaftan with gold-embroidered lapels and cuffs, a row of gold *aakad*
     buttons, a jewelled *mdamma* clasp, and a long robe that swings with every step
@@ -108,6 +109,8 @@ committed):
 
 ```bash
 node scripts/build-models.mjs   # vendor-src/*.glb → public/models/{yasso,asem,captain,anims}.glb
+node scripts/build-models.mjs asem            # just one (yasso | asem | captain | anims)
+node scripts/render-thumbs.mjs http://localhost:5173 asem   # refresh that lobby portrait
 node scripts/build-env.mjs      # vendor-src/*.hdr → public/models/env-sunrise.hdr
 ```
 

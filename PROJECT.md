@@ -237,6 +237,10 @@ _Last updated: 2026-10-06_
 
 ## Changelog
 
+- **2026-10-06** — **Pink Riot Club**: عاصم's avatar now wears a clean midnight-navy dinner suit
+  (satin shawl lapels, white shirt, burgundy tie, pink pocket square, black oxfords), replacing
+  the old jacket-and-jeans look. See `apps/pink-riot-club/DECISIONS.md`.
+
 - **2026-10-06** — **Pink Riot Club** 3D upgrade: rigged avatars with retargeted
   mocap for the four human characters (outfits painted at build time), consent-
   first moments together (hug, cheek kisses, high five, dance, holding hands,

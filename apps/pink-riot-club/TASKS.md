@@ -24,6 +24,8 @@ Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
       hands, plus a blown kiss 💋; cinematic close-up; e2e accept/decline checks
 - [x] HDRI image-based lighting, post-processing on capable GPUs, pre-rendered lobby portraits
 - [x] Fixed: name tags and bubbles pinned at the world origin; bone overrides compounding
+- [x] عاصم's new look: midnight-navy dinner suit (satin shawl lapels, white shirt, burgundy tie,
+      pink pocket square, black oxfords), on both the realistic avatar and the stand-in
 
 ## 🔄 In progress
 - [ ] Deploy: the code is on GitHub in `asem-repository-` under `apps/pink-riot-club` (temporary

@@ -1,12 +1,13 @@
 // Pre-renders the 8 lobby portraits so phones don't build every character
 // just to show the picker. Needs a running dev server.
-// Usage: node scripts/render-thumbs.mjs [http://localhost:5173]
+// Usage: node scripts/render-thumbs.mjs [http://localhost:5173] [ids...]
 import { chromium } from 'playwright';
 import sharp from 'sharp';
 import { mkdirSync } from 'node:fs';
 
 const base = (process.argv[2] ?? 'http://localhost:5173').replace(/\/$/, '');
-const ids = ['asem', 'yasso', 'duck', 'cat', 'beaver', 'captain', 'yasso-kaftan', 'teddy'];
+const all = ['asem', 'yasso', 'duck', 'cat', 'beaver', 'captain', 'yasso-kaftan', 'teddy'];
+const ids = process.argv.length > 3 ? process.argv.slice(3) : all;
 mkdirSync('public/thumbs', { recursive: true });
 const browser = await chromium.launch({
   executablePath: process.env.CHROME ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',

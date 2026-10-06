@@ -8,7 +8,8 @@
 //   vendor-src/anim-*.glb     — Quaternius Universal Animation Library (CC0)
 //     (via github.com/scottpetrovic/mesh2motion-app static/animations)
 //
-// Run: node scripts/build-models.mjs
+// Run: node scripts/build-models.mjs            (everything)
+//      node scripts/build-models.mjs asem       (only some of: yasso asem captain anims)
 import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import { dedup, meshopt, prune, resample, textureCompress } from '@gltf-transform/functions';
@@ -24,6 +25,8 @@ const io = new NodeIO()
   .registerExtensions(ALL_EXTENSIONS)
   .registerDependencies({ 'meshopt.decoder': MeshoptDecoder, 'meshopt.encoder': MeshoptEncoder });
 
+const ONLY = process.argv.slice(2);
+const want = (name) => !ONLY.length || ONLY.includes(name);
 const SRC = 'vendor-src';
 const OUT = 'public/models';
 mkdirSync(OUT, { recursive: true });
@@ -83,6 +86,7 @@ for (const [src, out, look] of [
   ['avatarsdk.glb', 'asem.glb', lookAsem],
   ['brunette.glb', 'captain.glb', lookCaptain],
 ]) {
+  if (!want(out.replace('.glb', ''))) continue;
   const doc = await io.read(`${SRC}/${src}`);
   // outfits + hair are painted into the textures (see avatar-looks.mjs)
   const extra = await look(doc);
@@ -97,83 +101,85 @@ for (const [src, out, look] of [
 }
 
 // ---------- animation library (Quaternius rig) ----------
-const CLIPS = {
-  'anim-base.glb': [
-    'Idle_A', 'Idle_Talking', 'Idle_FoldArms', 'Walk', 'Walk_Formal', 'Jog', 'Sprint',
-    'Jump_Start', 'Jump_air', 'Jump_Land', 'Swim_Fwd', 'Swim_Idle',
-    'Sitting_Enter', 'Sitting_Idle', 'Sitting_Exit', 'Sitting_Talking',
-    'Dance_Simple', 'Hit_Head', 'Hit_Chest', 'OverhandThrow', 'Punch_Cross', 'Yes', 'Interact', 'PickUp_Table',
-  ],
-  'anim-addon.glb': [
-    'Walk_Female', 'Run_Female', 'Idle_Subtle', 'Idle Listening', 'Greeting', 'Victory', 'Victory Fist Pump',
-    'Dance Charleston', 'Dance Body Roll', 'Dance Reach Hip', 'Dizzy', 'Head Nod', 'Reject', 'Angry',
-    'Confused', 'Throw Object', 'Backflip', 'Bow', 'Jumping Jacks', 'Shivering',
-  ],
-  'anim-mocap.glb': ['Cheer_One_arm', 'Cheering_Two_Hands', 'Kick_Breach', 'Salute', 'Insult'],
-};
+if (want('anims')) {
+  const CLIPS = {
+    'anim-base.glb': [
+      'Idle_A', 'Idle_Talking', 'Idle_FoldArms', 'Walk', 'Walk_Formal', 'Jog', 'Sprint',
+      'Jump_Start', 'Jump_air', 'Jump_Land', 'Swim_Fwd', 'Swim_Idle',
+      'Sitting_Enter', 'Sitting_Idle', 'Sitting_Exit', 'Sitting_Talking',
+      'Dance_Simple', 'Hit_Head', 'Hit_Chest', 'OverhandThrow', 'Punch_Cross', 'Yes', 'Interact', 'PickUp_Table',
+    ],
+    'anim-addon.glb': [
+      'Walk_Female', 'Run_Female', 'Idle_Subtle', 'Idle Listening', 'Greeting', 'Victory', 'Victory Fist Pump',
+      'Dance Charleston', 'Dance Body Roll', 'Dance Reach Hip', 'Dizzy', 'Head Nod', 'Reject', 'Angry',
+      'Confused', 'Throw Object', 'Backflip', 'Bow', 'Jumping Jacks', 'Shivering',
+    ],
+    'anim-mocap.glb': ['Cheer_One_arm', 'Cheering_Two_Hands', 'Kick_Breach', 'Salute', 'Insult'],
+  };
 
-const lib = await io.read(`${SRC}/anim-base.glb`);
-const libRoot = lib.getRoot();
-const nodeByName = new Map(libRoot.listNodes().map((n) => [n.getName(), n]));
-const buf = libRoot.listBuffers()[0];
+  const lib = await io.read(`${SRC}/anim-base.glb`);
+  const libRoot = lib.getRoot();
+  const nodeByName = new Map(libRoot.listNodes().map((n) => [n.getName(), n]));
+  const buf = libRoot.listBuffers()[0];
 
-function copyAccessor(a) {
-  return lib.createAccessor(a.getName()).setType(a.getType()).setArray(a.getArray().slice()).setNormalized(a.getNormalized()).setBuffer(buf);
-}
+  function copyAccessor(a) {
+    return lib.createAccessor(a.getName()).setType(a.getType()).setArray(a.getArray().slice()).setNormalized(a.getNormalized()).setBuffer(buf);
+  }
 
-for (const a of libRoot.listAnimations()) if (!CLIPS['anim-base.glb'].includes(a.getName())) disposeAnimation(a);
-for (const file of ['anim-addon.glb', 'anim-mocap.glb']) {
-  const other = await io.read(`${SRC}/${file}`);
-  for (const a of other.getRoot().listAnimations()) {
-    if (!CLIPS[file].includes(a.getName())) continue;
-    const na = lib.createAnimation(a.getName());
+  for (const a of libRoot.listAnimations()) if (!CLIPS['anim-base.glb'].includes(a.getName())) disposeAnimation(a);
+  for (const file of ['anim-addon.glb', 'anim-mocap.glb']) {
+    const other = await io.read(`${SRC}/${file}`);
+    for (const a of other.getRoot().listAnimations()) {
+      if (!CLIPS[file].includes(a.getName())) continue;
+      const na = lib.createAnimation(a.getName());
+      for (const ch of a.listChannels()) {
+        const target = nodeByName.get(ch.getTargetNode()?.getName());
+        if (!target) continue;
+        const s = ch.getSampler();
+        const ns = lib.createAnimationSampler().setInput(copyAccessor(s.getInput())).setOutput(copyAccessor(s.getOutput())).setInterpolation(s.getInterpolation());
+        na.addSampler(ns);
+        na.addChannel(lib.createAnimationChannel().setTargetNode(target).setTargetPath(ch.getTargetPath()).setSampler(ns));
+      }
+    }
+  }
+  // Only rotations matter for retargeting (plus the pelvis bob); drop the rest.
+  for (const a of libRoot.listAnimations()) {
     for (const ch of a.listChannels()) {
-      const target = nodeByName.get(ch.getTargetNode()?.getName());
-      if (!target) continue;
-      const s = ch.getSampler();
-      const ns = lib.createAnimationSampler().setInput(copyAccessor(s.getInput())).setOutput(copyAccessor(s.getOutput())).setInterpolation(s.getInterpolation());
-      na.addSampler(ns);
-      na.addChannel(lib.createAnimationChannel().setTargetNode(target).setTargetPath(ch.getTargetPath()).setSampler(ns));
+      const path = ch.getTargetPath();
+      const name = ch.getTargetNode()?.getName();
+      if (path === 'scale' || (path === 'translation' && name !== 'pelvis')) {
+        const s = ch.getSampler();
+        ch.dispose();
+        s.dispose();
+      }
     }
   }
-}
-// Only rotations matter for retargeting (plus the pelvis bob); drop the rest.
-for (const a of libRoot.listAnimations()) {
-  for (const ch of a.listChannels()) {
-    const path = ch.getTargetPath();
-    const name = ch.getTargetNode()?.getName();
-    if (path === 'scale' || (path === 'translation' && name !== 'pelvis')) {
-      const s = ch.getSampler();
-      ch.dispose();
-      s.dispose();
+  // Skeleton only: drop the mannequin mesh + skin, keep the joint hierarchy.
+  for (const n of libRoot.listNodes()) {
+    n.setMesh(null);
+    n.setSkin(null);
+  }
+  for (const m of libRoot.listMeshes()) m.dispose();
+  for (const s of libRoot.listSkins()) s.dispose();
+  for (const m of libRoot.listMaterials()) m.dispose();
+  for (const t of libRoot.listTextures()) t.dispose();
+  await lib.transform(resample({ tolerance: 0.0005 }));
+  // Rotations as normalized int16 (valid glTF; GLTFLoader expands them) halves the size.
+  // Samplers can share one output accessor: convert each accessor only once (a second
+  // pass would read the int16 values as floats and clamp them to ±1).
+  const quantized = new Set();
+  for (const a of libRoot.listAnimations()) {
+    for (const ch of a.listChannels()) {
+      if (ch.getTargetPath() !== 'rotation') continue;
+      const out = ch.getSampler().getOutput();
+      if (quantized.has(out) || out.getNormalized()) continue;
+      quantized.add(out);
+      const f = out.getArray();
+      const q = new Int16Array(f.length);
+      for (let i = 0; i < f.length; i++) q[i] = Math.round(Math.max(-1, Math.min(1, f[i])) * 32767);
+      out.setArray(q).setNormalized(true);
     }
   }
+  await finish(lib, 'anims.glb', 1024, 'mesh');
+  console.log('clips:', libRoot.listAnimations().length);
 }
-// Skeleton only: drop the mannequin mesh + skin, keep the joint hierarchy.
-for (const n of libRoot.listNodes()) {
-  n.setMesh(null);
-  n.setSkin(null);
-}
-for (const m of libRoot.listMeshes()) m.dispose();
-for (const s of libRoot.listSkins()) s.dispose();
-for (const m of libRoot.listMaterials()) m.dispose();
-for (const t of libRoot.listTextures()) t.dispose();
-await lib.transform(resample({ tolerance: 0.0005 }));
-// Rotations as normalized int16 (valid glTF; GLTFLoader expands them) halves the size.
-// Samplers can share one output accessor: convert each accessor only once (a second
-// pass would read the int16 values as floats and clamp them to ±1).
-const quantized = new Set();
-for (const a of libRoot.listAnimations()) {
-  for (const ch of a.listChannels()) {
-    if (ch.getTargetPath() !== 'rotation') continue;
-    const out = ch.getSampler().getOutput();
-    if (quantized.has(out) || out.getNormalized()) continue;
-    quantized.add(out);
-    const f = out.getArray();
-    const q = new Int16Array(f.length);
-    for (let i = 0; i < f.length; i++) q[i] = Math.round(Math.max(-1, Math.min(1, f[i])) * 32767);
-    out.setArray(q).setNormalized(true);
-  }
-}
-await finish(lib, 'anims.glb', 1024, 'mesh');
-console.log('clips:', libRoot.listAnimations().length);

@@ -2,6 +2,23 @@
 
 _Last updated: 2026-10-06_
 
+### 2026-10-06 — عاصم wears a painted midnight-navy dinner suit
+**Decision:** We replaced his black jacket with gold ladder trim, white jeans and three-stripe
+trainers. The new look is a midnight-navy suit painted over the source avatar's tee and jeans:
+- black satin shawl lapels and a single satin button
+- a white shirt and collar, with a slim burgundy tie painted on the neck
+- jetted pockets and a blush-pink pocket square
+- trousers with a pressed crease, and polished black oxfords (lower roughness)
+
+The tee's normal map is flattened under the shirt, satin and the old logo, and pressed elsewhere.
+**Why:** The owner found the old outfit embarrassing and asked for something clean and fancy.
+- **Shawl lapels:** they paint convincingly on a V-neck tee. Notch lapels would need geometry
+  the tee doesn't have.
+- **Colours:** navy sits well against the pink world and her pink blazer. The burgundy tie
+  echoes her hair, and the pink pocket square is the couple's nod.
+- **No new meshes:** painting keeps the single skinned mesh and its mocap untouched, so no new
+  geometry is needed.
+
 ### 2026-10-06 — Moments together are always asked first
 **Decision:** Hugs, cheek kisses, high fives, dancing together and holding hands need the
 friend's explicit yes («آه 💗»). Declining answers «لا، لم روحك 🤣» and nothing plays. Only the

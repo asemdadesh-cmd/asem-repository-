@@ -18,7 +18,7 @@ import {
   strandHair,
   type HeadInfo,
 } from './builders.ts';
-import { embroideryTrim, fabric, fur, hairTex, jersey, libyanJacket, rng, satin } from '../gfx/textures.ts';
+import { embroideryTrim, fabric, fur, hairTex, jersey, rng, satin } from '../gfx/textures.ts';
 
 export interface CharacterMeta {
   id: CharacterId;
@@ -29,7 +29,7 @@ export interface CharacterMeta {
 }
 
 export const CHARACTERS: CharacterMeta[] = [
-  { id: 'asem', name: 'عاصم', title: '🇱🇾 الليبي الأصلي', blurb: 'جاكيطة سودا مطرزة، لحية مرتبة، وقلب أبيض… ومشاكل بزاف 😂', accent: '#2ec4b6' },
+  { id: 'asem', name: 'عاصم', title: '🇱🇾 الليبي الأصلي', blurb: 'كوستيم كحلي وكرافاطة، لحية مرتبة، وقلب أبيض… ومشاكل بزاف 😂', accent: '#2ec4b6' },
   { id: 'yasso', name: 'يسو', title: '🇲🇦 رئيسة النادي', blurb: 'شعر بوردو، خدود وردية، وضربة فالمسبح ما كترحمش 💦', accent: '#ff7eb6' },
   { id: 'duck', name: 'بطّوطة', title: '🦆 بطلة السباحة', blurb: 'كتعوم حسن من الكل… وكتقول كواك بلا سبب', accent: '#ffd84a' },
   { id: 'cat', name: 'مشيشة', title: '🐈‍⬛ القطة المشاغبة', blurb: 'خارجة من رسمة يسو: ذيل ملوي ونية خايبة 😼', accent: '#9b7bd6' },
@@ -572,9 +572,28 @@ function buildAsem(): Rig {
 
   rig.face = h.face;
 
-  // white qamis + black embroidered Libyan jacket
+  // midnight-navy dinner suit: white shirt, burgundy tie, satin lapels, pink pocket square
   const white = M.tinted('#fbfaf6', fabric('#ffffff', { weave: 0.05 }), 0.85);
-  const jacketMat = M.tinted('#ffffff', libyanJacket(), 0.7);
+  const navy = M.cloth('#1a2540', undefined, 0.78);
+  const satinBlack = M.cloth('#0a0b0f', undefined, 0.6);
+  const jacketProfile: [number, number][] = [
+    [0.155, -0.065],
+    [0.16, 0.04],
+    [0.18, 0.12],
+    [0.2, 0.18],
+    [0.18, 0.218],
+    [0.11, 0.248],
+    [0.075, 0.256],
+  ];
+  const chestProfile: [number, number][] = [
+    [0.145, -0.06],
+    [0.15, 0.04],
+    [0.17, 0.12],
+    [0.19, 0.18],
+    [0.17, 0.215],
+    [0.1, 0.245],
+    [0.055, 0.255],
+  ];
   buildTorso(rig, {
     pelvis: [
       [0.0, -0.08],
@@ -583,51 +602,93 @@ function buildAsem(): Rig {
       [0.15, 0.2],
       [0.148, 0.28],
     ],
-    chest: [
-      [0.145, -0.06],
-      [0.15, 0.04],
-      [0.17, 0.12],
-      [0.19, 0.18],
-      [0.17, 0.215],
-      [0.1, 0.245],
-      [0.055, 0.255],
-    ],
+    chest: chestProfile,
     depth: 0.72,
-    pelvisMat: white,
+    pelvisMat: navy,
     chestMat: white,
   });
-  // band collar
+  // shirt collar
   const collar = new THREE.Mesh(lathe([[0.058, 0.0], [0.06, 0.03], [0.057, 0.045]], 32).translate(0, 0.235, -0.004), white);
   rig.chest.add(collar);
-  // open-front jacket over chest + hips
-  const openFront = (c: THREE.Vector3) => !(c.z > 0 && Math.abs(c.x) < 0.045 + Math.max(0, 0.19 - c.y) * 0.12);
-  const jChest = carve(
-    lathe([[0.155, -0.065], [0.16, 0.04], [0.18, 0.12], [0.2, 0.18], [0.18, 0.218], [0.11, 0.248], [0.075, 0.256]], 140).scale(1, 1, 0.75),
-    openFront,
-  );
-  rig.chest.add(new THREE.Mesh(jChest, jacketMat));
-  const jHips = carve(lathe([[0.17, 0.06], [0.162, 0.18], [0.158, 0.29]], 140).scale(1, 1, 0.75), (c) => !(c.z > 0 && Math.abs(c.x) < 0.07));
-  rig.hips.add(new THREE.Mesh(jHips, jacketMat));
+  // slim tie down the shirt front (follows the chest's curve), with a knot
+  // everything on the jacket front sits on its actual surface (raycast, both faces)
+  const jacketGeo = lathe(jacketProfile, 140).scale(1, 1, 0.75);
+  const probe = new THREE.Mesh(jacketGeo, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+  const ray = new THREE.Raycaster();
+  const jacketZ = (x: number, y: number) => {
+    ray.set(new THREE.Vector3(x, y, 1), new THREE.Vector3(0, 0, -1));
+    return ray.intersectObject(probe, false)[0]?.point.z ?? 0;
+  };
+  const tiePts: number[] = [];
+  const tieIdx: number[] = [];
+  for (let i = 0; i <= 12; i++) {
+    const y = THREE.MathUtils.lerp(0.225, 0.03, i / 12);
+    const w = THREE.MathUtils.lerp(0.012, 0.019, i / 12);
+    tiePts.push(-w, y, jacketZ(-w, y) + 0.003, w, y, jacketZ(w, y) + 0.003);
+    if (i) tieIdx.push((i - 1) * 2, (i - 1) * 2 + 1, i * 2, (i - 1) * 2 + 1, i * 2 + 1, i * 2);
+  }
+  const tieGeo = new THREE.BufferGeometry();
+  tieGeo.setAttribute('position', new THREE.Float32BufferAttribute(tiePts, 3));
+  tieGeo.setIndex(tieIdx);
+  tieGeo.computeVertexNormals();
+  const tieMat = M.glossy('#5a1025', 0.45);
+  tieMat.side = THREE.DoubleSide;
+  rig.chest.add(new THREE.Mesh(tieGeo, tieMat));
+  rig.chest.add(new THREE.Mesh(new THREE.SphereGeometry(0.016, 16, 12).scale(1, 0.85, 0.6).translate(0, 0.228, jacketZ(0, 0.228) + 0.004), tieMat));
+  // buttoned jacket; the shirt shows in a V that narrows to the waist button
+  rig.chest.add(new THREE.Mesh(jacketGeo, navy));
+  const vOpen = (y: number) => Math.max(0, y - 0.02) * 0.3;
+  const vPts: number[] = [];
+  const vIdx: number[] = [];
+  const ROWS = 16;
+  const COLS = 6;
+  for (let i = 0; i <= ROWS; i++) {
+    const y = THREE.MathUtils.lerp(0.02, 0.238, i / ROWS);
+    for (let j = 0; j <= COLS; j++) {
+      const x = THREE.MathUtils.lerp(-1, 1, j / COLS) * vOpen(y);
+      vPts.push(x, y, jacketZ(x, y) + 0.0015);
+      if (i && j) {
+        const a = (i - 1) * (COLS + 1) + j - 1;
+        const b = i * (COLS + 1) + j - 1;
+        vIdx.push(a, a + 1, b, a + 1, b + 1, b);
+      }
+    }
+  }
+  const vGeo = new THREE.BufferGeometry();
+  vGeo.setAttribute('position', new THREE.Float32BufferAttribute(vPts, 3));
+  vGeo.setIndex(vIdx);
+  vGeo.computeVertexNormals();
+  rig.chest.add(new THREE.Mesh(vGeo, white));
+  // satin shawl lapels along the opening
+  for (const sx of [-1, 1]) {
+    const pts: [number, number, number][] = [];
+    for (let i = 0; i <= 10; i++) {
+      const y = THREE.MathUtils.lerp(0.025, 0.24, i / 10);
+      const x = sx * (vOpen(y) + 0.004 + (i / 10) * 0.006);
+      pts.push([x, y, jacketZ(x, y) + 0.003]);
+    }
+    rig.chest.add(new THREE.Mesh(taperedTube(curve(pts), 0.009, 0.019, 32, 8, 0.45, (t) => t, false), satinBlack));
+  }
+  const button = new THREE.Mesh(new THREE.SphereGeometry(0.008, 12, 8).scale(1, 1, 0.5).translate(0, 0.016, jacketZ(0, 0.016) + 0.003), satinBlack);
+  rig.chest.add(button);
+  // pocket square (his left)
+  const square = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.014, 0.006), M.cloth('#f2a7c3'));
+  square.position.set(0.1, 0.158, jacketZ(0.1, 0.158));
+  square.rotation.y = 0.45;
+  rig.chest.add(square);
+  const jHips = carve(lathe([[0.17, 0.06], [0.162, 0.18], [0.158, 0.29]], 140).scale(1, 1, 0.75), (c) => !(c.z > 0 && Math.abs(c.x) < Math.max(0, 0.12 - c.y) * 0.25));
+  rig.hips.add(new THREE.Mesh(jHips, navy));
   // jacket sleeves, shirt cuffs
-  buildArms(rig, { upper: [0.052, 0.044], fore: [0.044, 0.038], upperMat: jacketMat, foreMat: jacketMat, shoulderBall: 0.05 });
+  buildArms(rig, { upper: [0.052, 0.044], fore: [0.044, 0.038], upperMat: navy, foreMat: navy, shoulderBall: 0.05 });
   for (const el of [rig.elbowL, rig.elbowR]) {
     const cuff = new THREE.Mesh(lathe([[0.037, -MALE.foreArm - 0.015], [0.039, -MALE.foreArm + 0.02]], 20), white);
     el.add(cuff);
   }
   watch(rig, 'L', M.silver(), '#e8eef7');
   maleHands(rig, skin);
-  // qamis skirt to mid-shin + white trousers
-  const skirtH = MALE.thigh + MALE.shin * 0.72;
-  const skirt = new Skirt(
-    lathe([[0.24, -skirtH], [0.215, -skirtH * 0.6], [0.18, -0.05], [0.158, 0.1]], 40).scale(1, 1, 0.9),
-    white,
-    0.1,
-    skirtH + 0.1,
-  );
-  rig.hips.add(skirt.mesh);
-  rig.skirts.push(skirt);
-  buildLegs(rig, { thigh: [0.075, 0.06], shin: [0.055, 0.045], thighMat: white, shinMat: white });
-  buildShoes(rig, { len: 0.12, w: 0.046, h: 0.042, upper: M.glossy('#4a2e22', 0.4), sole: M.cloth('#2a1a14') });
+  // matching trousers, polished black shoes
+  buildLegs(rig, { thigh: [0.075, 0.06], shin: [0.055, 0.045], thighMat: navy, shinMat: navy });
+  buildShoes(rig, { len: 0.12, w: 0.046, h: 0.042, upper: M.glossy('#0d0c0c', 0.22), sole: M.cloth('#050505') });
   rig.finalize();
   return rig;
 }

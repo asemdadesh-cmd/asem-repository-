@@ -137,37 +137,6 @@ export function embroideryTrim(base: string, thread: string, accent = '#7a5230')
   }, [1, 1]);
 }
 
-/** Black-on-black Libyan jacket embroidery (rich scroll pattern). */
-export function libyanJacket() {
-  return make('libyan-jacket', 512, 512, (ctx, w, h) => {
-    ctx.fillStyle = '#121214';
-    ctx.fillRect(0, 0, w, h);
-    const r = rng(5);
-    for (let i = 0; i < 4000; i++) {
-      ctx.fillStyle = `rgba(255,255,255,${0.015 + r() * 0.02})`;
-      ctx.fillRect(r() * w, r() * h, 1, 1);
-    }
-    ctx.lineCap = 'round';
-    for (let y = -32; y < h + 64; y += 96) {
-      for (let x = -32; x < w + 64; x += 128) {
-        ctx.strokeStyle = 'rgba(70,70,78,0.9)';
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.bezierCurveTo(x + 40, y - 30, x + 80, y + 50, x + 120, y + 10);
-        ctx.stroke();
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(x + 60, y + 18, 16, 0, Math.PI * 1.6);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(x + 60, y + 18, 7, Math.PI, Math.PI * 2.8);
-        ctx.stroke();
-      }
-    }
-  }, [2, 2]);
-}
-
 /** Furry texture: thousands of short strokes. */
 export function fur(base: string, seed = 3, length = 7) {
   return make(`fur:${base}:${seed}:${length}`, 512, 512, (ctx, w, h) => {
