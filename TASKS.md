@@ -41,7 +41,7 @@ _Last updated: 2026-10-06_
 - [ ] مذاق البسبوسة: replace demo prices, sizes, serving counts with the owner's real menu (`src/config/menu.ts`)
 - [ ] مذاق البسبوسة: swap Unsplash placeholders for the shop's own tray photos
 - [ ] مذاق البسبوسة: confirm hours, pickup location, delivery areas/fees; set `demoMode: false`
-- [ ] مذاق البسبوسة: deploy to Vercel (Root Directory `apps/madhaq-albasbousa`) + custom domain
+- [ ] مذاق البسبوسة: owner creates empty repo `madhaq-albasbousa` → push app with history → Git-linked Vercel project `madhaq-albasbousa` (separate from the tray ledger)
 - [x] Localise Stash for Libya (LYD, categories, sample data, Arabic digits)
 - [ ] Stash: Arabic UI with RTL layout (language toggle)
 - [ ] Stash: cash vs bank tracking (Libya's cash-liquidity reality)

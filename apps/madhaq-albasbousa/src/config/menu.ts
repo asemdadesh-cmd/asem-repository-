@@ -53,14 +53,13 @@ const unsplash = (photo: string, alt: string, name: string, username: string, ph
 // Demo photography (Unsplash) — full trays, boxes and whole cakes. Replace with the shop's own photos.
 export const PHOTOS = {
   basbousa: unsplash('photo-1772469625117-412cb49042e6', 'طاجين بسبوسة كامل مزيّن بالمكسرات', 'Mohammad Fahim', 'dischef', 'oyVe1GRV7K8'),
-  basbousaNutella: unsplash('photo-1772729834955-ebb0765c690f', 'صينية بسبوسة مغطاة بالشوكولاتة ومقطّعة مربعات', 'Sofia Lasheva', 'sofizz', 'hwvNUiineGI'),
+  basbousaNutella: unsplash('photo-1511190714235-97e88477ba74', 'صينية كاملة مغطاة بكريمة الشوكولاتة', 'charlesdeluvio', 'charlesdeluvio', 'VCoElIDCRcg'),
   kunafa: unsplash('photo-1590429878071-1fabde685deb', 'صينية كنافة دائرية كاملة مزيّنة باللوز', 'kaouther djouada', '__kaouther_', 'WX3pTqLsQao'),
-  kunafaNutella: unsplash('photo-1511190714235-97e88477ba74', 'صينية كاملة مغطاة بكريمة الشوكولاتة', 'charlesdeluvio', 'charlesdeluvio', 'VCoElIDCRcg'),
+  kunafaNutella: unsplash('photo-1590429853545-48ecfa348c20', 'صينية كنافة دائرية كاملة من فوق', 'kaouther djouada', '__kaouther_', '6ttHZMcLHMc'),
   baklavaBox: unsplash('photo-1620292760785-94e105bdaa8f', 'بوكس بقلاوة ذهبية كامل', 'engin akyurt', 'enginakyurt', '19Jxxi8bO2Y'),
-  baklavaTray: unsplash('photo-1654005104168-cc94abbfb70d', 'صينية بقلاوة كاملة طالعة من الفرن', 'Çağlar Oskay', 'oskaycaglar', '65HuwcLVZc4'),
-  baklavaMixed: unsplash('photo-1598110750624-207050c4f28c', 'صينية بقلاوة مشكلة بالفستق', 'Syed F Hashemi', 'sfhashemi', 'bGAPRnJITpQ'),
+  baklavaTray: unsplash('photo-1598110750624-207050c4f28c', 'صينية بقلاوة كاملة بالفستق', 'Syed F Hashemi', 'sfhashemi', 'bGAPRnJITpQ'),
   lotus: unsplash('photo-1707592379056-f5c2a9973a5b', 'قالب تشيز كيك لوتس كامل', 'Sana Umer', 'sanaumer', 'JGN-nskfQz4'),
-  chocolateCake: unsplash('photo-1586985289906-406988974504', 'قالب كيكة شوكولاتة كامل على ستاند', 'American Heritage Chocolate', 'americanheritagechocolate', 'Id8BO472TbY'),
+  chocolateCake: unsplash('photo-1640794334523-b299f14d28db', 'قالب كيكة شوكولاتة كامل مزيّن', 'Kadarius Seegars', 'kseegars', 'cYnun9rAEqY'),
   occasionTrays: unsplash('photo-1658413380634-e127bbaeeb7b', 'صواني بقلاوة وحلويات كاملة جاهزة للمناسبات', 'engin akyurt', 'enginakyurt', 'KYTCFLOuG60'),
 } satisfies Record<string, Photo>;
 
