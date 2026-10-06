@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.netlify/
+.DS_Store
+*.log
+test-results/
+tests/e2e/out/
+# Personal photos & drawings: never commit, never bundle. Uploaded to Netlify Blobs.
+private-assets/
+public/assets/private/
