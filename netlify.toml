@@ -1,0 +1,12 @@
+# Only Netlify project on this repo: pink-riot-club. Points the build at the
+# game's folder (its own netlify.toml there holds the real settings), so the
+# rest of the repo is never built or published by Netlify.
+[build]
+  base = "apps/pink-riot-club"
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "22"
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
