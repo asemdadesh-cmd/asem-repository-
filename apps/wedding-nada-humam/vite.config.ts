@@ -56,6 +56,13 @@ const tokens: Record<string, string> = {
   dateDots: wedding.startsAt.slice(0, 10).split('-').reverse().join(' . '),
 };
 
+/** Pre-escaped HTML fragments, inserted with {{{token}}}. */
+const htmlTokens: Record<string, string> = {
+  notes: wedding.notes.length
+    ? `<p class="notes">${wedding.notes.map(esc).join('<i aria-hidden="true"></i>')}</p>`
+    : '',
+};
+
 /** Fills {{token}} placeholders in index.html from src/config.ts. */
 function weddingHtml(): Plugin {
   return {
@@ -70,6 +77,10 @@ function weddingHtml(): Plugin {
       this.emitFile({ type: 'asset', fileName: 'invitation.ics', source: buildIcs() });
     },
     transformIndexHtml(html) {
+      html = html.replace(/\{\{\{(\w+)\}\}\}/g, (m, key: string) => {
+        if (!(key in htmlTokens)) throw new Error(`Unknown token ${m} in index.html`);
+        return htmlTokens[key];
+      });
       return html.replace(/\{\{(\w+)\}\}/g, (m, key: string) => {
         if (!(key in tokens)) throw new Error(`Unknown token ${m} in index.html`);
         return esc(tokens[key]);

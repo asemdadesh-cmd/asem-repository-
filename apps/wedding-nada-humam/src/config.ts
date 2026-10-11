@@ -20,6 +20,12 @@ export const wedding = {
   hijri: '21 جمادى الآخرة 1448 هـ',
   time: 'الساعة التاسعة مساءً',
 
+  /**
+   * Optional small print under the card, e.g. 'الدعوة خاصة' or
+   * 'نرجو عدم اصطحاب الأطفال'. Empty until the family confirms.
+   */
+  notes: [] as string[],
+
   venue: {
     name: 'صالة الأسطورة',
     area: 'المشتل',
@@ -42,8 +48,9 @@ export const wedding = {
    * See public/images/README.md for prompts to generate custom ones.
    */
   photos: {
-    satin: { src: '1606259457945-67dc66271ee6', by: 'Susan Wilkinson' }, // cream satin, portrait
-    satinWide: { src: '1619043518800-7f14be467dca', by: 'Susan Wilkinson' }, // white silk, landscape
+    // Satin is rendered locally (scripts/satin.mjs), so the backdrop never depends on a CDN.
+    satin: { src: '/textures/satin.webp', by: '' },
+    satinWide: { src: '/textures/satin-wide.webp', by: '' },
     eucalyptus: { src: '1611255552402-4f772d00621b', by: 'Diana Polekhina' }, // leaves on white
     table: { src: '1769230361493-f1f365a99878', by: 'Samuel Cruz' }, // round table, floral centrepiece
     hall: { src: '1781947486682-aafbb8427889', by: 'Chermiti Mohamed' }, // chandelier, arched windows

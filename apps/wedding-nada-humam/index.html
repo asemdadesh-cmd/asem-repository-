@@ -109,11 +109,12 @@
             <div class="rule" aria-hidden="true" data-seq></div>
 
             <p class="details" data-seq>
-              <span>وذلك بمشيئة الله يوم {{weekday}}</span>
+              <span>وذلك بمشيئة الله مساء يوم {{weekday}}</span>
               <strong>{{day}} {{month}} {{year}}</strong>
               <span>{{time}}</span>
               <span>في {{venue}}، {{area}}</span>
             </p>
+            {{{notes}}}
           </div>
         </article>
 
@@ -121,6 +122,38 @@
           <span>تفاصيل الحفل</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v15m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </a>
+      </section>
+
+      <!-- ============ From the Quran and the Sunnah ============ -->
+      <section class="section wisdom" aria-labelledby="wisdom-title">
+        <header class="wisdom__head" data-reveal>
+          <p class="eyebrow">على بركة الله</p>
+          <h2 class="title" id="wisdom-title">من هدي القرآن والسنة</h2>
+        </header>
+
+        <figure class="leaf leaf--quran" data-reveal>
+          <span class="leaf__kind">من القرآن الكريم</span>
+          <blockquote class="leaf__text">﴿رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا﴾</blockquote>
+          <figcaption class="leaf__ref">[الفرقان: 74]</figcaption>
+        </figure>
+
+        <figure class="leaf" data-reveal>
+          <span class="leaf__kind">من السنة النبوية</span>
+          <blockquote class="leaf__text">
+            <span class="leaf__lead">قال رسول الله ﷺ:</span>
+            «خَيْرُكُمْ خَيْرُكُمْ لِأَهْلِهِ، وَأَنَا خَيْرُكُمْ لِأَهْلِي»
+          </blockquote>
+          <figcaption class="leaf__ref">رواه الترمذي وابن ماجه</figcaption>
+        </figure>
+
+        <figure class="leaf" data-reveal>
+          <span class="leaf__kind">دعاء النبي ﷺ للمتزوّج</span>
+          <blockquote class="leaf__text">
+            <span class="leaf__lead">كان النبي ﷺ إذا هنّأ من تزوّج قال:</span>
+            «بَارَكَ اللَّهُ لَكَ، وَبَارَكَ عَلَيْكَ، وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ»
+          </blockquote>
+          <figcaption class="leaf__ref">رواه أبو داود والترمذي</figcaption>
+        </figure>
       </section>
 
       <!-- ============ Date ============ -->
@@ -189,7 +222,7 @@
       <section class="closing" aria-labelledby="closing-title">
         <img class="leaves leaves--c" src="{{eucalyptus}}" alt="" loading="lazy" decoding="async" aria-hidden="true" />
         <h2 class="closing__title" id="closing-title" data-reveal>بحضوركم تكتمل فرحتنا</h2>
-        <p class="closing__dua" data-reveal>بارك الله لهما، وبارك عليهما، وجمع بينهما في خير</p>
+        <p class="closing__dua" data-reveal>بارك الله لهما، وبارك عليهما، وجمع بينهما في خير<span>ربي يتمم على خير</span></p>
         <div class="closing__seal" data-reveal aria-hidden="true"><span class="seal__wax"><span class="seal__mark">{{sealA}}<i></i>{{sealB}}</span></span></div>
         <p class="closing__sign" data-reveal>{{bride}} و{{groom}} · <span dir="ltr">{{dateDots}}</span></p>
         <button class="replay" id="replay" type="button" hidden>إعادة فتح الدعوة</button>
