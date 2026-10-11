@@ -1,0 +1,4 @@
+/* Without JavaScript there is no envelope: show the invitation directly. */
+.stage { display: none !important; }
+.backdrop img, .leaves { opacity: 1 !important; }
+[data-seq], [data-ink] { opacity: 1 !important; transform: none !important; filter: none !important; -webkit-mask: none !important; mask: none !important; }

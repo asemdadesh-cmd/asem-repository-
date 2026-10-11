@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>دعوة زفاف {{bride}} و{{groom}}</title>
+    <meta name="description" content="{{weekday}} {{day}} {{month}} {{year}} · {{time}} · {{venue}}" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="theme-color" content="#e9dfd2" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+    <noscript><link rel="stylesheet" href="/noscript.css" /></noscript>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ar_LY" />
+    <meta property="og:title" content="دعوة زفاف {{bride}} و{{groom}}" />
+    <meta property="og:description" content="{{weekday}} {{day}} {{month}} {{year}} · {{time}} · {{venue}}" />
+    <meta property="og:image" content="{{siteUrl}}/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="بطاقة دعوة زفاف {{bride}} و{{groom}}" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <!-- Satin backdrop: a real photograph, fixed behind everything. -->
+    <div class="backdrop" aria-hidden="true">
+      <picture>
+        <source media="(min-aspect-ratio: 1/1)" srcset="{{satinWide}}" />
+        <img src="{{satin}}" alt="" decoding="async" fetchpriority="high" />
+      </picture>
+    </div>
+
+    <canvas class="dust" aria-hidden="true"></canvas>
+
+    <!-- ============ Envelope ============ -->
+    <div class="stage" id="stage">
+      <img class="leaves leaves--a" src="{{eucalyptus}}" alt="" decoding="async" aria-hidden="true" />
+      <img class="leaves leaves--b" src="{{eucalyptus}}" alt="" decoding="async" aria-hidden="true" />
+
+      <div class="stage__inner">
+        <p class="stage__eyebrow">دعوة زفاف</p>
+
+        <div class="table">
+          <span class="pearl" style="--x: 4%; --y: -7%; --s: 1.1"></span>
+          <span class="pearl" style="--x: 90%; --y: -10%; --s: 0.8"></span>
+          <span class="pearl" style="--x: 98%; --y: 62%; --s: 1"></span>
+          <span class="pearl" style="--x: -3%; --y: 84%; --s: 0.9"></span>
+          <span class="pearl" style="--x: 55%; --y: 109%; --s: 0.75"></span>
+          <span class="pearl" style="--x: 14%; --y: 107%; --s: 1.15"></span>
+
+          <div class="envelope" id="envelope">
+            <div class="envelope__back"><div class="envelope__liner"></div></div>
+            <div class="letter" aria-hidden="true">
+              <div class="letter__frame">
+                <p class="letter__names">{{bride}} <span>و</span> {{groom}}</p>
+                <p class="letter__date">{{day}} {{month}} {{year}}</p>
+              </div>
+            </div>
+            <div class="envelope__front" aria-hidden="true">
+              <p class="envelope__to" id="toLabel">إلى ضيوفنا الأعزاء</p>
+            </div>
+            <div class="envelope__flap" aria-hidden="true">
+              <span class="emboss envelope__mono">{{sealA}}<i></i>{{sealB}}</span>
+            </div>
+            <div class="twine" aria-hidden="true"><i></i><i></i></div>
+
+            <button class="seal" id="seal" type="button" aria-label="افتح الدعوة">
+              <span class="seal__wax" aria-hidden="true"><span class="seal__mark">{{sealA}}<i></i>{{sealB}}</span></span>
+            </button>
+          </div>
+        </div>
+
+        <p class="stage__hint">اضغط على الختم لفتح الدعوة</p>
+
+        <label class="switch" id="musicSwitch">
+          <input type="checkbox" id="musicPref" checked />
+          <span class="switch__track" aria-hidden="true"><span class="switch__dot"></span></span>
+          <span>مع الموسيقى</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="music" id="music" type="button" aria-pressed="false" aria-label="تشغيل الموسيقى" hidden>
+      <span class="music__bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    </button>
+
+    <!-- ============ Invitation card ============ -->
+    <main id="main">
+      <section class="hero" aria-labelledby="names">
+        <article class="invite" data-seq>
+          <div class="invite__paper">
+            <p class="basmala" aria-label="بسم الله الرحمن الرحيم" data-seq>﷽</p>
+
+            <blockquote class="verse" data-seq>
+              <p>﴿وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً﴾</p>
+              <cite>سورة الروم: 21</cite>
+            </blockquote>
+
+            <p class="emboss invite__mono" aria-hidden="true" data-seq>{{sealA}}<i></i>{{sealB}}</p>
+
+            <p class="lead" data-seq>بكل الحب والفرح، نتشرّف بدعوتكم لحضور حفل زفاف</p>
+
+            <h1 class="names" id="names" tabindex="-1">
+              <span class="names__ink" data-ink>{{bride}}<span class="names__and">و</span>{{groom}}</span>
+            </h1>
+            <p class="fullnames" data-seq>{{bride}} {{brideRest}}<i aria-hidden="true"></i>{{groom}} {{groomRest}}</p>
+
+            <div class="rule" aria-hidden="true" data-seq></div>
+
+            <p class="details" data-seq>
+              <span>وذلك بمشيئة الله يوم {{weekday}}</span>
+              <strong>{{day}} {{month}} {{year}}</strong>
+              <span>{{time}}</span>
+              <span>في {{venue}}، {{area}}</span>
+            </p>
+          </div>
+        </article>
+
+        <a class="scroll-cue" href="#date" data-seq>
+          <span>تفاصيل الحفل</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v15m-6-6 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </a>
+      </section>
+
+      <!-- ============ Date ============ -->
+      <section class="section" id="date" aria-labelledby="date-title">
+        <div class="paper" data-reveal>
+          <p class="eyebrow">احفظوا التاريخ</p>
+          <h2 class="title" id="date-title">موعد الفرح</h2>
+
+          <div class="date">
+            <span class="date__side">{{weekday}}</span>
+            <span class="date__day foil">{{day}}</span>
+            <span class="date__side">{{month}}</span>
+          </div>
+          <p class="date__year">{{year}} م<span data-hijri> · {{hijri}}</span></p>
+          <p class="date__time">{{time}}</p>
+
+          <div class="rule" aria-hidden="true"></div>
+
+          <div class="countdown" id="countdown">
+            <p class="countdown__label" id="countdownLabel">يبدأ الفرح بعد</p>
+            <div class="countdown__grid" role="timer" aria-labelledby="countdownLabel" aria-live="off">
+              <div class="unit"><span class="unit__num" data-unit="d">--</span><span class="unit__label" data-label="d">يوم</span></div>
+              <div class="unit"><span class="unit__num" data-unit="h">--</span><span class="unit__label" data-label="h">ساعة</span></div>
+              <div class="unit"><span class="unit__num" data-unit="m">--</span><span class="unit__label" data-label="m">دقيقة</span></div>
+              <div class="unit"><span class="unit__num" data-unit="s">--</span><span class="unit__label" data-label="s">ثانية</span></div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <a class="btn btn--gold" href="/invitation.ics" type="text/calendar">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4M12 13v4m-2-2h4" /></svg>
+              أضف إلى التقويم
+            </a>
+            <a class="btn btn--line" href="{{gcal}}" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
+              تقويم Google
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Photo interlude ============ -->
+      <section class="interlude" aria-label="فاصل">
+        <img class="interlude__img" src="{{table}}" srcset="{{tableSet}}" sizes="100vw" alt="" loading="lazy" decoding="async" />
+        <p class="interlude__line" data-reveal>فرحتنا لا تكتمل إلا بكم</p>
+      </section>
+
+      <!-- ============ Venue ============ -->
+      <section class="section" id="venue" aria-labelledby="venue-title">
+        <figure class="arch" data-reveal>
+          <img src="{{hall}}" srcset="{{hallSet}}" sizes="(min-width: 40rem) 22rem, 78vw" alt="" loading="lazy" decoding="async" />
+        </figure>
+        <div class="venue" data-reveal>
+          <p class="eyebrow">مكان الحفل</p>
+          <h2 class="title" id="venue-title">{{venue}}</h2>
+          <p class="venue__area">{{area}}</p>
+          <p class="venue__when">{{weekday}} {{day}} {{month}} · {{time}}</p>
+          <a class="btn btn--gold" href="{{mapsUrl}}" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.4-7-11.5a7 7 0 0 1 14 0C19 14.6 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
+            افتح الموقع على الخريطة
+          </a>
+        </div>
+      </section>
+
+      <!-- ============ Closing ============ -->
+      <section class="closing" aria-labelledby="closing-title">
+        <img class="leaves leaves--c" src="{{eucalyptus}}" alt="" loading="lazy" decoding="async" aria-hidden="true" />
+        <h2 class="closing__title" id="closing-title" data-reveal>بحضوركم تكتمل فرحتنا</h2>
+        <p class="closing__dua" data-reveal>بارك الله لهما، وبارك عليهما، وجمع بينهما في خير</p>
+        <div class="closing__seal" data-reveal aria-hidden="true"><span class="seal__wax"><span class="seal__mark">{{sealA}}<i></i>{{sealB}}</span></span></div>
+        <p class="closing__sign" data-reveal>{{bride}} و{{groom}} · <span dir="ltr">{{dateDots}}</span></p>
+        <button class="replay" id="replay" type="button" hidden>إعادة فتح الدعوة</button>
+        <p class="credits" dir="ltr" lang="en">{{credits}}</p>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

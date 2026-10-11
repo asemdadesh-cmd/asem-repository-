@@ -1,0 +1,315 @@
+:root {
+  --satin: #e9dfd2;
+  --paper: #fdfbf7;
+  --paper-2: #f6f1e9;
+  --ink: #1f1b18;
+  --ink-soft: #5c524a;
+  --gold-text: #84621f; /* gold that still reads as text on paper (5:1) */
+  --gold: #c9a24a;
+
+  --f-script: 'Gulzar', 'Amiri', serif;
+  --f-text: 'Amiri', serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Mirror gold foil, like a hot-stamped card edge. */
+  --foil: linear-gradient(115deg, #a8792a 0%, #e8c86a 16%, #fff3c2 27%, #d1a646 40%, #9c6f22 52%, #ecd187 66%, #fff0b8 74%, #b98a33 88%, #e1bd5d 100%);
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .33 0 0 0 0 .25 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  background: var(--satin);
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  font-family: var(--f-text);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--ink);
+  background: var(--satin);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.preload *,
+.preload *::before,
+.preload *::after {
+  transition: none !important;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-text);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* ---- The satin photograph, fixed (works on iOS, unlike background-attachment) ---- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 30% 20%, #f6efe6, transparent 60%),
+    linear-gradient(160deg, #efe6da, #dccdbb);
+}
+
+.backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s;
+  animation: breathe-satin 30s ease-in-out infinite alternate;
+}
+
+.backdrop img.is-loaded {
+  opacity: 1;
+}
+
+/* Soft light veil so text always reads over the folds. */
+.backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(90% 60% at 50% 40%, rgb(255 251 245 / 0.25), transparent 70%),
+    linear-gradient(180deg, rgb(244 236 226 / 0.25), rgb(233 223 210 / 0.45));
+}
+
+@keyframes breathe-satin {
+  to {
+    transform: scale(1.06) translate3d(-1%, 1%, 0);
+  }
+}
+
+.dust {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Shared pieces ---- */
+.foil {
+  background: var(--foil);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--gold-text);
+  animation: glint 6s var(--ease-in-out) infinite;
+}
+
+@keyframes glint {
+  0%,
+  50% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+/* Blind emboss: paper pressed, no ink. */
+.emboss {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-family: var(--f-script);
+  line-height: 1;
+  color: var(--paper-2);
+  text-shadow:
+    -1px -1px 0 rgb(255 255 255 / 0.95),
+    1px 1px 1px rgb(90 70 50 / 0.24),
+    1px 2px 3px rgb(90 70 50 / 0.08);
+}
+
+.emboss i {
+  width: 1px;
+  height: 0.9em;
+  background: rgb(90 70 50 / 0.18);
+  box-shadow: -1px 0 0 rgb(255 255 255 / 0.9);
+}
+
+.eyebrow {
+  font-size: 1rem;
+  color: var(--gold-text);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--f-script);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 9vw, 2.9rem);
+  line-height: 1.9;
+  color: var(--ink);
+}
+
+.rule {
+  position: relative;
+  width: min(70%, 14rem);
+  height: 1px;
+  margin: 1.4rem auto;
+  background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+}
+
+/* a pearl at the centre of every rule */
+.rule::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 12%, #f3eee6 30%, #d6cabb 70%, #b8a894);
+  box-shadow: 0 1px 2px rgb(80 60 40 / 0.35);
+}
+
+/* Wax seal in gold — shared by the envelope and the closing. */
+.seal__wax {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 48% 52% 50% 50% / 52% 47% 53% 48%;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 54%, rgb(110 75 20 / 0.35) 56%, rgb(255 240 190 / 0.4) 58%, transparent 61%),
+    radial-gradient(circle at 34% 28%, #fff2bd, #e6c160 22%, #c39436 48%, #9a6d22 78%, #7d5719);
+  box-shadow:
+    0 8px 16px -4px rgb(70 45 10 / 0.5),
+    0 2px 4px rgb(70 45 10 / 0.3),
+    inset 0 -3px 6px rgb(90 60 10 / 0.45),
+    inset 0 3px 5px rgb(255 245 210 / 0.6);
+}
+
+.seal__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22em;
+  font-family: var(--f-script);
+  line-height: 1;
+  color: #7a5719;
+  text-shadow:
+    0 1px 0 rgb(255 240 190 / 0.7),
+    0 -1px 1px rgb(70 45 10 / 0.6);
+}
+
+.seal__mark i {
+  width: 1.5px;
+  height: 0.85em;
+  background: #7a5719;
+  box-shadow: 1px 0 0 rgb(255 240 190 / 0.6);
+}
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 3rem;
+  padding: 0.3rem 1.4rem;
+  border-radius: 999px;
+  font-family: var(--f-text);
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.35s var(--ease-out),
+    background-position 0.8s var(--ease-out),
+    box-shadow 0.35s,
+    border-color 0.35s;
+}
+
+.btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn--gold {
+  color: #2b1f0c;
+  background: var(--foil);
+  background-size: 220% 100%;
+  background-position: 80% 0;
+  box-shadow:
+    0 12px 24px -12px rgb(120 85 25 / 0.7),
+    inset 0 1px 0 rgb(255 255 255 / 0.5);
+}
+
+.btn--gold:hover {
+  background-position: 10% 0;
+  transform: translateY(-1px);
+}
+
+.btn--line {
+  color: var(--ink);
+  border: 1px solid rgb(132 98 31 / 0.45);
+  background: rgb(255 255 255 / 0.55);
+}
+
+.btn--line:hover {
+  border-color: var(--gold-text);
+  background: rgb(255 255 255 / 0.85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.2s !important;
+    transition-delay: 0s !important;
+  }
+}
