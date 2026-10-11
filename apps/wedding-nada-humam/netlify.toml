@@ -1,0 +1,26 @@
+# Used when a Netlify site points its Base directory at apps/wedding-nada-humam.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data: https://images.unsplash.com; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; media-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/invitation.ics"
+  [headers.values]
+    Content-Type = "text/calendar; charset=utf-8"

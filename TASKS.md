@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-10-06_
+_Last updated: 2026-10-11_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -25,6 +25,11 @@ _Last updated: 2026-10-06_
       tests + build passing
 
 ## 🔄 In Progress
+- [ ] **Wedding invitation** (`apps/wedding-nada-humam/`) — built and reviewed
+      2026-10-11. Waiting on the owner: deploy (Vercel/Netlify, root
+      `apps/wedding-nada-humam`), confirm venue spelling (صالة الأسطورة،
+      المشتل) and Hijri date, optionally supply custom/AI photos or a real
+      venue photo and a recorded music track.
 - [ ] **Pink Riot Club** (`apps/pink-riot-club/`, temporary home) — recovered
       and upgraded 2026-10-06 (rigged avatars, moments together, HDRI; e2e
       18/18). Waiting on the owner to link Netlify (Base directory

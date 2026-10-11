@@ -4,9 +4,27 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-06_
+_Last updated: 2026-10-11_
 
 ---
+
+### 2026-10-11 — Wedding invite: light stationery look, real photos, no star motif
+**Decision:** Build `apps/wedding-nada-humam` as a static Vite + vanilla TS site
+in the owner's reference style — white card, gold mirror foil, satin, pearls,
+eucalyptus, gold wax seal — using Unsplash photos (no people) hot-linked from
+Unsplash's CDN, Gulzar (Nastaliq) for names and Amiri for text. Libyan touch
+kept subtle: Basmala and Ar-Rum 21, Arabic calligraphy, an arched photo frame,
+Libyan-style Western digits (CLDR `ar-LY`), Libya time (UTC+2) for the
+countdown.
+**Why:** The first pass (dark night palette, drawn Tripoli ornaments,
+eight-point khatam star) read as "not premium" to the owner, and the star was
+read as a Star of David — removed everywhere. Photos: the build sandbox can't
+download images, and Unsplash's guidelines prefer hot-linking anyway; srcset
+keeps them light, gradients cover a blocked CDN. Gulzar is ~200 KB but
+subsetting saved little (Nastaliq shaping tables dominate) and the full font
+also covers `?to=` guest names. No framework: one page, ~6 KB JS gzipped.
+Trade-off: site depends on a third-party image CDN; any photo can be swapped
+for a local file via `src/config.ts`.
 
 ### 2026-10-06 — Pink Riot Club lives in `apps/pink-riot-club/` until it gets its own repo
 **Decision:** Push the recovered Pink Riot Club project into this repo under
