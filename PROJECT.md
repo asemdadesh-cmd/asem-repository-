@@ -271,6 +271,12 @@ _Last updated: 2026-10-11_
 
 ## Changelog
 
+- **2026-10-11** — Wedding site: added "من هدي القرآن والسنة" (Al-Furqan 74 verified against Tanzil;
+  two authentic hadith with attributions), Libyan wording from research ("مساء يوم الثلاثاء",
+  "ربي يتمم على خير"), locally rendered satin + cotton-paper textures (`scripts/satin.mjs`,
+  `scripts/paper.mjs`), optional `notes` small print. Private claude.ai preview published
+  (Unsplash photos can't load inside that preview frame; they load on the deployed site).
+
 - **2026-10-11** — Added **wedding invitation site** `apps/wedding-nada-humam/` (ندى & همام,
   1 Dec 2026). First pass used a dark night/burgundy look with drawn ornaments; reworked the
   same day to the owner's reference (white stationery, gold foil, satin, pearls, eucalyptus,
