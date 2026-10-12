@@ -3,7 +3,7 @@ prints SketchUp-comparable fingerprints and exports the game's GLB.
 
   python3 tools/build.py                 # all assets -> ../public/models/kit.glb
   python3 tools/build.py lounger chair   # only these (fingerprints + checks)
-  python3 tools/build.py --payload lounger [--lib] [--at X,Y]
+  python3 tools/build.py --payload lounger [--lib] [--at X,Y] [--define-only]
         prints the exact code to send to the SketchUp connector's build_model
 
 Each assets/<name>.py defines build() returning its ComponentDefinition.
@@ -50,7 +50,7 @@ def manifest():
     return json.loads(read(MANIFEST))
 
 
-def payload(name, with_lib, at):
+def payload(name, with_lib, at, define_only=False):
     parts = []
     names = lib_names()
     if with_lib:
@@ -62,6 +62,14 @@ def payload(name, with_lib, at):
         parts.append("_L = session_state['lib']\n" + "\n".join(f"{n} = _L['{n}']" for n in names if n in used))
     parts.append(src)
     x, y = at
+    if define_only:
+        # build the definitions only (the world model places them itself)
+        parts.append(
+            "defs = build()\n"
+            "defs = defs if isinstance(defs, list) else [defs]\n"
+            "result = {d.get_name(): fingerprint(d) for d in defs}"
+        )
+        return "\n\n".join(parts)
     parts.append(
         "defs = build()\n"
         "defs = defs if isinstance(defs, list) else [defs]\n"
@@ -140,7 +148,7 @@ def main(argv):
         if "--at" in argv:
             a = argv[argv.index("--at") + 1].split(",")
             at = (float(a[0]), float(a[1]))
-        sys.stdout.write(payload(name, with_lib, at) + "\n")
+        sys.stdout.write(payload(name, with_lib, at, "--define-only" in argv) + "\n")
         return 0
     names = argv or manifest()["files"]
     ns, defs, report, errors = build_local(names)
