@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-10-06_
+_Last updated: 2026-10-12_
 
 ---
 
@@ -30,6 +30,9 @@ _Last updated: 2026-10-06_
   `apps/pink-riot-club/` — **نادي التخربيق — Pink Riot Club**, a two-player 3D
   friendship world (Vite + three.js + Netlify). Lives here **temporarily** until
   its own repository exists (see Apps).
+  `apps/villa-serena/` — **Villa Serena**, a realistic two-player 3D seaside
+  world (three.js + Rapier physics + Vite + TS) whose every model is built in
+  Trimble SketchUp; serverless, end-to-end-encrypted multiplayer (see Apps).
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
   documentation (this file + TASKS.md + DECISIONS.md) being established now.
@@ -68,7 +71,8 @@ _Last updated: 2026-10-06_
   │                   └── rewrite-guide.md # copywriting & conversion patterns
   ├── apps/
   │   ├── money-tracker/              # Stash money tracker (self-contained Vite app)
-  │   └── pink-riot-club/             # Pink Riot Club 3D world (temporary home, own docs)
+  │   ├── pink-riot-club/             # Pink Riot Club 3D world (temporary home, own docs)
+  │   └── villa-serena/               # Villa Serena 3D seaside world (SketchUp models, own README)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -155,12 +159,98 @@ _Last updated: 2026-10-06_
 - **Private data:** her photos are never committed; they are uploaded to Netlify
   Blobs through the app's admin-key-protected `/upload.html`.
 
+### Villa Serena — two-player seaside world (`apps/villa-serena/`)
+- **What:** a realistic 3D island for two in the browser: a Mediterranean villa
+  with an infinity pool, roof terrace, garden (chess, swing), beach bar, pier
+  with a rowboat, a beach buggy and a climbable lighthouse. Walk, jog, sprint,
+  swim, sit, recline, carry/throw/kick props, drive, row, swing, emote, change
+  the time of day. Solo, or a private shared villa via an invite link. Player
+  guide and credits: `apps/villa-serena/README.md`.
+- **Status:** feature-complete, on draft PR #16 (branch
+  `ccr-5a1d5589-qlqp5b` → `claude/agency-review-framework-3a8hk8`). Not yet
+  deployed; needs a real two-device test over the public brokers.
+- **Stack:** three.js r186 (WebGL 2, Neutral tone mapping), Rapier 0.21
+  (`@dimforge/rapier3d-compat`, WASM inlined), mqtt.js 5 over WebSockets,
+  Vite 8, TypeScript 5.9, Vitest 5, Playwright 1.56 (browser tests). Models:
+  Trimble SketchUp (via the Trimble SketchUp MCP connector) + a Python 3
+  pipeline (`numpy`, `mapbox-earcut`) + gltf-transform/meshoptimizer.
+- **Structure:**
+  ```
+  apps/villa-serena/
+  ├── index.html             # game page (OG/Twitter/JSON-LD); viewer.html = dev asset viewer
+  ├── netlify.toml, vercel.json   # build + strict CSP + cache headers (same policy in both)
+  ├── public/models/         # kit.glb (SketchUp kit, meshopt), avatars/*.glb, env-sunrise.hdr
+  ├── public/og.jpg, thumbs/ # share image (rendered in-game), lobby portraits
+  ├── sketchup/
+  │   ├── lib.py             # modelling library — runs unchanged in SketchUp and locally
+  │   ├── assets/*.py        # 13 scripts → 55 component definitions (assets.json = order + physics meta)
+  │   ├── tools/shim.py      # local SketchUp-compatible SDK surface
+  │   ├── tools/export_gltf.py   # shim model → public/models/kit.glb
+  │   ├── tools/build.py     # build all / fingerprints / --payload for build_model
+  │   ├── tools/parity.py    # local fingerprints vs SketchUp's (parity.json)
+  │   ├── tools/world.py     # whole-island payloads from world.json (terrain, sea, 179 placements)
+  │   └── downloads.json     # .skp links issued by SketchUp (may expire)
+  ├── scripts/               # optimize-models.mjs (meshopt), local-broker.mjs (2 MQTT brokers)
+  ├── src/
+  │   ├── engine/            # kit loader, materials, texgen (procedural PBR), physics, sky, water
+  │   ├── world/             # terrain, ground splat shader, layout, World (batching, seats), grass, foliage
+  │   ├── player/            # character controller, camera, input, avatar (mocap + procedural poses)
+  │   ├── game/              # Game loop + props, buoyancy, buggy, boat, swing, lights, audio, remote players
+  │   ├── net/               # relay (encrypted MQTT), room codes, sync (ownership + interpolation)
+  │   └── ui/                # lobby (code-split), HUD, styles
+  └── tests/                 # world.test.ts (vitest), csp.mjs, multiplayer.mjs, play.mjs (+ scenarios/), shots.mjs
+  ```
+- **Run:** `cd apps/villa-serena && npm ci && npm run dev` (port 5173). URL
+  switches: `?auto&avatar=him|her|captain&name=X&room=CODE&quality=low|high`
+  skips the lobby (tests, screenshots); `?tm=agx|aces` compares tone mappers.
+- **Test:** `npm test` (vitest: terrain/physics parity, buoyancy, sea, room
+  codes — 9 tests), `npm run typecheck`, `npm run test:csp` (builds, serves
+  `dist/` with the deploy headers, starts a game in Chromium, fails on any CSP
+  violation), `npm run test:multiplayer` (two browsers in one room through two
+  local brokers — 11 checks; needs `npm run broker` and
+  `VITE_BROKERS=ws://localhost:8884,ws://localhost:8885 npx vite --port 5198`).
+  `tests/play.mjs` drives scripted visual QA; in headless swiftshader drive the
+  sim with `__game.pause()` + `__game.tick(1/60, false)`, not real time.
+- **Multiplayer design (no server):** each client connects to **two public
+  MQTT-over-WSS brokers** at once (`broker.emqx.io`, `broker.hivemq.com`) and
+  publishes to both; duplicates are dropped by sender sequence number, so one
+  broker can fail. The 12-character room code (31¹² ≈ 2⁵⁹) is the shared
+  secret: the topic is a SHA-256 hash of it and every message is AES-GCM
+  encrypted with a key derived by PBKDF2 (120k iterations), so brokers never
+  see the code or any content. Players send their state ~15×/s and are
+  interpolated; every rigid body has exactly one simulating owner (whoever
+  touches, carries, drives or swings it claims it; untouched bodies belong to
+  the host, the lowest id); sleeping bodies send nothing; all incoming
+  payloads are shape-validated. The invite link carries the code in the URL
+  hash (`#room=…`), which never reaches any server.
+- **SketchUp pipeline:** every asset is a Python script against the
+  SketchUp SDK surface, written once and run in two places: inside SketchUp
+  through the Trimble connector's `build_model` (the real `.skp`), and locally
+  through `tools/shim.py`, which exports the game's glTF. Both print geometry
+  fingerprints (faces, edges, normals…); `tools/parity.py` checks they match
+  for all 55 definitions. Hidden helper groups authored in SketchUp come
+  through as data: `COL_*` collider boxes, `SEAT_`/`HINGE_`/`WHEEL_` markers.
+  `npm run models` rebuilds and compresses `kit.glb` (4.4 → 2.3 MB);
+  `npm run parity` re-checks fingerprints.
+- **Environment:** no env vars required. Optional build-time `VITE_BROKERS`
+  (comma-separated `ws(s)://` URLs) replaces the public brokers — any new host
+  must also be added to `connect-src` in **both** `netlify.toml` and
+  `vercel.json`, or the CSP blocks it.
+- **Deployment:** static site (`npm run build` → `dist/`, Node 22). Netlify:
+  create a **separate site** with Base directory `apps/villa-serena` (the
+  repo-root `netlify.toml` belongs to `pink-riot-club`). Vercel: Root
+  Directory `apps/villa-serena`. Both configs ship the same CSP and caching.
+- **Licensing:** avatars (`asem`, `yasso`, `captain`, from Pink Riot Club)
+  are non-commercial only; animations Quaternius CC0. Keep it private/free.
+
 ---
 
 ## Database
 
 - **Repo:** no database. **Stash** stores data client-side in `localStorage`
-  (see Apps → Stash); there is no server database.
+  (see Apps → Stash); there is no server database. **Villa Serena** keeps
+  only the player's name and avatar in `localStorage` (`vs:name`,
+  `vs:avatar`); world state lives in the players' browsers.
 - Tables / Relationships / Schema / Indexes / Migrations: _none yet._
 
 ---
@@ -168,6 +258,9 @@ _Last updated: 2026-10-06_
 ## APIs
 
 - **Not applicable.** No API is defined or served by this repository.
+  Villa Serena's only network traffic is its encrypted MQTT messages
+  (`hi`, `me`, `b`, `claim`, `time`, `bye` — see `apps/villa-serena/src/net/sync.ts`)
+  over third-party public brokers.
 - Endpoints / Authentication / Request & response examples / Error codes:
   _none yet._
 
@@ -175,7 +268,10 @@ _Last updated: 2026-10-06_
 
 ## Authentication & Permissions
 
-- **Application-level auth:** _none_ (no app yet).
+- **Application-level auth:** _none_ for the repo. **Villa Serena** rooms are
+  private by possession of the 12-character room code (it is also the
+  encryption key); anyone with the invite link can join, and there is no
+  kick/ban.
 - **Repository access:** GitHub repo `asemdadesh-cmd/asem-repository-`.
   Development happens on branch `claude/agency-review-framework-3a8hk8`.
 - User roles / permission matrix / security model: _defined per website when one
@@ -185,9 +281,12 @@ _Last updated: 2026-10-06_
 
 ## Environment
 
-- **Required environment variables:** _none_ (including for Stash).
+- **Required environment variables:** _none_ (including for Stash and Villa
+  Serena). Villa Serena accepts an optional build-time `VITE_BROKERS` (see Apps).
 - **Third-party services:** GitHub (hosting/version control); Claude Code (the
-  agent that consumes the skill).
+  agent that consumes the skill); Trimble SketchUp via its MCP connector
+  (Villa Serena models); public MQTT brokers `broker.emqx.io` and
+  `broker.hivemq.com` (Villa Serena multiplayer, no account needed).
 - **Setup instructions:**
   1. In Claude Code: `/plugin marketplace add asemdadesh-cmd/asem-repository-`
   2. `/plugin install agency-review@nht-skills`
@@ -204,6 +303,10 @@ _Last updated: 2026-10-06_
   (`git push -u origin claude/agency-review-framework-3a8hk8`). The skill is
   "deployed" simply by being present in `.claude/skills/`.
 - **Stash:** Vercel project with Root Directory `apps/money-tracker` (see Apps).
+- **Villa Serena:** its **own** Netlify site with Base directory
+  `apps/villa-serena`, or a Vercel project with Root Directory
+  `apps/villa-serena` (see Apps). Never point the repo-root `netlify.toml`
+  at it — that file deploys `pink-riot-club`.
 - **Hosting configuration:** _N/A for the repo._ Websites built with the skill
   are hosted per-project (documented in this file when that happens).
 
@@ -214,6 +317,27 @@ _Last updated: 2026-10-06_
 - **Bugs:** None known.
 - **Stash limitations:** data is per-browser (no cloud sync); clearing site
   data deletes it unless backed up. No recurring transactions yet.
+- **Villa Serena:**
+  - Multiplayer has only been verified against **local** brokers: the public
+    brokers (`broker.emqx.io`, `broker.hivemq.com`) are unreachable from the
+    build sandbox. A real two-device test after the first deploy is pending.
+    Public brokers carry no SLA; if both are down, only solo play works.
+  - All visual QA ran in headless Chromium with software WebGL (swiftshader);
+    frame rate on real phones/GPUs is unmeasured.
+  - The browser tests hard-code the sandbox Chromium
+    (`/opt/pw-browsers/chromium-1194/...`); elsewhere, edit `executablePath`
+    in `tests/*.mjs` (or remove it to use Playwright's own browser).
+  - `og:image` is a relative URL; make it absolute once the domain is known
+    (some crawlers ignore relative OG images).
+  - `sketchup/world.json` (input to `tools/world.py`) is a snapshot of
+    `src/world/layout.ts` + `terrain.ts` with no committed exporter; regenerate
+    it if the layout changes, or the SketchUp island drifts from the game.
+  - `.skp` links in `sketchup/downloads.json` are issued by SketchUp and can
+    expire; `api.sketchup.com` downloads are blocked from the sandbox, so the
+    `.skp` files themselves are not in the repo.
+  - `public/models/env-sunrise.hdr` (128 KB) ships in `dist/` but only the
+    dev viewer uses it.
+  - Avatars are licensed for non-commercial use only.
 - **Technical debt:** Documentation currently updated manually; no automated
   enforcement that it stays in sync with changes.
 - **Limitations:** None currently. `claude/agency-review-framework-3a8hk8` is
@@ -236,6 +360,15 @@ _Last updated: 2026-10-06_
 ---
 
 ## Changelog
+
+- **2026-10-12** — Added **Villa Serena** (`apps/villa-serena/`, draft PR #16): a realistic
+  two-player seaside world in three.js + Rapier whose 55 models are built in Trimble SketchUp
+  (own SDK shim + glTF exporter with fingerprint parity, meshopt-compressed kit 4.4 → 2.3 MB).
+  Character controller with swimming, buggy, rowboat with buoyancy, swing, carry/throw/kick,
+  instanced grass and leaf cards, time of day; serverless AES-GCM-encrypted multiplayer over two
+  public MQTT brokers; code-split lobby, strict CSP on Netlify/Vercel. Tests: vitest 9/9,
+  two-browser e2e 11/11, CSP run of the production build. Docs: this section, the app README,
+  DECISIONS.md.
 
 - **2026-10-06** — Root `netlify.toml` added: it points Netlify's `pink-riot-club` project at
   `apps/pink-riot-club`, so the repo's default branch deploys the game and nothing else.

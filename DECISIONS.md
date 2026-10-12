@@ -4,9 +4,103 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-06_
+_Last updated: 2026-10-12_
 
 ---
+
+### 2026-10-12 — Villa Serena: serverless encrypted MQTT relay instead of a game server
+**Decision:** Two-player sync goes through two public MQTT-over-WSS brokers
+(`broker.emqx.io`, `broker.hivemq.com`) at once. The room code is the secret:
+the topic is its SHA-256 hash, every message is AES-GCM encrypted with a
+PBKDF2-derived key, duplicates from the second broker are dropped by sequence
+number. Physics uses single-owner authority (whoever touches a body simulates
+it; the host owns the rest).
+**Why:** It's a private game for two people — a server would mean hosting,
+cost, uptime and an account system for no gain. WebRTC still needs signalling
+and TURN for many mobile networks. Public brokers are free and need no account;
+two at once removes the single point of failure; encryption means the brokers
+see only opaque bytes on an unguessable topic. Single-owner physics avoids
+two clients fighting over the same ball without a referee. Trade-offs: no SLA
+on the brokers (both down = solo only), anyone with the link can join, and a
+cheating client could lie about the bodies it owns — acceptable for two
+trusted players. `VITE_BROKERS` swaps in other brokers without code changes.
+
+### 2026-10-12 — Villa Serena: Rapier with a kinematic character controller
+**Decision:** Rapier 0.21 (WASM) for all physics, fixed-step with render
+interpolation; the player is a kinematic capsule driven by Rapier's character
+controller, while props, the buggy (ray-cast vehicle), the rowboat (buoyancy
+samples) and the swing (revolute joint) are real dynamic bodies.
+**Why:** Rapier is a fast, actively maintained WASM engine with a built-in
+character controller and ray-cast vehicle, so stairs, slopes and pushing props
+come for free and a buggy needs no custom suspension. A kinematic character
+keeps control crisp (no sliding or tipping like a dynamic capsule) while
+still pushing 72 kg into the world. Trade-offs: the WASM is inlined in the
+engine chunk (a large download, cached immutably), and Rapier forces persist
+between steps — buoyancy must reset forces **and** torques every step (a unit
+test guards this).
+
+### 2026-10-12 — Villa Serena: SketchUp → own glTF exporter with fingerprint parity
+**Decision:** Author every model as a Python script against the SketchUp SDK
+surface (`sketchup/lib.py` + `assets/*.py`). The same script runs inside
+SketchUp through the Trimble MCP connector and locally through
+`tools/shim.py`, whose exporter writes the game's `kit.glb`. `tools/parity.py`
+compares geometry fingerprints from both; all 55 definitions match.
+**Why:** The brief is that every model is built in SketchUp, but `.skp`/glTF
+downloads from `api.sketchup.com` are blocked in this sandbox, so SketchUp's
+own export can't reach the build. Re-running the identical script locally and
+proving the geometry is identical keeps SketchUp the source of truth while
+the game ships a file we can produce. Helper groups modelled in SketchUp
+(`COL_*` boxes, seat/hinge/wheel markers) travel as data, so physics and
+interactions are authored in the model too. Trade-off: the shim must track
+the SDK calls we use; parity runs catch drift. If `api.sketchup.com` is
+allowlisted, the `.skp` files can be downloaded directly as well.
+
+### 2026-10-12 — Villa Serena: meshopt compression, dequantised on load
+**Decision:** `scripts/optimize-models.mjs` dedupes, quantises and
+meshopt-compresses `kit.glb` (4.4 → 2.3 MB); `src/engine/kit.ts` decodes it
+with three's MeshoptDecoder and converts quantised attributes back to floats.
+**Why:** Halves the download with no visible loss and no extra decoder WASM
+beyond meshopt's small one (Draco is larger and slower to decode). The world
+merges static assets into a few batches and bakes transforms, which needs
+plain float attributes, so dequantising once at load is simpler than making
+every merge path quantisation-aware. Trade-off: slightly more memory for the
+static meshes after load.
+
+### 2026-10-12 — Villa Serena: Neutral tone mapping with a time-of-day exposure curve
+**Decision:** Khronos PBR Neutral tone mapping, with exposure driven by the
+sun's height (darker at noon, a lift at golden hour). `?tm=agx|aces` switches
+mappers for comparison.
+**Why:** Neutral is designed to keep base colours close to their authored hue
+and saturation, so the SketchUp materials (whitewashed walls, terracotta,
+turquoise water) look as modelled; ACES shifts hues and pushes saturation, AgX
+desaturates bright colours. One fixed exposure can't suit both a high noon sun
+and dusk, hence the curve. Trade-off: Neutral rolls off highlights less gracefully, so
+the exposure curve has to keep noon in range.
+
+### 2026-10-12 — Villa Serena: instanced grass and leaf cards
+**Decision:** Grass is tens of thousands of instanced blades on a grid that
+follows the camera, placed from ground textures (none on paths, sand, decks
+or under buildings). Tree crowns stay closed SketchUp volumes, covered with
+alpha-tested leaf-cluster cards lit by the crown's outward normal — one draw
+call for every tree. Density drops on `quality=low` (default on touch devices).
+**Why:** Real geometry reads as "realistic" up close where a textured ground
+can't, and instancing keeps it to one draw call. Leaf cards give the SketchUp
+crowns a soft silhouette without modelling thousands of leaves in SketchUp.
+Trade-off: fill-rate cost on weak GPUs (hence the lower radius/density on
+mobile); grass ends ~30 m from the camera (16 m on low).
+
+### 2026-10-12 — Villa Serena: strict Content-Security-Policy on both hosts
+**Decision:** `netlify.toml` and `vercel.json` ship the same CSP: `self`
+scripts plus `'wasm-unsafe-eval'` (Rapier), `connect-src` limited to `self`,
+`blob:`/`data:` and the two broker URLs, `frame-ancestors 'none'`,
+`form-action 'none'`, plus nosniff/referrer/permissions/COOP headers.
+`tests/csp.mjs` runs the production build under these headers.
+**Why:** The page renders player-supplied names and takes network data from
+public brokers, so a strict CSP is cheap insurance against injection and
+data exfiltration. The test exists because the policy broke the build once:
+GLTFLoader loads embedded avatar textures through `blob:` URLs, which
+`connect-src` blocked. Trade-off: any new broker or CDN must be added to both
+files (documented in PROJECT.md).
 
 ### 2026-10-06 — Pink Riot Club lives in `apps/pink-riot-club/` until it gets its own repo
 **Decision:** Push the recovered Pink Riot Club project into this repo under
