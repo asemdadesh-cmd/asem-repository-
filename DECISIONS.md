@@ -8,6 +8,10 @@ _Last updated: 2026-10-06_
 
 ---
 
+### 2026-10-12 — Remove Pink Riot Club from this repo; Villa Serena gets its own repo on Vercel
+**Decision:** Delete `apps/pink-riot-club/` and the root `netlify.toml`; ship Villa Serena as a standalone public repo deployed on Vercel.
+**Why:** The root `netlify.toml` pointed Netlify at Pink Riot Club, so the `villa-serena-jyz8` site served the wrong game. The owner wants the games fully separate. History keeps the old code.
+
 ### 2026-10-06 — Pink Riot Club lives in `apps/pink-riot-club/` until it gets its own repo
 **Decision:** Push the recovered Pink Riot Club project into this repo under
 `apps/pink-riot-club/` (imported with `git subtree`, history preserved) as a

@@ -27,9 +27,6 @@ _Last updated: 2026-10-06_
 - **Apps:** `apps/money-tracker/` — **Stash**, a local-first money tracker web
   app (Vite + React + TS) deployable to Vercel as its own project. See the
   "Apps" section below.
-  `apps/pink-riot-club/` — **نادي التخربيق — Pink Riot Club**, a two-player 3D
-  friendship world (Vite + three.js + Netlify). Lives here **temporarily** until
-  its own repository exists (see Apps).
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
   documentation (this file + TASKS.md + DECISIONS.md) being established now.
@@ -68,7 +65,6 @@ _Last updated: 2026-10-06_
   │                   └── rewrite-guide.md # copywriting & conversion patterns
   ├── apps/
   │   ├── money-tracker/              # Stash money tracker (self-contained Vite app)
-  │   └── pink-riot-club/             # Pink Riot Club 3D world (temporary home, own docs)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -138,22 +134,8 @@ _Last updated: 2026-10-06_
   fallback. `npm run preview` serves the same headers locally.
 - **Checks:** `npm test` (18 unit tests), `npm run build` (typecheck + build).
 
-### Pink Riot Club — 3D friendship world (`apps/pink-riot-club/`)
-- **What:** نادي التخربيق — a private two-player 3D browser world (a gift from
-  عاصم to يسو): pool splash battle, football, shared drawing board, photo
-  gallery, eight characters, real two-device multiplayer. Arabic/Darija UI.
-- **Status:** **Temporary home.** The owner asked for its own repository; the
-  Claude GitHub connection cannot create repos (403). Once an empty
-  `pink-riot-club` repo exists, split it out with history:
-  `git subtree split --prefix=apps/pink-riot-club -b pink-riot-club` and push
-  that branch as the new repo's `main`.
-- **Docs:** the app keeps its own `PROJECT.md`, `TASKS.md`, `DECISIONS.md` and
-  `README.md` inside its folder — those are the source of truth for it.
-- **Deployment (Netlify project `pink-riot-club`):** link the repo, set **Base
-  directory = `apps/pink-riot-club`** (build/publish/functions come from its
-  `netlify.toml`). Never link this repo to any other host project.
-- **Private data:** her photos are never committed; they are uploaded to Netlify
-  Blobs through the app's admin-key-protected `/upload.html`.
+### Pink Riot Club — removed
+- Removed from this repo on 2026-10-12 at the owner's request (it was never a separate repo). It remains in git history before that commit. Villa Serena now lives in its own repository, https://github.com/asemdadesh-cmd/villa-serena, and deploys on Vercel from there.
 
 ---
 
@@ -236,6 +218,10 @@ _Last updated: 2026-10-06_
 ---
 
 ## Changelog
+
+- **2026-10-12** — Created the public repo `asemdadesh-cmd/villa-serena` and pushed Villa Serena to its `main` (91 files; no `netlify.toml`). The Vercel import is pending.
+
+- **2026-10-12** — Removed `apps/pink-riot-club/` and the root `netlify.toml` (Netlify site `villa-serena-jyz8` was building Pink Riot Club from it, so it served the wrong game). Villa Serena is to live in its own repo + Vercel project.
 
 - **2026-10-06** — Root `netlify.toml` added: it points Netlify's `pink-riot-club` project at
   `apps/pink-riot-club`, so the repo's default branch deploys the game and nothing else.
