@@ -1,0 +1,5 @@
+{
+  "_note": "SketchUp's own .skp files, saved through the Trimble connector. These links are issued by SketchUp and may expire; rebuild any time by replaying the asset scripts (see the SketchUp pipeline section of apps/villa-serena/README.md).",
+  "asset-kit": "https://api.sketchup.com/mcp/v1/sketchup/dl/410b8de3-1f63-446d-b247-1030b58031a5/021-save/villa-serena-asset-kit.skp?t=tmugX-a2m0pubFNbSgwNpA",
+  "kit-checkpoint": "https://api.sketchup.com/mcp/v1/sketchup/dl/410b8de3-1f63-446d-b247-1030b58031a5/017-save/villa-serena-kit-checkpoint.skp?t=Oef9Ytgs3rhujNWcYslFJQ"
+}

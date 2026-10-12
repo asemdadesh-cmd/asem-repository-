@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0d2430" />
+    <meta name="description" content="Villa Serena — a realistic seaside world for two, every model built in Trimble SketchUp. Real physics, mocap animation, play together in the browser." />
+    <title>Villa Serena — a seaside world for two</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Villa Serena — a seaside world for two" />
+    <meta property="og:description" content="Walk, swim, row, drive and swing together in a Mediterranean villa above a quiet cove. Every model built in Trimble SketchUp; real physics; private, encrypted rooms." />
+    <meta property="og:image" content="/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A woman on the deck of an infinity pool at golden hour, a lighthouse and a palm-lined beach beyond" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Villa Serena — a seaside world for two" />
+    <meta name="twitter:description" content="A realistic 3D villa by the sea to explore together in the browser. Modelled in Trimble SketchUp." />
+    <meta name="twitter:image" content="/og.jpg" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Villa Serena",
+        "description": "A realistic two-player seaside world in the browser: a Mediterranean villa, pool, garden, beach, pier and lighthouse, every model built in Trimble SketchUp, with real physics.",
+        "genre": ["Exploration", "Social", "Simulation"],
+        "playMode": ["SinglePlayer", "CoOp"],
+        "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
+        "gamePlatform": "Web browser",
+        "applicationCategory": "Game",
+        "operatingSystem": "Any (WebGL 2)",
+        "image": "/og.jpg",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "GBP" }
+      }
+    </script>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c3a4e'/%3E%3Ccircle cx='32' cy='30' r='12' fill='%23f2b36b'/%3E%3Cpath d='M8 42h48v14H8z' fill='%23145c73'/%3E%3Cpath d='M8 42c8-3 16 3 24 0s16-3 24 0' stroke='%23f4ebdc' stroke-width='3' fill='none'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <canvas id="c" tabindex="0" aria-label="Villa Serena 3D world"></canvas>
+    <div id="ui"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
