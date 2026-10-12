@@ -338,10 +338,11 @@ const PATTERNS: Record<PatternId, { glsl: string; bump: number }> = {
     bump: 1.0,
     glsl: `
       float blades = fbm(uv, vec2(160.0, 120.0), 3);
+      float fine = hash12(floor(uv * vec2(512.0, 384.0)));
       float patches = fbm(uv, vec2(4.0), 5);
-      float dry = smoothstep(0.55, 0.75, fbm(uv + 5.0, vec2(3.0), 4));
-      vec3 green = mix(vec3(0.24, 0.42, 0.12), vec3(0.42, 0.55, 0.2), patches);
-      col = mix(green, vec3(0.62, 0.58, 0.32), dry * 0.6) * (0.75 + 0.45 * blades);
+      float dry = smoothstep(0.62, 0.8, fbm(uv + 5.0, vec2(3.0), 4));
+      vec3 green = mix(vec3(0.16, 0.33, 0.08), vec3(0.27, 0.42, 0.12), patches * 0.6 + fine * 0.4);
+      col = mix(green, vec3(0.5, 0.48, 0.26), dry * 0.35) * (0.72 + 0.4 * blades);
       rough = 0.92;
       h = blades;`,
   },

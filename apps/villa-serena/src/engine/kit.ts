@@ -46,9 +46,12 @@ export class Kit {
       if (onProgress && e.total) onProgress(e.loaded / e.total);
     });
     const kit = new Kit();
-    for (const node of gltf.scene.children) {
+    for (const node of [...gltf.scene.children]) {
       if (!node.userData.asset) continue;
-      kit.assets.set(node.name, kit.prepare(node, renderer, opts));
+      // GLTFLoader de-duplicates names (a villa part called "Bed" turns the Bed asset into "Bed_1")
+      const name = (node.userData.name as string | undefined) ?? node.name;
+      node.name = name;
+      kit.assets.set(name, kit.prepare(node, renderer, opts));
     }
     return kit;
   }
@@ -68,11 +71,12 @@ export class Kit {
           const b = o.userData.box as number[];
           const centre = new THREE.Vector3((b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2);
           const half = new THREE.Vector3((b[3] - b[0]) / 2, (b[4] - b[1]) / 2, (b[5] - b[2]) / 2);
-          const entry = { name: o.name.slice(4), matrix: local.multiply(new THREE.Matrix4().makeTranslation(centre)), half };
+          const entry = { name: ((o.userData.name as string | undefined) ?? o.name).slice(4), matrix: local.multiply(new THREE.Matrix4().makeTranslation(centre)), half };
           (o.userData.collider ? colliders : volumes).push(entry);
         } else {
-          const kind = String(o.userData.marker ?? o.name.split('_')[0]);
-          markers.push({ kind, name: o.name.slice(kind.length + 1), matrix: local });
+          const full = (o.userData.name as string | undefined) ?? o.name;
+          const kind = String(o.userData.marker ?? full.split('_')[0]);
+          markers.push({ kind, name: full.slice(kind.length + 1), matrix: local });
         }
       }
       const mesh = o as THREE.Mesh;
@@ -86,6 +90,7 @@ export class Kit {
       }
     });
     for (const h of hidden) h.removeFromParent();
+    if (!ANIMATED.has(root.name)) collapse(root);
     const bounds = new THREE.Box3().setFromObject(root);
     const extras = { ...root.userData };
     return { name: root.name, root, colliders, volumes, markers, bounds, extras };
@@ -100,6 +105,46 @@ export class Kit {
   /** A movable copy (shares geometry and materials with the template). */
   instance(name: string): THREE.Object3D {
     return this.get(name).root.clone(true);
+  }
+}
+
+/** Assets whose parts move at runtime keep their node hierarchy. */
+const ANIMATED = new Set(['Buggy']);
+
+/**
+ * Merges all of an asset's parts into one mesh per material (a dining chair
+ * goes from a dozen draw calls to two). Geometry is baked into asset space.
+ */
+function collapse(root: THREE.Object3D) {
+  root.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  const groups = new Map<THREE.Material, THREE.BufferGeometry[]>();
+  const meshes: THREE.Mesh[] = [];
+  root.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (m.isMesh && !Array.isArray(m.material)) meshes.push(m);
+  });
+  if (meshes.length < 2) return;
+  for (const m of meshes) {
+    const g = m.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld));
+    for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
+    if (!g.attributes.uv) g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+    if (!g.index) g.setIndex([...Array(g.attributes.position.count).keys()]);
+    const mat = m.material as THREE.Material;
+    if (!groups.has(mat)) groups.set(mat, []);
+    groups.get(mat)!.push(g);
+  }
+  for (const c of [...root.children]) root.remove(c);
+  for (const [mat, list] of groups) {
+    const merged = mergeGeometries(list, false);
+    if (!merged) continue;
+    merged.computeBoundingSphere();
+    merged.computeBoundingBox();
+    const mesh = new THREE.Mesh(merged, mat);
+    mesh.name = `${root.name}:${mat.name}`;
+    mesh.castShadow = !(mat as THREE.MeshStandardMaterial).transparent;
+    mesh.receiveShadow = true;
+    root.add(mesh);
   }
 }
 
