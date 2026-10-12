@@ -373,7 +373,9 @@ export class Game {
         if (p.seat?.kind === 'driver') this.buggy.reset((x, z) => this.water.ground(x, z));
         break;
       case 'menu':
-        this.hud.toggle('menu');
+        // Esc closes whatever is open first, then opens the settings
+        if (this.hud.panelOpen) this.hud.closeAll();
+        else this.hud.toggle('menu');
         break;
       case 'map':
         this.hud.toggle('travel');

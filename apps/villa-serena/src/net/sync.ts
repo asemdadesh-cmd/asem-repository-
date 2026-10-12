@@ -8,7 +8,7 @@
 // late joiner snaps to the host's state. Sleeping bodies send nothing.
 import * as THREE from 'three';
 import { RAPIER } from '../engine/physics.ts';
-import type { AvatarId } from '../player/avatar.ts';
+import { AVATARS, type AvatarId } from '../player/avatars.ts';
 import type { Game } from '../game/Game.ts';
 import { RemotePlayer, type PlayerSnapshot } from '../game/remote.ts';
 import type { DynamicProp } from '../world/World.ts';
@@ -40,6 +40,31 @@ interface Syncable {
 }
 
 const r3 = (v: number) => Math.round(v * 1000) / 1000;
+
+const num = (v: unknown, lim = 1e4) => typeof v === 'number' && Number.isFinite(v) && Math.abs(v) < lim;
+const MODES = new Set(['ground', 'air', 'swim', 'sit', 'drive']);
+
+/** Shape checks for everything that arrives over the relay. */
+function valid(m: Msg): boolean {
+  if (!m || typeof m !== 'object') return false;
+  switch (m.k) {
+    case 'hi':
+      if (typeof m.name !== 'string' || !(m.av in AVATARS) || !num(m.h, 25)) return false;
+      m.name = m.name.slice(0, 18).replace(/[\u0000-\u001f]/g, '') || 'Guest';
+      return true;
+    case 'me':
+      return num(m.t, 1e9) && Array.isArray(m.p) && m.p.length === 3 && m.p.every((v) => num(v)) && num(m.y, 100) && MODES.has(m.m) && num(m.v, 100) && (m.seat === null || typeof m.seat === 'string') && (m.held === null || typeof m.held === 'string');
+    case 'b':
+      return num(m.t, 1e9) && Array.isArray(m.l) && m.l.length <= 80 && m.l.every((st) => Array.isArray(st) && typeof st[0] === 'string' && st.slice(1).every((v) => num(v)));
+    case 'claim':
+      return typeof m.id === 'string';
+    case 'time':
+      return num(m.h, 25) && typeof m.cyc === 'boolean';
+    case 'bye':
+      return true;
+  }
+  return false;
+}
 
 export class NetSync {
   readonly remotes = new Map<string, RemotePlayer>();
@@ -185,6 +210,7 @@ export class NetSync {
   // -------------------------------------------------------------- receive
   private receive(m: Msg, from: string) {
     const g = this.game;
+    if (!valid(m)) return; // only invitees hold the key, but never trust a payload's shape
     switch (m.k) {
       case 'hi': {
         let r = this.remotes.get(from);

@@ -89,8 +89,9 @@ export class Buoyancy {
       const inv = this.q.clone().invert();
       const local = new THREE.Vector3(lv.x, lv.y, lv.z).applyQuaternion(inv);
       const m = b.mass();
-      const k = f.wet;
-      local.set(-local.x * Math.abs(local.x) * f.drag.x - local.x * 0.2 * m, -local.y * Math.abs(local.y) * f.drag.y - local.y * 5 * m, -local.z * Math.abs(local.z) * f.drag.z - local.z * 0.2 * m).multiplyScalar(k);
+      // even a shallow-floating hull is fully "in" the water for damping purposes
+      const k = Math.min(1, f.wet * 4);
+      local.set(-local.x * Math.abs(local.x) * f.drag.x - local.x * 0.2 * m, -local.y * Math.abs(local.y) * f.drag.y - local.y * 7 * m, -local.z * Math.abs(local.z) * f.drag.z - local.z * 0.2 * m).multiplyScalar(k);
       local.applyQuaternion(this.q);
       // never let drag reverse the motion in one step
       const maxF = (Math.hypot(lv.x, lv.y, lv.z) * m) / dt;

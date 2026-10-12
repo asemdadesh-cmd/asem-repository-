@@ -81,6 +81,7 @@ export class Kit {
       }
       const mesh = o as THREE.Mesh;
       if (mesh.isMesh) {
+        dequantize(mesh.geometry);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
@@ -105,6 +106,20 @@ export class Kit {
   /** A movable copy (shares geometry and materials with the template). */
   instance(name: string): THREE.Object3D {
     return this.get(name).root.clone(true);
+  }
+}
+
+/**
+ * The kit ships quantised (KHR_mesh_quantization: int16 positions, int8
+ * normals) to download fast; merging and baking transforms need plain floats.
+ */
+function dequantize(g: THREE.BufferGeometry) {
+  for (const [name, a] of Object.entries(g.attributes)) {
+    const attr = a as THREE.BufferAttribute;
+    if (attr.array instanceof Float32Array && !attr.normalized && !(a as THREE.InterleavedBufferAttribute).isInterleavedBufferAttribute) continue;
+    const out = new Float32Array(attr.count * attr.itemSize);
+    for (let i = 0; i < attr.count; i++) for (let k = 0; k < attr.itemSize; k++) out[i * attr.itemSize + k] = attr.getComponent(i, k);
+    g.setAttribute(name, new THREE.BufferAttribute(out, attr.itemSize));
   }
 }
 

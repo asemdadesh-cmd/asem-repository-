@@ -261,7 +261,7 @@ export class Hud {
         ];
     const list = h('dl', { class: 'keys' });
     for (const [k, d] of keys) list.append(h('dt', {}, k), h('dd', {}, d));
-    this.panel('help', 'Controls', h('div', { class: 'panel-body' }, list, h('p', { class: 'small' }, 'Every building, boat and piece of furniture here was modelled in Trimble SketchUp. Physics by Rapier.')));
+    this.panel('help', 'Controls', h('div', { class: 'panel-body' }, list, h('p', { class: 'note' }, 'Every building, boat and piece of furniture here was modelled in Trimble SketchUp. Physics by Rapier.')));
   }
 
   syncTimeInputs: (h: number, cycle: boolean) => void = () => {};
@@ -284,7 +284,12 @@ export class Hud {
       }
     }
     if (open && id === 'menu') this.syncTimeInputs(this.time, this.cycle);
-    if (open) (el.querySelector('button, input, select') as HTMLElement | null)?.focus();
+    if (open) (el.querySelector('.panel-body button, .panel-body input, .panel-body select') as HTMLElement | null)?.focus();
+  }
+
+  closeAll() {
+    for (const p of this.panels.values()) p.classList.add('hidden');
+    (document.activeElement as HTMLElement | null)?.blur?.();
   }
 
   get panelOpen(): boolean {
@@ -371,7 +376,8 @@ export class Hud {
       e.stopPropagation();
       void this.copyInvite();
     });
-    this.roomEl.replaceChildren(h('span', { class: `dot ${r.status === 'online' ? (r.peers.length ? 'on' : 'wait') : 'off'}` }), label, inv);
+    const dot = r.status === 'online' ? (r.peers.length ? 'on' : 'wait') : r.status === 'offline' ? 'off' : 'wait';
+    this.roomEl.replaceChildren(h('span', { class: `dot ${dot}` }), label, inv);
   }
 
   async copyInvite() {

@@ -1,10 +1,13 @@
 import './ui/styles.css';
-import { Game } from './game/Game.ts';
+import type { Game } from './game/Game.ts';
 import { Hud } from './ui/hud.ts';
 import { showLoading, showLobby } from './ui/lobby.ts';
 
 const ui = document.getElementById('ui')!;
 const canvas = document.getElementById('c') as HTMLCanvasElement;
+
+// the engine (three.js, Rapier physics, the relay) downloads while you choose
+const engine = import('./game/Game.ts');
 
 async function boot() {
   if (!hasWebGL2()) {
@@ -22,6 +25,7 @@ async function boot() {
   hud.root.classList.add('hidden');
   let game: Game;
   try {
+    const { Game } = await engine;
     game = await Game.start({
       canvas,
       name: choice.name,

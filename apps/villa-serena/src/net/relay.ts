@@ -4,6 +4,7 @@
 // using a key derived from the private room code, and the topic name is a hash
 // of the code, so the brokers never see the code, the key or any content.
 import mqtt, { type MqttClient } from 'mqtt';
+export { newRoomCode, normaliseCode } from './room-code.ts';
 
 export const BROKERS: string[] = ((import.meta.env.VITE_BROKERS as string | undefined) ?? 'wss://broker.emqx.io:8084/mqtt,wss://broker.hivemq.com:8884/mqtt')
   .split(',')
@@ -16,21 +17,6 @@ interface Envelope<M> {
   f: string; // sender id
   n: number; // sequence (dedupe across brokers)
   m: M;
-}
-
-const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-
-/** A new private room code like "K7QM-2XDF-9RTA" (≈ 70 bits). */
-export function newRoomCode(): string {
-  const r = crypto.getRandomValues(new Uint8Array(12));
-  const s = Array.from(r, (b) => ALPHABET[b % ALPHABET.length]).join('');
-  return `${s.slice(0, 4)}-${s.slice(4, 8)}-${s.slice(8, 12)}`;
-}
-
-export function normaliseCode(code: string): string | null {
-  const c = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  if (c.length !== 12 || [...c].some((ch) => !ALPHABET.includes(ch))) return null;
-  return `${c.slice(0, 4)}-${c.slice(4, 8)}-${c.slice(8, 12)}`;
 }
 
 async function deriveKey(code: string): Promise<CryptoKey> {

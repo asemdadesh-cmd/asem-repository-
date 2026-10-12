@@ -1,7 +1,7 @@
 // The first screen: your name, who you play as, and whether you explore alone
 // or open a private shared villa (an invite link carries the room code).
-import { AVATARS, type AvatarId } from '../player/avatar.ts';
-import { newRoomCode, normaliseCode } from '../net/relay.ts';
+import { AVATARS, type AvatarId } from '../player/avatars.ts';
+import { newRoomCode, normaliseCode } from '../net/room-code.ts';
 
 export interface LobbyResult {
   name: string;
@@ -28,7 +28,7 @@ export function showLobby(parent: HTMLElement): Promise<LobbyResult> {
     } catch {
       /* private mode */
     }
-    const el = document.createElement('div');
+    const el = document.createElement('main');
     el.id = 'lobby';
     el.innerHTML = `
       <div class="lobby-card" role="dialog" aria-labelledby="lobby-title">

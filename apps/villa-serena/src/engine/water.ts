@@ -199,14 +199,14 @@ export function makeSea(renderer: THREE.WebGLRenderer, grid: Grid, texSize: numb
 export function makePoolWater(renderer: THREE.WebGLRenderer, size: THREE.Vector2, texSize: number): THREE.Mesh {
   const ripple = patternMaps(renderer, 'water', texSize).normalMap;
   const mat = new THREE.MeshPhysicalMaterial({
-    color: '#7fd6dc',
-    roughness: 0.04,
+    color: '#6fcfd8',
+    roughness: 0.02,
     metalness: 0,
     transparent: true,
-    opacity: 0.55,
+    opacity: 0.74,
     normalMap: ripple.clone(),
     normalScale: new THREE.Vector2(0.25, 0.25),
-    envMapIntensity: 1.2,
+    envMapIntensity: 1.7,
     clearcoat: 1,
     clearcoatRoughness: 0.03,
   });

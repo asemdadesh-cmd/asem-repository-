@@ -8,14 +8,9 @@ import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { Retargeter } from './retarget.ts';
+import { AVATARS, type AvatarId } from './avatars.ts';
 
-export type AvatarId = 'him' | 'her' | 'captain';
-
-export const AVATARS: Record<AvatarId, { file: string; height: number; female: boolean; label: string }> = {
-  him: { file: 'asem.glb', height: 1.79, female: false, label: 'Navy suit' },
-  her: { file: 'yasso.glb', height: 1.64, female: true, label: 'Rose blazer' },
-  captain: { file: 'captain.glb', height: 1.69, female: true, label: 'Sailor' },
-};
+export { AVATARS, type AvatarId };
 
 export type MoveMode = 'ground' | 'air' | 'swim' | 'sit' | 'drive';
 export type Emote = 'wave' | 'dance' | 'cheer' | 'bow' | 'kick' | 'throw' | 'pickup' | 'jump' | 'land' | 'sitDown' | 'standUp' | 'backflip' | 'yes' | 'interact';
