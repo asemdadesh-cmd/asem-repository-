@@ -81,7 +81,7 @@ export class FollowCamera {
     const c = Math.cos(this.pitch);
     this.dir.set(Math.sin(this.yaw) * c, Math.sin(this.pitch), Math.cos(this.yaw) * c).normalize();
     // keep walls, trees and the house from blocking the view
-    const hit = this.physics.ray(this.target, this.dir, this.dist + 0.3, GROUP.STATIC);
+    const hit = this.physics.ray(this.target, this.dir, this.dist + 0.3, GROUP.STATIC | GROUP.CAMERA);
     const free = hit === null ? this.dist : Math.max(0.4, hit - 0.3);
     this.actual = free < this.actual ? free : this.actual + (free - this.actual) * (1 - Math.exp(-3 * dt));
     const pos = this.target.clone().addScaledVector(this.dir, this.actual);

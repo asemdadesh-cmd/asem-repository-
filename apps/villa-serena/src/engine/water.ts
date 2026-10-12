@@ -39,10 +39,17 @@ export interface WaterUniforms {
   [k: string]: THREE.IUniform;
 }
 
+/** The terrain heights as a texture. Half floats: always filterable in WebGL 2
+ * (32-bit float filtering is missing on many phones), ~1 cm precision here. */
+let heightTex: THREE.DataTexture | null = null;
 export function heightTexture(grid: Grid): THREE.DataTexture {
+  if (heightTex) return heightTex;
   const w = grid.nx + 1;
   const h = grid.nz + 1;
-  const tex = new THREE.DataTexture(grid.heights, w, h, THREE.RedFormat, THREE.FloatType);
+  const half = new Uint16Array(grid.heights.length);
+  for (let i = 0; i < half.length; i++) half[i] = THREE.DataUtils.toHalfFloat(grid.heights[i]);
+  const tex = new THREE.DataTexture(half, w, h, THREE.RedFormat, THREE.HalfFloatType);
+  heightTex = tex;
   tex.minFilter = THREE.LinearFilter;
   tex.magFilter = THREE.LinearFilter;
   tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;

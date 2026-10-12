@@ -37,7 +37,11 @@ for (const s of steps) {
   }
   if (s.press) for (const k of s.press) await page.keyboard.press(k);
   if (s.wait) await page.waitForTimeout(s.wait);
-  if (s.shot) await page.screenshot({ path: `${outDir}/${s.shot}` });
+  if (s.shot) {
+    const t = Date.now();
+    await page.screenshot({ path: `${outDir}/${s.shot}`, timeout: 180000 });
+    if (Date.now() - t > 10000) console.log(`[play] slow screenshot ${s.shot}: ${((Date.now() - t) / 1000).toFixed(0)} s`);
+  }
 }
 if (errors.length) console.log(errors.slice(0, 25).join('\n'));
 await browser.close();

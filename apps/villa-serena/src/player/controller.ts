@@ -8,12 +8,13 @@ import { RAPIER, GROUP, groups, type Physics } from '../engine/physics.ts';
 import type { MoveMode } from './avatar.ts';
 
 export const CAPSULE = { radius: 0.3, half: 0.55 } as const;
+const BODY_GROUPS = groups(GROUP.PLAYER, GROUP.STATIC | GROUP.DYNAMIC | GROUP.VEHICLE | GROUP.PROP_SMALL | GROUP.PLAYER);
 const CENTRE = CAPSULE.radius + CAPSULE.half; // feet → capsule centre
 const G = 9.81;
 export const SPEED = { walk: 1.55, jog: 3.4, sprint: 5.9, swim: 1.15, swimFast: 1.9 } as const;
 const JUMP_V = 3.9; // ≈ 0.78 m standing jump
-const SWIM_DEPTH = 1.32; // water above the feet at which you start swimming
-const FLOAT = 1.36; // feet this far under the surface while swimming
+const SWIM_DEPTH = 1.22; // water above the feet at which you start swimming (chest height)
+const FLOAT = 1.3; // feet this far under the surface while swimming
 
 export interface MoveIntent {
   /** desired direction on the ground plane, length 0..1 */
@@ -74,7 +75,7 @@ export class CharacterController {
     const w = physics.world;
     this.body = w.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(at.x, at.y + CENTRE, at.z));
     this.collider = w.createCollider(
-      RAPIER.ColliderDesc.capsule(CAPSULE.half, CAPSULE.radius).setCollisionGroups(groups(GROUP.PLAYER, GROUP.STATIC | GROUP.DYNAMIC | GROUP.VEHICLE | GROUP.PROP_SMALL | GROUP.PLAYER)),
+      RAPIER.ColliderDesc.capsule(CAPSULE.half, CAPSULE.radius).setCollisionGroups(BODY_GROUPS),
       this.body,
     );
     this.kcc = w.createCharacterController(0.02);
@@ -185,7 +186,7 @@ export class CharacterController {
     // move the capsule through the world
     const desired = { x: this.velocity.x * dt, y: this.velocity.y * dt, z: this.velocity.z * dt };
     const skip = this.ignore.size ? (c: RAPIER.Collider) => !this.ignore.has(c.parent()?.handle ?? -1) : undefined;
-    this.kcc.computeColliderMovement(this.collider, desired, RAPIER.QueryFilterFlags.EXCLUDE_SENSORS, undefined, skip);
+    this.kcc.computeColliderMovement(this.collider, desired, RAPIER.QueryFilterFlags.EXCLUDE_SENSORS, BODY_GROUPS, skip);
     const m = this.kcc.computedMovement();
     const wasGrounded = this.grounded;
     this.grounded = !swim && this.kcc.computedGrounded();
@@ -208,15 +209,6 @@ export class CharacterController {
     // the speed we really moved at (walls stop you, animation follows)
     const real = Math.hypot(m.x, m.z) / dt;
     this.speed += (real - this.speed) * Math.min(1, 14 * dt);
-    if (!swim && this.grounded) {
-      // keep the stored velocity honest when blocked
-      const k = target > 0.01 ? Math.min(1, real / Math.max(0.01, Math.hypot(this.velocity.x, this.velocity.z))) : 1;
-      if (k < 0.6) {
-        this.velocity.x *= k;
-        this.velocity.z *= k;
-      }
-    }
-
     if (this.grounded) {
       if (!wasGrounded) {
         const fall = Math.max(0, -this.velocity.y);

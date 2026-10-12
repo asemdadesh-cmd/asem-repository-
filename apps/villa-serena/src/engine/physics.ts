@@ -15,6 +15,8 @@ export const GROUP = {
   PLAYER: 0x0004,
   VEHICLE: 0x0008,
   PROP_SMALL: 0x0010,
+  /** camera-only blockers (tree crowns): nothing collides with them */
+  CAMERA: 0x0020,
 } as const;
 export const groups = (member: number, filter: number) => (member << 16) | filter;
 const ALL = 0xffff;
@@ -191,10 +193,21 @@ export class Physics {
     }
   }
 
-  /** First static hit along a ray (camera collision, ground probes). */
-  ray(from: THREE.Vector3, dir: THREE.Vector3, max: number, mask = GROUP.STATIC | GROUP.DYNAMIC | GROUP.VEHICLE): number | null {
+  /** A box only the camera bumps into (keeps it out of tree crowns). */
+  addCameraBlocker(centre: THREE.Vector3, half: THREE.Vector3, rotation: THREE.Quaternion) {
+    this.world.createCollider(
+      RAPIER.ColliderDesc.cuboid(half.x, half.y, half.z)
+        .setTranslation(centre.x, centre.y, centre.z)
+        .setRotation(rotation)
+        .setCollisionGroups(groups(GROUP.CAMERA, GROUP.CAMERA)),
+    );
+  }
+
+  /** First hit along a ray (camera collision, ground probes). */
+  ray(from: THREE.Vector3, dir: THREE.Vector3, max: number, mask: number = GROUP.STATIC | GROUP.DYNAMIC | GROUP.VEHICLE): number | null {
     const ray = new RAPIER.Ray(from, dir);
-    const hit = this.world.castRay(ray, max, true, undefined, groups(ALL, mask));
+    const member = mask & GROUP.CAMERA ? GROUP.CAMERA | GROUP.STATIC : ALL & ~GROUP.CAMERA;
+    const hit = this.world.castRay(ray, max, true, undefined, groups(member, mask));
     return hit ? hit.timeOfImpact : null;
   }
 }

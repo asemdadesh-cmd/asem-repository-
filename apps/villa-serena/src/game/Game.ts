@@ -12,6 +12,8 @@ import { FollowCamera } from '../player/camera.ts';
 import { CharacterController, type MoveIntent } from '../player/controller.ts';
 import { Input, type Action } from '../player/input.ts';
 import { buildGround } from '../world/ground.ts';
+import { Grass } from '../world/grass.ts';
+import { Foliage } from '../world/foliage.ts';
 import { PIER_END, SPAWNS } from '../world/layout.ts';
 import { coastZ, sampleGrid, type Grid } from '../world/terrain.ts';
 import { World, placementMatrix, type DynamicProp, type SeatSpot } from '../world/World.ts';
@@ -86,6 +88,8 @@ export class Game {
   readonly boat: Rowboat;
   readonly swing: Swing;
   readonly lights: NightLights;
+  readonly grass: Grass;
+  readonly foliage: Foliage;
   readonly audio = new Audio();
   readonly player: LocalPlayer;
   readonly net: NetSync;
@@ -105,6 +109,7 @@ export class Game {
   private t = 0;
   private pendingJump = false;
   private kickPending: { at: number } | null = null;
+  private releaseAt: { held: NonNullable<LocalPlayer['held']>; v: THREE.Vector3; at: number } | null = null;
   photo = false;
 
   static async start(o: GameOptions): Promise<Game> {
@@ -182,6 +187,12 @@ export class Game {
     for (const s of this.world.seats) this.seats.set(s.id, s);
 
     this.lights = new NightLights(this.scene, this.world, o.quality === 'high' ? 6 : 3);
+    this.grass = new Grass(grid, this.world.floors, this.world.footprints, o.quality === 'high' ? { radius: 30, spacing: 0.17 } : { radius: 16, spacing: 0.22 });
+    this.scene.add(this.grass.mesh);
+    this.world.floors.length = 0; // only needed to plant the grass
+    this.foliage = new Foliage(this.world.leaves, o.quality === 'high' ? 1 : 0.6);
+    this.world.leaves.length = 0;
+    this.scene.add(this.foliage.mesh);
 
     // you
     this.cam = new FollowCamera(physics, this.mobile);
@@ -332,7 +343,7 @@ export class Game {
   }
 
   // ---------------------------------------------------------------- input
-  private action(a: Action) {
+  action(a: Action) {
     this.audio.unlock();
     const p = this.player;
     switch (a) {
@@ -389,7 +400,7 @@ export class Game {
 
   private nearestSeat(): SeatSpot | null {
     const p = this.player;
-    const at = p.position;
+    const at = p.feet;
     const m = new THREE.Matrix4();
     const v = new THREE.Vector3();
     let best: SeatSpot | null = null;
@@ -408,7 +419,7 @@ export class Game {
     return best;
   }
 
-  private interact() {
+  interact() {
     const p = this.player;
     if (p.seat) return this.leaveSeat();
     if (p.held) return this.dropHeld();
@@ -509,22 +520,17 @@ export class Game {
     }
   }
 
-  private grab() {
+  grab() {
     const p = this.player;
-    if (p.seat || p.ctrl.isClimbing || p.ctrl.mode === 'swim') return;
+    if (p.seat || p.ctrl.isClimbing || p.ctrl.mode === 'swim' || this.releaseAt) return;
     if (p.held) {
       const v = this.props.throwVelocity(p.held, p.yaw, p.ctrl.velocity);
       p.play('throw');
-      const h = p.held;
-      p.held = null;
-      // release mid-swing of the throwing arm
-      setTimeout(() => {
-        this.props.release(h, v, 4);
-        this.audio.whoosh();
-      }, 280);
+      // let go mid-swing of the throwing arm (keeps following the hands until then)
+      this.releaseAt = { held: p.held, v, at: this.t + 0.28 };
       return;
     }
-    const prop = this.props.nearest(p.position, p.yaw, 1.05, canCarry);
+    const prop = this.props.nearest(p.feet, p.yaw, 1.05, canCarry);
     if (!prop) return;
     this.net.claim(prop);
     p.held = this.props.pickUp(prop, p.id, p.yaw);
@@ -534,7 +540,8 @@ export class Game {
   private dropHeld() {
     const p = this.player;
     if (!p.held) return;
-    this.props.placeDown(p.held, p.position, p.yaw);
+    this.releaseAt = null;
+    this.props.placeDown(p.held, p.feet, p.yaw);
     p.ctrl.ignore.delete(p.held.prop.link.body.handle);
     p.held = null;
   }
@@ -575,7 +582,11 @@ export class Game {
   }
 
   private frame() {
-    const dt = Math.min(this.clock.getDelta(), 0.1);
+    this.tick(Math.min(this.clock.getDelta(), 0.1), true);
+  }
+
+  /** One frame of the game. Tests call it with render=false to simulate quickly. */
+  tick(dt: number, render: boolean) {
     this.t += dt;
     const p = this.player;
     this.input.poll(dt);
@@ -599,6 +610,13 @@ export class Game {
         this.net.claim(k);
         this.audio.impact(isBall(k) ? 900 : 3000, k.object.position, !isBall(k));
       }
+    }
+    if (this.releaseAt && this.t >= this.releaseAt.at) {
+      const r = this.releaseAt;
+      this.releaseAt = null;
+      if (p.held === r.held) p.held = null;
+      this.props.release(r.held, r.v, 4);
+      this.audio.whoosh();
     }
     if (this.buggy.flipped && seat?.kind === 'driver') this.hud.toast('Press R to put the buggy back on its wheels');
 
@@ -646,6 +664,8 @@ export class Game {
     this.underwaterFog();
 
     this.lights.update(this.t, this.sky.state.daylight, this.cam.camera.position);
+    this.grass.update(this.t, this.cam.camera.position.clone().lerp(this.focus, 0.6));
+    this.foliage.update(this.t);
     this.audio.listener.copy(this.cam.camera.position);
     this.audio.update(dt, {
       coast: Math.abs(coastZ(this.focus.x) - this.focus.z),
@@ -656,8 +676,18 @@ export class Game {
       throttle: this.buggy.input.throttle,
     });
     this.updateHud();
+    if (!render) return;
     this.renderer.render(this.scene, this.cam.camera);
     this.adaptResolution(dt);
+  }
+
+  /** Test hook: stop the render loop (simulate with tick, draw with renderOnce). */
+  pause() {
+    this.renderer.setAnimationLoop(null);
+  }
+
+  renderOnce() {
+    this.renderer.render(this.scene, this.cam.camera);
   }
 
   /** The head turns to your partner when they're near, otherwise where you look. */
@@ -723,9 +753,9 @@ export class Game {
       } else {
         const s = this.nearestSeat();
         if (s) hints.push({ key: 'E', label: SEAT_VERB[s.kind], action: 'interact' });
-        const prop = this.props.nearest(p.position, p.yaw, 1.05, canCarry);
+        const prop = this.props.nearest(p.feet, p.yaw, 1.05, canCarry);
         if (prop) hints.push({ key: 'F', label: `Pick up ${NAMES[prop.placement.asset] ?? 'it'}`, action: 'grab' });
-        const ball = this.props.nearest(p.position, p.yaw, 1.0, () => true);
+        const ball = this.props.nearest(p.feet, p.yaw, 1.0, () => true);
         if (ball && isBall(ball)) hints.push({ key: 'K', label: 'Kick', action: 'kick' });
       }
     }

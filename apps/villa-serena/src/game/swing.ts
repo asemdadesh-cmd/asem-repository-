@@ -8,6 +8,7 @@ import type { Kit } from '../engine/kit.ts';
 
 const SEAT_MASS = 14;
 const PERSON = 65;
+const ROPE = 1.6; // hook to the riders' centre of mass (m)
 
 export class Swing {
   readonly id = 'swing';
@@ -96,10 +97,14 @@ export class Swing {
     const w = this.body.angvel();
     const along = w.x * this.axisWorld.x + w.y * this.axisWorld.y + w.z * this.axisWorld.z;
     const dir = Math.abs(along) > 0.08 ? Math.sign(along) : 1;
-    const torque = 70 * this.riders * this.pump * dir;
-    // limit the amplitude to something a person can reach (~65°)
+    // legs and lean shift the centre of mass in time with the swing: ~180 N·m each
+    const torque = 150 * this.riders * this.pump * dir;
+    // a rider can only pump so high: estimate this swing's peak angle from its
+    // energy (pendulum: cos θmax = cos θ − ω²L / 2g) and stop adding above ~55°
     const up = new THREE.Vector3(0, 1, 0).applyQuaternion(this.object.quaternion);
-    if (up.y < 0.45 && Math.sign(this.pump * dir) > 0) return;
+    const cosPeak = up.y - (along * along * ROPE) / (2 * 9.81);
+    // (W pumps — adds energy whichever way it swings; S drags your feet and slows it)
+    if (cosPeak < Math.cos(THREE.MathUtils.degToRad(55)) && this.pump > 0) return;
     this.body.addTorque({ x: this.axisWorld.x * torque, y: this.axisWorld.y * torque, z: this.axisWorld.z * torque }, true);
   }
 

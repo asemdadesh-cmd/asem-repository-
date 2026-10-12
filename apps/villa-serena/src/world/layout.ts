@@ -87,7 +87,7 @@ add({ asset: 'Lantern', ...villa(1.6, -3.3, 0), physics: 'dynamic', shape: 'boxe
 add({ asset: 'Lantern', ...villa(6.3, -3.4, 0), physics: 'dynamic', shape: 'boxes', mass: 2 });
 
 // pool deck: two pairs of loungers with parasols
-for (const [i, x] of [-4.6, -2.4, 2.4, 4.6].entries()) add({ asset: 'Lounger', ...villa(x, -5.4, 0), yaw: 0, physics: 'dynamic', shape: 'boxes', mass: 18, id: `pool-lounger-${i}` });
+for (const [i, x] of [-4.6, -2.4, 2.4, 4.4].entries()) add({ asset: 'Lounger', ...villa(x, -5.05, 0), yaw: 0, physics: 'dynamic', shape: 'boxes', mass: 18, id: `pool-lounger-${i}` });
 for (const x of [-3.5, 3.5]) add({ asset: 'Parasol', ...villa(x, -5.0, 0), physics: 'static' });
 
 // roof terrace under the pergola
@@ -178,7 +178,7 @@ add({ asset: 'Football', ...sand(32, 6), y: heightAt(32, coastZ(32) - 6) + 0.15,
 add({ asset: 'Football', x: -1, y: gy + 0.2, z: 21, physics: 'dynamic', shape: 'ball', mass: 0.43, id: 'garden-ball' });
 // crates and barrels by the start of the pier
 {
-  const c = sand(-27, 15);
+  const c = sand(-27.5, 10);
   const crates: Array<[number, number, number, number]> = [
     [0, 0, 0, 0],
     [0.68, 0.1, 0, 25],

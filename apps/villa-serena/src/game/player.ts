@@ -49,6 +49,11 @@ export class LocalPlayer {
     return this.renderPos;
   }
 
+  /** Feet position for gameplay queries: the simulation's latest state. */
+  get feet(): THREE.Vector3 {
+    return this.seat ? this.renderPos : this.ctrl.position;
+  }
+
   play(e: Emote, loop = false) {
     const seed = Math.floor(Math.random() * 1000);
     this.avatar.play(e, { seed, loop });

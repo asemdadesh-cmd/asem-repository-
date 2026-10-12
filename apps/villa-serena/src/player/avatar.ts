@@ -51,6 +51,9 @@ const EMOTES: Record<Emote, { clips: string[]; upper?: boolean; face?: Expr }> =
   interact: { clips: ['Interact'], upper: true },
 };
 
+/** where the water surface is above the feet while swimming (see controller FLOAT) */
+const SWIM_SURFACE = 1.3;
+
 const UPPER = /^(Spine\d?|Neck\d?|Head|HeadTop_End|LeftEye|RightEye|(Left|Right)(Shoulder|Arm|ForeArm\d?|Hand.*))$/;
 
 const BASE = `${import.meta.env.BASE_URL}models/avatars/`;
@@ -255,16 +258,25 @@ export class Avatar {
       this.loco.set(k, a);
       this.w.set(k, k === 'idle' ? 1 : 0);
     }
-    // measure the seated hips once so any seat can place the body exactly
-    for (const k of KEYS) this.loco.get(k)!.setEffectiveWeight(k === 'sit' ? 1 : 0);
-    this.mixer.update(0);
-    this.root.updateMatrixWorld(true);
-    const hips = this.bones.get('Hips');
-    if (hips) hips.getWorldPosition(this.sitHips);
-    else this.sitHips.set(0, 0.5, 0);
+    // measure key poses once: seats align the seated hips exactly; swimming
+    // lifts the body so the head (treading water) or back (crawl) is at the surface
+    const pose = (key: Key, bone: string, out: THREE.Vector3) => {
+      for (const k of KEYS) this.loco.get(k)!.setEffectiveWeight(k === key ? 1 : 0);
+      this.mixer.update(0);
+      this.root.updateMatrixWorld(true);
+      const b = this.bones.get(bone);
+      if (b) b.getWorldPosition(out);
+      return out;
+    };
+    pose('sit', 'Hips', this.sitHips.set(0, 0.5, 0));
+    const headIdle = pose('swimIdle', 'Head', new THREE.Vector3(0, 1.55, 0)).y;
+    const hipsFwd = pose('swimFwd', 'Hips', new THREE.Vector3(0, 0.9, 0)).y;
+    this.swimLift = { idle: SWIM_SURFACE + 0.06 - headIdle, fwd: SWIM_SURFACE - 0.12 - hipsFwd };
     for (const k of KEYS) this.loco.get(k)!.setEffectiveWeight(k === 'idle' ? 1 : 0);
     this.mixer.update(0);
   }
+
+  private swimLift = { idle: 0, fwd: 0 };
 
   static async create(id: AvatarId): Promise<Avatar> {
     return new Avatar(id, await preloadAvatar(id));
@@ -357,16 +369,15 @@ export class Avatar {
     pw.recline += ((seated ? this.pose.recline : 0) - pw.recline) * k;
     pw.steer += ((seated ? this.pose.steer : 0) - pw.steer) * k;
     pw.row += ((seated ? this.pose.row : 0) - pw.row) * k;
-    // the model may be leaned back (recline); everything else is bone-level
+    // the model may be leaned back (recline, about the hips so the pelvis stays
+    // on the seat) and lifted in water; everything else is bone-level
     const lean = -0.92 * pw.recline;
-    if (Math.abs(this.model.rotation.x - lean) > 1e-4) {
-      // rotate about the hips so the pelvis stays on the seat
-      const pivot = this.sitHips;
-      this.model.rotation.x = lean;
-      const c = Math.cos(lean);
-      const sn = Math.sin(lean);
-      this.model.position.set(0, pivot.y - (pivot.y * c - pivot.z * sn), pivot.z - (pivot.y * sn + pivot.z * c));
-    }
+    const pivot = this.sitHips;
+    const c = Math.cos(lean);
+    const sn = Math.sin(lean);
+    const lift = (this.w.get('swimIdle') ?? 0) * this.swimLift.idle + (this.w.get('swimFwd') ?? 0) * this.swimLift.fwd;
+    this.model.rotation.x = lean;
+    this.model.position.set(0, pivot.y - (pivot.y * c - pivot.z * sn) + lift, pivot.z - (pivot.y * sn + pivot.z * c));
     if (pw.carry + pw.recline + pw.steer + pw.row < 0.01) return;
     this.root.updateMatrixWorld(true);
     const q = this.root.getWorldQuaternion(new THREE.Quaternion());

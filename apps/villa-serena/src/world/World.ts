@@ -8,6 +8,7 @@ import { Kit, StaticBatcher, type AssetTemplate, type Marker } from '../engine/k
 import { Physics, GROUP, type BodyLink } from '../engine/physics.ts';
 import { makePoolWater } from '../engine/water.ts';
 import { LAYOUT, type Placement } from './layout.ts';
+import type { LeafSource } from './foliage.ts';
 
 export interface DynamicProp {
   id: string;
@@ -50,6 +51,7 @@ export interface LightSpot {
 }
 
 const CELL = 48;
+const CROWNS = new Set(['OliveTree', 'Palm', 'Cypress']);
 
 export class World {
   readonly root = new THREE.Group();
@@ -58,6 +60,11 @@ export class World {
   readonly seats: SeatSpot[] = [];
   readonly volumes: WaterVolume[] = [];
   readonly lights: LightSpot[] = [];
+  /** what stands on the ground (no grass grows there) */
+  readonly floors: THREE.BufferGeometry[] = [];
+  readonly footprints: THREE.Box3[] = [];
+  /** crown surfaces for Foliage (cleared once the leaves are built) */
+  readonly leaves: LeafSource[] = [];
   readonly markers: Array<{ placement: Placement; marker: Marker; world: THREE.Matrix4 }> = [];
   /** placements handled by specialised systems (buggy, swing, boat) */
   readonly special = new Map<string, { placement: Placement; template: AssetTemplate; matrix: THREE.Matrix4 }>();
@@ -95,6 +102,8 @@ export class World {
         const obj = kit.instance(p.asset);
         obj.name = p.id ?? p.asset;
         m.decompose(obj.position, obj.quaternion, obj.scale);
+        // start a hair above where it rests and let it settle (never inside the ground)
+        obj.position.y += 0.03;
         if (p.tint) {
           const mat = p.tint === 'ivory' ? ivory : ebony;
           obj.traverse((o) => {
@@ -123,7 +132,23 @@ export class World {
         continue;
       }
       batch(p.x, p.z).add(t.root, m);
-      if (p.physics === 'static-mesh') physics.addStaticMesh(worldGeometry(t.root, m));
+      this.collectLeaves(t, m);
+      if (CROWNS.has(p.asset)) {
+        // the leafy part of the tree (above the trunk), slightly inset
+        const b = t.bounds;
+        const s = p.scale ?? 1;
+        const y0 = b.min.y + (b.max.y - b.min.y) * (p.asset === 'Cypress' ? 0.12 : 0.45);
+        const half = new THREE.Vector3(((b.max.x - b.min.x) / 2) * 0.8 * s, ((b.max.y - y0) / 2) * 0.9 * s, ((b.max.z - b.min.z) / 2) * 0.8 * s);
+        const c = new THREE.Vector3((b.min.x + b.max.x) / 2, (y0 + b.max.y) / 2, (b.min.z + b.max.z) / 2).applyMatrix4(m);
+        physics.addCameraBlocker(c, half, new THREE.Quaternion().setFromRotationMatrix(m));
+      }
+      if (p.physics === 'static-mesh') {
+        const geo = worldGeometry(t.root, m);
+        physics.addStaticMesh(geo);
+        this.floors.push(geo);
+      } else if (!CROWNS.has(p.asset) && p.physics !== 'none') {
+        this.footprints.push(t.bounds.clone().applyMatrix4(m));
+      }
       else if (p.physics === 'static' && t.colliders.length) physics.addStaticBoxes(t, m);
       this.addSeats(p.id ?? `${p.asset}@${p.x.toFixed(1)},${p.z.toFixed(1)}`, p.asset, t, m, null);
       for (const v of t.volumes) {
@@ -139,6 +164,23 @@ export class World {
       }
     }
     for (const [key, b] of batches) this.root.add(b.build(`static ${key}`));
+  }
+
+  /** Crown surfaces of the trees and shrubs, in world space, for the leaf cards. */
+  private collectLeaves(t: AssetTemplate, m: THREE.Matrix4) {
+    t.root.updateMatrixWorld(true);
+    t.root.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const name = (mesh.material as THREE.Material).name;
+      const kind = name.startsWith('Leaf_Olive') ? 'olive' : name.startsWith('Leaf_Shrub') ? 'shrub' : name.startsWith('Leaf_Cypress') ? 'cypress' : null;
+      if (!kind) return;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', mesh.geometry.attributes.position.clone());
+      g.setIndex(mesh.geometry.index!.clone());
+      g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(m, mesh.matrixWorld));
+      this.leaves.push({ geometry: g, kind });
+    });
   }
 
   private collectMarkers(p: Placement, t: AssetTemplate, m: THREE.Matrix4) {

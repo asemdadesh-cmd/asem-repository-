@@ -90,7 +90,7 @@ export class Buoyancy {
       const local = new THREE.Vector3(lv.x, lv.y, lv.z).applyQuaternion(inv);
       const m = b.mass();
       const k = f.wet;
-      local.set(-local.x * Math.abs(local.x) * f.drag.x - local.x * 0.2 * m, -local.y * Math.abs(local.y) * f.drag.y - local.y * 0.8 * m, -local.z * Math.abs(local.z) * f.drag.z - local.z * 0.2 * m).multiplyScalar(k);
+      local.set(-local.x * Math.abs(local.x) * f.drag.x - local.x * 0.2 * m, -local.y * Math.abs(local.y) * f.drag.y - local.y * 5 * m, -local.z * Math.abs(local.z) * f.drag.z - local.z * 0.2 * m).multiplyScalar(k);
       local.applyQuaternion(this.q);
       // never let drag reverse the motion in one step
       const maxF = (Math.hypot(lv.x, lv.y, lv.z) * m) / dt;
@@ -102,8 +102,12 @@ export class Buoyancy {
     }
   }
 
-  /** Forces are per step: call after each world step. */
+  /** Forces are per step: call after each world step. Rapier keeps user forces
+   * AND torques (addForceAtPoint adds both) until reset, so clear both. */
   clear() {
-    for (const f of this.floaters) f.body.resetForces(false);
+    for (const f of this.floaters) {
+      f.body.resetForces(false);
+      f.body.resetTorques(false);
+    }
   }
 }
