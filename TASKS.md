@@ -25,12 +25,7 @@ _Last updated: 2026-10-06_
       tests + build passing
 
 ## 🔄 In Progress
-- [ ] **Pink Riot Club** (`apps/pink-riot-club/`, temporary home) — recovered
-      and upgraded 2026-10-06 (rigged avatars, moments together, HDRI; e2e
-      18/18). Waiting on the owner to link Netlify (Base directory
-      `apps/pink-riot-club`). Detailed list: `apps/pink-riot-club/TASKS.md`.
-- [ ] Move Pink Riot Club to its own repo once the owner creates
-      `pink-riot-club` (`git subtree split --prefix=apps/pink-riot-club`)
+- [ ] Split **Villa Serena** (`apps/villa-serena`, branch `ccr-5a1d5589-qlqp5b`) into its own public repo `villa-serena` and deploy on Vercel — blocked on GitHub App access to the new repo.
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
