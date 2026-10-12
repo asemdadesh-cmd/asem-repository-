@@ -36,7 +36,7 @@ const pm = new THREE.PMREMGenerator(renderer);
 scene.environment = pm.fromEquirectangular(env).texture;
 scene.environmentIntensity = 0.9;
 
-const kit = await Kit.load('/models/kit.glb', renderer, { texSize: 1024, physical: true });
+const kit = await Kit.load('/models/kit.glb', renderer, { texSize: Number(q.get('tex') ?? 512), physical: true });
 const want = q.get('asset') ?? 'all';
 const names = want === 'all' ? [...kit.assets.keys()] : want.split(',');
 const stage = new THREE.Group();

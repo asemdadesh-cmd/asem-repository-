@@ -156,7 +156,8 @@ def main(argv):
         return 1
     if not argv:
         extras = manifest().get("meta", {})
-        size = export(defs, OUT, {d.name: extras.get(d.name, {}) for d in defs})
+        keep = [d for d in defs if extras.get(d.name, {}).get("export", True)]
+        size = export(keep, OUT, {d.name: extras.get(d.name, {}) for d in keep})
         print(f"\nwrote {os.path.relpath(OUT)} ({size / 1024:.0f} KiB)")
     return 0
 

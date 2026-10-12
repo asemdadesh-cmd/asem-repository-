@@ -6,13 +6,25 @@
   "chairs",
   "sofa",
   "villa",
-  "terrace"
+  "terrace",
+  "trees",
+  "garden",
+  "beach",
+  "lighthouse",
+  "buggy",
+  "props"
  ],
  "meta": {
   "Villa": {
    "physics": "static-mesh"
   },
   "Terrace": {
+   "physics": "static-mesh"
+  },
+  "ChessSet": {
+   "export": false
+  },
+  "Lighthouse": {
    "physics": "static-mesh"
   }
  }

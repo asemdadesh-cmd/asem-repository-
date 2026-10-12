@@ -505,6 +505,102 @@ def heightfield(nx, ny, w, d, fn, x0=0.0, y0=0.0, base=None):
     return m
 
 
+# ------------------------------------------------------- organic shapes
+
+def hash1(x, y=0.0, z=0.0):
+    """Deterministic pseudo-random in [0, 1) (no imports in the sandbox)."""
+    v = math.sin(x * 12.9898 + y * 78.233 + z * 37.719) * 43758.5453
+    return v - math.floor(v)
+
+
+def vnoise3(x, y, z):
+    """Smooth value noise in [0, 1)."""
+    xi = math.floor(x)
+    yi = math.floor(y)
+    zi = math.floor(z)
+    xf_ = x - xi
+    yf_ = y - yi
+    zf_ = z - zi
+    u = xf_ * xf_ * (3 - 2 * xf_)
+    v = yf_ * yf_ * (3 - 2 * yf_)
+    w = zf_ * zf_ * (3 - 2 * zf_)
+
+    def h(i, j, k):
+        return hash1(xi + i, yi + j, zi + k)
+
+    x00 = h(0, 0, 0) + (h(1, 0, 0) - h(0, 0, 0)) * u
+    x10 = h(0, 1, 0) + (h(1, 1, 0) - h(0, 1, 0)) * u
+    x01 = h(0, 0, 1) + (h(1, 0, 1) - h(0, 0, 1)) * u
+    x11 = h(0, 1, 1) + (h(1, 1, 1) - h(0, 1, 1)) * u
+    y0 = x00 + (x10 - x00) * v
+    y1 = x01 + (x11 - x01) * v
+    return y0 + (y1 - y0) * w
+
+
+def blob(r, n=12, rings=8, cx=0.0, cy=0.0, cz=0.0, amp=0.18, freq=2.2, seed=0.0, sz=1.0):
+    """Lumpy sphere (foliage clumps, rocks): a UV sphere whose rings are
+    pushed in and out by smooth noise. Closed and watertight."""
+    m = mnew()
+    top = vadd(m, (cx, cy, cz + r * sz))
+    bot = vadd(m, (cx, cy, cz - r * sz))
+    rows = []
+    for i in range(1, rings):
+        a = -math.pi / 2 + math.pi * i / rings
+        row = []
+        for j in range(n):
+            t = 2 * math.pi * j / n
+            dx = math.cos(a) * math.cos(t)
+            dy = math.cos(a) * math.sin(t)
+            dz = math.sin(a)
+            k = 1.0 + amp * (2.0 * vnoise3(dx * freq + seed, dy * freq + seed * 1.7, dz * freq - seed) - 1.0)
+            row.append(vadd(m, (cx + r * k * dx, cy + r * k * dy, cz + r * k * dz * sz)))
+        rows.append(row)
+    for j in range(n):
+        tri(m, bot, rows[0][(j + 1) % n], rows[0][j])
+        tri(m, rows[-1][j], rows[-1][(j + 1) % n], top)
+    for i in range(len(rows) - 1):
+        for j in range(n):
+            jj = (j + 1) % n
+            quad(m, rows[i][j], rows[i][jj], rows[i + 1][jj], rows[i + 1][j])
+    return m
+
+
+def organic_revolve(profile, n=12, amp=0.1, freq=1.5, seed=0.0, cx=0.0, cy=0.0):
+    """Like revolve, but every ring's radius is modulated by smooth noise
+    (tree crowns, rough stone). Poles allowed at both ends."""
+    m = mnew()
+    rings = []
+    last = len(profile) - 1
+    for i, (z, r) in enumerate(profile):
+        if r < 1e-6 and (i == 0 or i == last):
+            rings.append(("p", vadd(m, (cx, cy, z))))
+            continue
+        ring = []
+        for j in range(n):
+            t = 2 * math.pi * j / n
+            k = 1.0 + amp * (2.0 * vnoise3(math.cos(t) * freq + seed, math.sin(t) * freq, z * 0.02 * freq) - 1.0)
+            ring.append(vadd(m, (cx + r * k * math.cos(t), cy + r * k * math.sin(t), z)))
+        rings.append(("r", ring))
+    for i in range(len(rings) - 1):
+        ka, A = rings[i]
+        kb, B = rings[i + 1]
+        if ka == "r" and kb == "r":
+            for j in range(n):
+                jj = (j + 1) % n
+                quad(m, A[j], A[jj], B[jj], B[j])
+        elif ka == "p":
+            for j in range(n):
+                tri(m, A, B[(j + 1) % n], B[j])
+        else:
+            for j in range(n):
+                tri(m, A[j], A[(j + 1) % n], B)
+    if rings[0][0] == "r":
+        fadd(m, rings[0][1][::-1])
+    if rings[-1][0] == "r":
+        fadd(m, rings[-1][1])
+    return m
+
+
 # --------------------------------------------------------------- materials
 
 def mat(name, r, g, b, a=255):
