@@ -203,6 +203,13 @@ export class Physics {
     );
   }
 
+  /** Whether an upright capsule standing at `feet` would touch nothing solid. */
+  fits(feet: THREE.Vector3, radius: number, half: number, mask: number = GROUP.STATIC | GROUP.DYNAMIC | GROUP.VEHICLE): boolean {
+    const centre = { x: feet.x, y: feet.y + radius + half + 0.05, z: feet.z };
+    const hit = this.world.intersectionWithShape(centre, { x: 0, y: 0, z: 0, w: 1 }, new RAPIER.Capsule(half, radius), undefined, groups(ALL & ~GROUP.CAMERA, mask));
+    return hit === null;
+  }
+
   /** First hit along a ray (camera collision, ground probes). */
   ray(from: THREE.Vector3, dir: THREE.Vector3, max: number, mask: number = GROUP.STATIC | GROUP.DYNAMIC | GROUP.VEHICLE): number | null {
     const ray = new RAPIER.Ray(from, dir);

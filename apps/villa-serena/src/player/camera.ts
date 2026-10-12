@@ -23,6 +23,10 @@ export class FollowCamera {
   private actual = PRESET.foot.dist;
   private height = PRESET.foot.height;
   readonly target = new THREE.Vector3();
+  /** current distance from the focus (shorter than wanted when something is in the way) */
+  get distance() {
+    return this.actual;
+  }
   private dir = new THREE.Vector3();
   private initialised = false;
 

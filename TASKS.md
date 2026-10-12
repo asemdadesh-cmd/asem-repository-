@@ -34,6 +34,9 @@ _Last updated: 2026-10-12_
 - [x] Villa Serena: tests — vitest 9/9, two-browser e2e 11/11, CSP run
 - [x] Villa Serena: docs (PROJECT.md section, app README, decisions) and the
       PR #16 description
+- [x] Villa Serena: play-test pass — static colliders restored (pier, tables,
+      benches), stand-up spots, living-room layout, travel views, day timing;
+      seat/pier QA scenario
 
 ## 🔄 In Progress
 - [ ] **Pink Riot Club** (`apps/pink-riot-club/`, temporary home) — recovered
@@ -51,8 +54,9 @@ _Last updated: 2026-10-12_
       (`tools/world.py`, ~8 `build_model` batches) — waiting on the owner's go
 
 ## ⬜ Planned
-- [ ] Villa Serena: deploy as its own Netlify site (Base directory
-      `apps/villa-serena`) or Vercel project (Root Directory `apps/villa-serena`)
+- [ ] Villa Serena: deploy to the Netlify site `villa-serena-jyz8` (created,
+      empty; Base directory `apps/villa-serena`) or a Vercel project (Root
+      Directory `apps/villa-serena`)
 - [ ] Villa Serena: first real two-device test over the public brokers
 - [ ] Villa Serena: frame-rate check on a real phone and a laptop GPU
 - [ ] Villa Serena: absolute `og:image` URL once the domain is known
@@ -65,6 +69,7 @@ _Last updated: 2026-10-12_
 
 ## 💤 Backlog
 - [ ] Villa Serena: own MQTT broker (or a third public one) as a fallback
+- [ ] Villa Serena: richer midday light (deeper shadows, less pastel sand)
 - [ ] Villa Serena: script that exports `sketchup/world.json` from the layout
 - [ ] Villa Serena: browser tests pick Chromium from an env var instead of the
       sandbox path; keep `env-sunrise.hdr` out of the production build

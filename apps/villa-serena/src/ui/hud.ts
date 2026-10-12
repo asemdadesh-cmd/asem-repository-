@@ -74,7 +74,7 @@ export class Hud {
   private lastHints = '';
   private mode: HudMode = 'foot';
   cb!: HudCallbacks;
-  time = 17.3;
+  time = 18.5;
   cycle = false;
 
   constructor(parent: HTMLElement, private mobile: boolean) {
@@ -176,10 +176,10 @@ export class Hud {
     cycle.addEventListener('change', () => this.cb.time(Number(time.value), cycle.checked));
     const presets = h('div', { class: 'presets' });
     for (const [label, v] of [
-      ['Sunrise', 6.6],
+      ['Sunrise', 7.1],
       ['Noon', 13],
-      ['Golden hour', 17.3],
-      ['Dusk', 18.6],
+      ['Golden hour', 18.7],
+      ['Dusk', 19.25],
       ['Night', 22.5],
     ] as Array<[string, number]>) {
       const b = h('button', { class: 'pill' }, label);

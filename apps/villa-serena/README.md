@@ -104,6 +104,8 @@ npm run test:multiplayer
 dev server on 5199). In headless Chromium with software WebGL the game runs far below
 real time, so drive the simulation with `window.__game.pause()` and
 `window.__game.tick(1/60, false)` instead of waiting — `tests/scenarios/stairs.json` shows how.
+`tests/scenarios/seats.json` sits on and stands up from every seat and checks the pier deck
+is solid; run it after changing colliders, seats or the layout.
 
 > The browser tests point Playwright at the cloud sandbox's Chromium
 > (`/opt/pw-browsers/chromium-1194/...`). On your own machine, change or remove

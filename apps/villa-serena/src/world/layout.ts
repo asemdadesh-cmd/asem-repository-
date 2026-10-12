@@ -37,13 +37,14 @@ function villa(xs: number, ys: number, zs: number) {
 add({ asset: 'Villa', ...villa(0, 0, 0), yaw: 0, physics: 'static-mesh', id: 'villa' });
 add({ asset: 'Terrace', ...villa(0, 0, 0), yaw: 0, physics: 'static-mesh', id: 'terrace' });
 
-// living room around the fireplace (west wall)
-add({ asset: 'Rug', ...villa(-5.3, 3.6, 0), yaw: 90, physics: 'none' });
-add({ asset: 'Sofa', ...villa(-4.0, 3.6, 0.012), yaw: -90, physics: 'static', id: 'sofa' });
-add({ asset: 'CoffeeTable', ...villa(-5.6, 3.6, 0.012), physics: 'static' });
-add({ asset: 'Armchair', ...villa(-6.1, 1.3, 0), yaw: 165, physics: 'static', id: 'armchair-1' });
-add({ asset: 'FloorLamp', ...villa(-3.2, 5.4, 0), physics: 'static' });
-add({ asset: 'SideTable', ...villa(-3.2, 1.6, 0), physics: 'dynamic', shape: 'boxes', mass: 8 });
+// living room facing the fireplace (west wall), in front of the living-room
+// glass and clear of the kitchen island and its stools behind it
+add({ asset: 'Rug', ...villa(-5.3, 1.6, 0), yaw: 90, physics: 'none' });
+add({ asset: 'Sofa', ...villa(-4.0, 1.6, 0.012), yaw: -90, physics: 'static', id: 'sofa' });
+add({ asset: 'CoffeeTable', ...villa(-5.6, 1.6, 0.012), physics: 'static' });
+add({ asset: 'Armchair', ...villa(-6.1, -0.55, 0), yaw: 165, physics: 'static', id: 'armchair-1' });
+add({ asset: 'FloorLamp', ...villa(-7.25, -0.75, 0), physics: 'static' });
+add({ asset: 'SideTable', ...villa(-4.0, 0.2, 0), physics: 'dynamic', shape: 'boxes', mass: 8 });
 
 // dining by the glass, kitchen island stools
 add({ asset: 'DiningTable', ...villa(-0.2, 2.4, 0), physics: 'static', id: 'dining' });

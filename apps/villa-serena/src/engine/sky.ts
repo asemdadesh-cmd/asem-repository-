@@ -63,9 +63,10 @@ export class Atmosphere {
     scene.add(this.stars);
   }
 
-  /** Sun direction for a time of day (sets in the south-west over the sea). */
+  /** Sun direction for a time of day (sets in the south-west over the sea):
+   *  a late-summer day, sun up at ~6:50 and down at ~19:15, highest at 13:00. */
   static sunDirection(hours: number, out: THREE.Vector3): THREE.Vector3 {
-    const day = (hours - 6) / 12; // 0 at sunrise, 1 at sunset
+    const day = (hours - 6.5) / 13; // 0 and 1: the sun 4° below the horizon
     const elev = Math.sin(day * Math.PI) * THREE.MathUtils.degToRad(58) - THREE.MathUtils.degToRad(4);
     const az = THREE.MathUtils.degToRad(-100 + day * 165); // east (−x) through south (+z) to south-west
     return out.set(Math.cos(elev) * Math.sin(-az), Math.sin(elev), Math.cos(elev) * Math.cos(az)).normalize();

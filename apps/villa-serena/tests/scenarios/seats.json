@@ -1,0 +1,17 @@
+[
+ {
+  "_": "Seat and collider sweep: node tests/play.mjs tests/scenarios/seats.json tests/out 480 270 (dev server on 5199). Takes every seat, stands up, checks the feet land on the floor and you can walk away; checks the pier deck is solid."
+ },
+ {
+  "url": "?auto&quality=low"
+ },
+ {
+  "eval": "(() => { const g = window.__game; g.pause(); window.sim = (sec, keys = []) => { keys.forEach(k => g.input.keys.add(k)); const n = Math.round(sec * 60); for (let i = 0; i < n; i++) g.tick(1/60, false); keys.forEach(k => g.input.keys.delete(k)); }; return 'seats: ' + g.world.seats.length; })()"
+ },
+ {
+  "eval": "(() => { const g = window.__game; const V = g.player.position.constructor; const sp = g.spawnPoint('pier'); const miss = []; for (let dz = -34; dz <= 2; dz += 3) { const h = g.physics.ray(new V(sp.pos.x + 0.6, 4, sp.pos.z + dz), new V(0, -1, 0), 10); if (h === null || 4 - h < 1.25) miss.push(dz); } g.travel('pier'); sim(1.5); const y = g.player.ctrl.position.y; return (miss.length === 0 && y > 1.2 ? 'PASS' : 'FAIL') + ' pier deck is solid (gaps at ' + JSON.stringify(miss) + '), standing at y ' + y.toFixed(2); })()"
+ },
+ {
+  "eval": "(() => { const g = window.__game; const p = g.player; const V = p.position.constructor; const M4 = g.cam.camera.matrixWorld.constructor; const bad = [];\n  for (const s of g.world.seats) {\n    if (s.occupied) continue;\n    g.travel('loggia'); sim(0.2);\n    g.takeSeat(s); sim(1.0);\n    const seated = !!p.seat;\n    const seatY = new V().setFromMatrixPosition(s.frame(new M4())).y;\n    g.interact(); sim(1.5);\n    const drop = seatY - p.ctrl.position.y;\n    const start = p.ctrl.position.clone(); let walk = 0;\n    for (const yaw of [0, Math.PI / 2, Math.PI, -Math.PI / 2]) { p.ctrl.teleport(start.clone().add(new V(0, 0.02, 0)), 0); sim(0.1); g.cam.yaw = yaw; const b = p.ctrl.position.clone(); sim(0.8, ['KeyW']); walk = Math.max(walk, p.ctrl.position.distanceTo(b)); }\n    const vehicle = ['driver', 'passenger', 'rower', 'boat'].includes(s.kind);\n    if (!seated || walk < 0.5 || (!vehicle && (drop < 0.15 || drop > 1.3))) bad.push(`${s.id} (${s.kind}) seated=${seated} drop=${drop.toFixed(2)} walk=${walk.toFixed(2)}`);\n  }\n  return (bad.length ? 'FAIL ' : 'PASS ') + 'sit, stand up on the floor and walk away from every seat' + (bad.length ? ':\\n  ' + bad.join('\\n  ') : ''); })()"
+ }
+]

@@ -8,6 +8,19 @@ _Last updated: 2026-10-12_
 
 ---
 
+### 2026-10-12 — Villa Serena: a late-summer day (sun ~6:50–19:15)
+**Decision:** The sun's arc runs from 6:30 to 19:30 (day = (h − 6.5) / 13), so
+it rises at ~6:50, peaks at 13:00 and sets at ~19:15. The game opens at 18:30
+and the presets moved to the same sun heights (Sunrise 7.1, Golden hour 18.7,
+Dusk 19.25).
+**Why:** The old 6:00–18:00 arc put sunset at 17:44 and full night with stars
+at 18:00, so the clock felt wrong and the "Dusk" preset (18.6) was black. The
+three.js Preetham sky can't render twilight below about −2°, so dusk has to
+sit just after sunset. Exposure, golden tint and lights all key off the sun's
+height, not the hour, so every look stays as tuned. Trade-off: the time a
+client sends is read with the new arc, so mixing old and new builds in one
+room would show different skies (nothing is deployed yet).
+
 ### 2026-10-12 — Villa Serena: serverless encrypted MQTT relay instead of a game server
 **Decision:** Two-player sync goes through two public MQTT-over-WSS brokers
 (`broker.emqx.io`, `broker.hivemq.com`) at once. The room code is the secret:

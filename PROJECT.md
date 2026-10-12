@@ -166,9 +166,10 @@ _Last updated: 2026-10-12_
   swim, sit, recline, carry/throw/kick props, drive, row, swing, emote, change
   the time of day. Solo, or a private shared villa via an invite link. Player
   guide and credits: `apps/villa-serena/README.md`.
-- **Status:** feature-complete, on draft PR #16 (branch
-  `ccr-5a1d5589-qlqp5b` → `claude/agency-review-framework-3a8hk8`). Not yet
-  deployed; needs a real two-device test over the public brokers.
+- **Status:** feature-complete and play-tested, on draft PR #16 (branch
+  `ccr-5a1d5589-qlqp5b` → `claude/agency-review-framework-3a8hk8`). A Netlify
+  site `villa-serena-jyz8` exists (created 2026-10-12) but nothing is deployed
+  yet; needs a real two-device test over the public brokers.
 - **Stack:** three.js r186 (WebGL 2, Neutral tone mapping), Rapier 0.21
   (`@dimforge/rapier3d-compat`, WASM inlined), mqtt.js 5 over WebSockets,
   Vite 8, TypeScript 5.9, Vitest 5, Playwright 1.56 (browser tests). Models:
@@ -211,6 +212,9 @@ _Last updated: 2026-10-12_
   `VITE_BROKERS=ws://localhost:8884,ws://localhost:8885 npx vite --port 5198`).
   `tests/play.mjs` drives scripted visual QA; in headless swiftshader drive the
   sim with `__game.pause()` + `__game.tick(1/60, false)`, not real time.
+  `tests/scenarios/seats.json` (run with `play.mjs`) sits on and stands up from
+  all 49 seats and checks the pier deck is solid — run it after touching
+  colliders, seats or the layout.
 - **Multiplayer design (no server):** each client connects to **two public
   MQTT-over-WSS brokers** at once (`broker.emqx.io`, `broker.hivemq.com`) and
   publishes to both; duplicates are dropped by sender sequence number, so one
@@ -304,8 +308,8 @@ _Last updated: 2026-10-12_
   "deployed" simply by being present in `.claude/skills/`.
 - **Stash:** Vercel project with Root Directory `apps/money-tracker` (see Apps).
 - **Villa Serena:** its **own** Netlify site with Base directory
-  `apps/villa-serena`, or a Vercel project with Root Directory
-  `apps/villa-serena` (see Apps). Never point the repo-root `netlify.toml`
+  `apps/villa-serena` (site `villa-serena-jyz8` is created, not yet deployed),
+  or a Vercel project with Root Directory `apps/villa-serena` (see Apps). Never point the repo-root `netlify.toml`
   at it — that file deploys `pink-riot-club`.
 - **Hosting configuration:** _N/A for the repo._ Websites built with the skill
   are hosted per-project (documented in this file when that happens).
@@ -338,6 +342,8 @@ _Last updated: 2026-10-12_
   - `public/models/env-sunrise.hdr` (128 KB) ships in `dist/` but only the
     dev viewer uses it.
   - Avatars are licensed for non-commercial use only.
+  - Midday light looks flat and pastel next to the golden-hour and dusk looks
+    (bright sand, soft shadows under a high sun); the game opens at 18:30.
 - **Technical debt:** Documentation currently updated manually; no automated
   enforcement that it stays in sync with changes.
 - **Limitations:** None currently. `claude/agency-review-framework-3a8hk8` is
@@ -360,6 +366,16 @@ _Last updated: 2026-10-12_
 ---
 
 ## Changelog
+
+- **2026-10-12** — **Villa Serena** play-test pass (every travel spot, all 49 seats, rowing,
+  driving, swimming, sunrise to night). Fixed: static props had **no colliders** since the
+  grass commit (an `else if` made the branch dead), so the pier, benches, tables and lamps were
+  walk-through and the pier spot dropped you into the sea; standing up now finds a free floor
+  spot instead of landing on a table or counter; the living room no longer overlaps the kitchen
+  island; travel spots open on a clear view instead of inside a doorway, and the view goes
+  first-person when the camera is squeezed against your head; the day now runs ~6:50–19:15 so
+  "Dusk" is a dusk, not black night. New QA scenario `tests/scenarios/seats.json`. Created the
+  Netlify site `villa-serena-jyz8` (not deployed yet).
 
 - **2026-10-12** — Added **Villa Serena** (`apps/villa-serena/`, draft PR #16): a realistic
   two-player seaside world in three.js + Rapier whose 55 models are built in Trimble SketchUp

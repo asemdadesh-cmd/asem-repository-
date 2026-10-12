@@ -146,10 +146,10 @@ export class World {
         const geo = worldGeometry(t.root, m);
         physics.addStaticMesh(geo);
         this.floors.push(geo);
-      } else if (!CROWNS.has(p.asset) && p.physics !== 'none') {
-        this.footprints.push(t.bounds.clone().applyMatrix4(m));
+      } else {
+        if (!CROWNS.has(p.asset) && p.physics !== 'none') this.footprints.push(t.bounds.clone().applyMatrix4(m));
+        if (p.physics === 'static' && t.colliders.length) physics.addStaticBoxes(t, m);
       }
-      else if (p.physics === 'static' && t.colliders.length) physics.addStaticBoxes(t, m);
       this.addSeats(p.id ?? `${p.asset}@${p.x.toFixed(1)},${p.z.toFixed(1)}`, p.asset, t, m, null);
       for (const v of t.volumes) {
         const c = new THREE.Vector3().setFromMatrixPosition(new THREE.Matrix4().multiplyMatrices(m, v.matrix));

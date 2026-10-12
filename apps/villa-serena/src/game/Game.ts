@@ -9,7 +9,7 @@ import { makeSea, type WaterUniforms } from '../engine/water.ts';
 import { patternMaps, tiled } from '../engine/texgen.ts';
 import { Avatar, preloadAvatar, type AvatarId, type Emote } from '../player/avatar.ts';
 import { FollowCamera } from '../player/camera.ts';
-import { CharacterController, type MoveIntent } from '../player/controller.ts';
+import { CAPSULE, CharacterController, type MoveIntent } from '../player/controller.ts';
 import { Input, type Action } from '../player/input.ts';
 import { buildGround } from '../world/ground.ts';
 import { Grass } from '../world/grass.ts';
@@ -71,6 +71,19 @@ const SEAT_VERB: Record<SeatSpot['kind'], string> = {
   boat: 'Get in',
 };
 
+/** Where to try standing up, in the seat's frame (x right, z forward), best first. */
+const SEAT_EXITS: Array<[number, number]> = [[0, 0.6], [0.65, 0], [-0.65, 0], [0.5, 0.5], [-0.5, 0.5], [0, 1.3], [1, 0.3], [-1, 0.3], [0, -0.7], [0.9, 1.1], [-0.9, 1.1]];
+const LOUNGER_EXITS: Array<[number, number]> = [[0.75, 0.2], [-0.75, 0.2], [0, 1.4], [1.1, 0.6], [-1.1, 0.6]];
+
+/** Camera turn (from straight behind) and pitch when arriving at a spot. */
+const TRAVEL_VIEW: Record<string, [number, number]> = {
+  pool: [-0.6, 0.22],
+  loggia: [0.35, 0.32],
+  lighthouse: [0.3, 0.42],
+  gallery: [0.9, 0.18],
+  garden: [0.25, 0.3],
+};
+
 export class Game {
   readonly renderer: THREE.WebGLRenderer;
   readonly scene = new THREE.Scene();
@@ -99,7 +112,7 @@ export class Game {
   private clock = new THREE.Clock();
   readonly hud: Hud;
   private walkMode = false;
-  hours = 17.1;
+  hours = 18.5;
   dayCycle = false;
   private frameTimes: number[] = [];
   private pixelRatio: number;
@@ -223,8 +236,7 @@ export class Game {
     this.scene.add(avatar.root);
     this.player.update(0, 1);
     // first view: over your shoulder across the infinity pool to the cove
-    this.cam.snapBehind(spawn.yaw - 0.6);
-    this.cam.pitch = 0.22;
+    this.frameView('pool', spawn.yaw);
     this.cam.resize(innerWidth, innerHeight);
 
     // input
@@ -271,15 +283,20 @@ export class Game {
       const z = new THREE.Vector3(0, 0, 1).transformDirection(m!.world);
       return { pos: pos.add(new THREE.Vector3(0, 0.05, 0)), yaw: Math.atan2(z.x, z.z) };
     };
+    /** A doorway spot: step out by `d` metres and turn round to face the building. */
+    const facing = (s: { pos: THREE.Vector3; yaw: number }, d: number) => ({
+      pos: s.pos.add(new THREE.Vector3(Math.sin(s.yaw) * d, 0.1, Math.cos(s.yaw) * d)),
+      yaw: s.yaw + Math.PI,
+    });
     switch (name) {
       case 'loggia':
-        return fromMarker(marker('Villa', 'loggia'));
+        return facing(fromMarker(marker('Villa', 'loggia')), 1.2);
       case 'pool':
         return fromMarker(marker('Terrace', 'terrace'));
       case 'door':
         return fromMarker(marker('Villa', 'door'));
       case 'lighthouse':
-        return fromMarker(marker('Lighthouse', 'door'));
+        return facing(fromMarker(marker('Lighthouse', 'door')), 2.5);
       case 'gallery':
         return fromMarker(marker('Lighthouse', 'gallery'));
       case 'roof': {
@@ -287,7 +304,7 @@ export class Game {
         return { pos: new THREE.Vector3(v.x - 3.4, v.y + 3.79, v.z + 0.6), yaw: 0 };
       }
       case 'garden':
-        return { pos: new THREE.Vector3(-8, 4.55, 20), yaw: Math.PI * 0.75 };
+        return { pos: new THREE.Vector3(-8, 4.55, 20), yaw: -1.25 }; // the chess board, the sea on the left
       case 'beach':
         return { pos: new THREE.Vector3(SPAWNS.beach.x, SPAWNS.beach.y + 0.1, SPAWNS.beach.z), yaw: 0 };
       case 'pier':
@@ -327,7 +344,14 @@ export class Game {
       at = { pos: r.position.clone().add(back).add(new THREE.Vector3(0, 0.3, 0)), yaw: r.yaw };
     } else at = this.spawnPoint(id);
     this.player.ctrl.teleport(at.pos, at.yaw);
-    this.cam.snapBehind(at.yaw);
+    this.frameView(id, at.yaw);
+  }
+
+  /** Starts the camera where a spot's view opens up (not inside a doorway). */
+  private frameView(id: string, yaw: number) {
+    const [turn, pitch] = TRAVEL_VIEW[id] ?? [0, 0.28];
+    this.cam.snapBehind(yaw + turn);
+    this.cam.pitch = pitch;
   }
 
   private respawn() {
@@ -474,14 +498,34 @@ export class Game {
       const deck = this.boat.moorPoint.clone().add(new THREE.Vector3(2.2, 1.32, 0));
       if (pos.distanceTo(deck) < 5) return { pos: deck, yaw: Math.PI / 2 };
       off = new THREE.Vector3(1.3, 0, 0);
-    } else if (s.kind === 'lounger') off = new THREE.Vector3(0.75, 0, 0.2);
-    else off = new THREE.Vector3(0, 0, 0.6);
-    const out = off.applyQuaternion(q).add(pos);
+    } else {
+      // stand up in front of the seat, else beside it, past the coffee table
+      // or behind it: on the floor, never on the table, the counter or a
+      // neighbouring seat, and preferably clear of anything in the way
+      const tries = s.kind === 'lounger' ? LOUNGER_EXITS : SEAT_EXITS;
+      let onFloor: THREE.Vector3 | null = null;
+      for (const [x, z] of tries) {
+        const out = this.standAt(pos, q, new THREE.Vector3(x, 0, z));
+        const drop = pos.y - out.y;
+        if (drop < 0.2 || drop > 1.2) continue;
+        if (this.physics.fits(out, CAPSULE.radius, CAPSULE.half)) return { pos: out, yaw };
+        onFloor ??= out;
+      }
+      if (onFloor) return { pos: onFloor, yaw };
+      off = new THREE.Vector3(tries[0][0], 0, tries[0][1]);
+    }
+    const out = this.standAt(pos, q, off);
+    if (s.kind === 'rower' || s.kind === 'boat') out.y = Math.max(out.y, this.water.sea(out.x, out.z) - 1.2 + 0.04);
+    return { pos: out, yaw };
+  }
+
+  /** Where your feet land at an offset (in the seat's frame) from a seat. */
+  private standAt(pos: THREE.Vector3, q: THREE.Quaternion, off: THREE.Vector3): THREE.Vector3 {
+    const out = off.clone().applyQuaternion(q).add(pos);
     out.y = pos.y + 0.6;
     const hit = this.physics.ray(out, new THREE.Vector3(0, -1, 0), 3.5, GROUP.STATIC | GROUP.DYNAMIC);
     out.y = hit === null ? Math.max(this.water.ground(out.x, out.z), pos.y - 0.5) : out.y - hit;
-    if (s.kind === 'rower' || s.kind === 'boat') out.y = Math.max(out.y, this.water.sea(out.x, out.z) - 1.2);
-    return { pos: out.add(new THREE.Vector3(0, 0.04, 0)), yaw };
+    return out.add(new THREE.Vector3(0, 0.04, 0));
   }
 
   private leaveSeat(silent = false) {
@@ -662,6 +706,8 @@ export class Game {
     } else if (mode === 'foot' && p.ctrl.speed > 0.5) follow = this.mobile ? 1.1 : 0.45;
     this.focus.copy(focus);
     this.cam.update(dt, this.focus, heading, follow, this.input.lookIdle, (x, z) => this.water.ground(x, z));
+    // in tight spots (a doorway, the lighthouse gallery) the view goes first-person
+    p.avatar.root.visible = mode !== 'foot' || this.cam.distance > 0.85;
     this.sky.follow(this.focus);
     this.underwaterFog();
 
