@@ -1,0 +1,19 @@
+{
+ "files": [
+  "lounger",
+  "parasol",
+  "tables",
+  "chairs",
+  "sofa",
+  "villa",
+  "terrace"
+ ],
+ "meta": {
+  "Villa": {
+   "physics": "static-mesh"
+  },
+  "Terrace": {
+   "physics": "static-mesh"
+  }
+ }
+}
