@@ -135,7 +135,7 @@ _Last updated: 2026-10-06_
 - **Checks:** `npm test` (18 unit tests), `npm run build` (typecheck + build).
 
 ### Pink Riot Club — removed
-- Removed from this repo on 2026-10-12 at the owner's request (it was never a separate repo). It remains in git history before that commit. Villa Serena is being split into its own repository and will deploy on Vercel.
+- Removed from this repo on 2026-10-12 at the owner's request (it was never a separate repo). It remains in git history before that commit. Villa Serena now lives in its own repository, https://github.com/asemdadesh-cmd/villa-serena, and deploys on Vercel from there.
 
 ---
 
@@ -218,6 +218,8 @@ _Last updated: 2026-10-06_
 ---
 
 ## Changelog
+
+- **2026-10-12** — Created the public repo `asemdadesh-cmd/villa-serena` and pushed Villa Serena to its `main` (91 files; no `netlify.toml`). The Vercel import is pending.
 
 - **2026-10-12** — Removed `apps/pink-riot-club/` and the root `netlify.toml` (Netlify site `villa-serena-jyz8` was building Pink Riot Club from it, so it served the wrong game). Villa Serena is to live in its own repo + Vercel project.
 
