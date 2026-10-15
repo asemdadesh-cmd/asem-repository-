@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-10-06_
+_Last updated: 2026-10-15_
 
 ---
 
@@ -30,6 +30,8 @@ _Last updated: 2026-10-06_
   `apps/pink-riot-club/` — **نادي التخربيق — Pink Riot Club**, a two-player 3D
   friendship world (Vite + three.js + Netlify). Lives here **temporarily** until
   its own repository exists (see Apps).
+  `apps/saraya-menu/` — **سرايا · Saraya Coffee House**, a bilingual QR digital
+  menu sales demo (static HTML/CSS/JS, no dependencies, Vercel).
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
   documentation (this file + TASKS.md + DECISIONS.md) being established now.
@@ -68,7 +70,8 @@ _Last updated: 2026-10-06_
   │                   └── rewrite-guide.md # copywriting & conversion patterns
   ├── apps/
   │   ├── money-tracker/              # Stash money tracker (self-contained Vite app)
-  │   └── pink-riot-club/             # Pink Riot Club 3D world (temporary home, own docs)
+  │   ├── pink-riot-club/             # Pink Riot Club 3D world (temporary home, own docs)
+  │   └── saraya-menu/                # Saraya QR digital menu demo (static, no deps)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -155,6 +158,26 @@ _Last updated: 2026-10-06_
 - **Private data:** her photos are never committed; they are uploaded to Netlify
   Blobs through the app's admin-key-protected `/upload.html`.
 
+### Saraya Coffee House — QR digital menu demo (`apps/saraya-menu/`)
+- **What:** a sales demo for Libyan restaurant owners: a mobile-first menu for a
+  fictional Tripoli cafe, Arabic (RTL, default at `/`) and English (`/en/`). Five
+  categories, 18 items with LYD prices and Unsplash photos, a tray with
+  steppers, table number (from the QR link `?t=7`) and a kitchen note, and a
+  live message bubble that writes the WhatsApp order as you add items. Send
+  opens `wa.me` with the order filled in. Opening status uses Tripoli time.
+- **Stack:** plain HTML/CSS/JS. `build.mjs` (Node, no dependencies) renders the
+  two pages from `src/menu.js` into `public/`. Fonts from Google Fonts, photos
+  hotlinked from Unsplash's CDN (credits on the page).
+- **Config:** the cafe's WhatsApp number is `CAFE.whatsapp` in `src/menu.js`.
+  Empty (the default) opens WhatsApp's share sheet so the demo never messages a
+  stranger. Items, prices and photos are all in that file.
+- **Design record:** `apps/saraya-menu/BRIEF.md` (Scroll Craft brief, grammar,
+  feeling curve) and `scrollcraft/FINGERPRINTS.md`.
+- **Deployment (Vercel):** import the repo, Root Directory `apps/saraya-menu`.
+  `vercel.json` sets build `node build.mjs`, output `public`, no install, a
+  strict CSP and security headers.
+- **Checks:** `node build.mjs`, then `node serve.mjs` (http://localhost:4600).
+
 ---
 
 ## Database
@@ -204,6 +227,7 @@ _Last updated: 2026-10-06_
   (`git push -u origin claude/agency-review-framework-3a8hk8`). The skill is
   "deployed" simply by being present in `.claude/skills/`.
 - **Stash:** Vercel project with Root Directory `apps/money-tracker` (see Apps).
+- **Saraya menu:** Vercel project with Root Directory `apps/saraya-menu` (see Apps).
 - **Hosting configuration:** _N/A for the repo._ Websites built with the skill
   are hosted per-project (documented in this file when that happens).
 
@@ -236,6 +260,10 @@ _Last updated: 2026-10-06_
 ---
 
 ## Changelog
+
+- **2026-10-15** — Added **Saraya Coffee House** QR menu demo in `apps/saraya-menu/`:
+  bilingual static menu with a WhatsApp order that writes itself, built with the
+  Scroll Craft process (live surface grammar). Vercel Root Directory `apps/saraya-menu`.
 
 - **2026-10-06** — Root `netlify.toml` added: it points Netlify's `pink-riot-club` project at
   `apps/pink-riot-club`, so the repo's default branch deploys the game and nothing else.
