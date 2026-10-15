@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-10-06_
+_Last updated: 2026-10-15_
 
 ## ✅ Completed
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
@@ -23,8 +23,12 @@ _Last updated: 2026-10-06_
 - [x] Register `council` in the marketplace manifest
 - [x] Build **Stash** money tracker (`apps/money-tracker/`) — Vercel-ready,
       tests + build passing
+- [x] Build **Saraya Coffee House** QR menu demo (`apps/saraya-menu/`), static,
+      Arabic and English, WhatsApp ordering; axe clean, phone and desktop checked
 
 ## 🔄 In Progress
+- [ ] **Saraya menu**: owner imports at vercel.com/new with Root Directory
+      `apps/saraya-menu`, then checks it on a real phone from a QR code
 - [ ] **Pink Riot Club** (`apps/pink-riot-club/`, temporary home) — recovered
       and upgraded 2026-10-06 (rigged avatars, moments together, HDRI; e2e
       18/18). Waiting on the owner to link Netlify (Base directory

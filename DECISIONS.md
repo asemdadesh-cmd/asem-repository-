@@ -4,9 +4,22 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-06_
+_Last updated: 2026-10-15_
 
 ---
+
+### 2026-10-15 — Saraya menu is pre-rendered static HTML with hotlinked Unsplash photos
+**Decision:** Render the menu into two real HTML pages (`/` Arabic, `/en/` English)
+with a dependency-free `build.mjs`, add the tray in one small ES module, and serve
+photos from Unsplash's image CDN rather than committing them.
+**Why:** A QR menu is opened on mobile data by a customer who wants to read the
+menu now: real HTML shows the full menu before any script runs, and the two pages
+weigh about 37 KB of HTML each with no framework. Unsplash's CDN crops and serves
+AVIF/WebP at exactly the requested width, which beats anything committed here,
+and its guidelines ask for hotlinking. Trade-off: the photos depend on
+images.unsplash.com being reachable; a real client's menu would use their own
+photos committed to the app. The Scroll Craft engine is not used: the live
+surface grammar bans the act devices it exists for.
 
 ### 2026-10-06 — Pink Riot Club lives in `apps/pink-riot-club/` until it gets its own repo
 **Decision:** Push the recovered Pink Riot Club project into this repo under
