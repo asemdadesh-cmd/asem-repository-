@@ -16,6 +16,19 @@ objected to)**. Asem's own words are quoted.
 - Asem, on the first name (Nakhla): "change [it] to something else that should look
   premium." Chosen: **سرايا · Saraya Coffee House**, after Tripoli's Red Castle.
 
+## Revision, 2026-10-15
+
+Asem, after the first version: "صورة الـسفنز اللي حاطها مش سفنز، تنحي سفنز من الـ menu
+كاملة، ونحي طلبات الـ order بالـ WhatsApp، وخلي تركيزك كله على شكل الـ menu وحلاوتها"
+(the sfinz photo is not sfinz, remove sfinz entirely, remove WhatsApp ordering, put all
+the focus on how the menu looks).
+
+So answers 2, 4 and 5 below are superseded: there is no tray, no order and no WhatsApp.
+The journey is now arrival, category strip, the menu read as a printed carte (name, dotted
+leader, price), and any dish opened full frame. The grammar moves from live surface to
+**gallery / catalog**, the signature move is now **the dish opens from its row**, and the
+peak is the first dish that opens. The sections below record the original interview.
+
 ## The eight questions
 
 1. **Vibe and references.** Default: Tripoli morning, warm stone, unhurried luxury.
@@ -38,7 +51,23 @@ objected to)**. Asem's own words are quoted.
 8. **Assets.** None supplied. Real food photography from Unsplash (Asem approved
    Unsplash), served from Unsplash's image CDN with credits on the page.
 
-## Feeling curve (one line per beat)
+## Feeling curve, current (one line per beat)
+
+| Beat | Feeling | Caused by |
+|---|---|---|
+| Arrival | Welcomed, "this place is real" | Arched courtyard photo, Ghadames pattern band and the cafe card on three planes at three speeds; "Slow coffee, under the arches"; live Tripoli open status; the table from the QR link |
+| Browse | Appetite, calm | A printed carte: name, dotted leader, price; photos on the trailing side; one full-frame house dish per section; rows rising in once as they arrive |
+| First dish opened (peak) | Delight | The row's photo grows into a full-frame view of the dish, with its name, price and story |
+| Wander | Pleasure, no effort | Swipe or tap to the next dish; the photo morphs from one dish to the next across the whole menu |
+| Return | Oriented | Closing shrinks the photo back into the row of the dish you ended on |
+
+**Peak:** "I tapped the shakshouka and the photo just opened up to fill the screen." It
+gets the only shared-element motion on the page.
+
+**Tell-someone sentence:** "It's the menu where every dish opens up like a photo you
+can swipe through."
+
+## Feeling curve, first version (superseded)
 
 | Beat | Feeling | Caused by |
 |---|---|---|
@@ -58,7 +87,21 @@ while you choose."
 **Authored silence:** none. The menu never holds the scroll; nothing is pinned
 except the category strip, which is navigation.
 
-## Grammar and gate
+## Grammar and gate, current
+
+- **Grammar: Gallery / catalog.** A menu is the grammar's own example. One label schema
+  for every dish (name, price, a factual line, the serving), facts not pitch, an index of
+  categories that jumps, the collection starting right under the arrival. Gallery is
+  also the Wasma studio site's grammar, so the gate rests on the other five dimensions.
+- **Nav:** sticky category strip with scrollspy and a language link.
+- **Hero:** three planes (courtyard photo, Ghadames band, the cafe card) at three speeds.
+- **Close:** the last collection (sweets), then a colophon footer with credits.
+- **Signature move:** the dish opens from its row. A same-document view transition
+  grows the row photo into the full item view, morphs dish to dish as the visitor
+  swipes, and shrinks back into the row they finish on. Reduced motion gets the same
+  view with no travel.
+
+## Grammar and gate, first version (superseded)
 
 - **Grammar: Live surface.** The demo is the argument: a restaurant owner should
   operate the real thing. Copy lives in the surface's idiom (labels, status lines,

@@ -2,10 +2,6 @@
 // sample data for a sales demo. Photos are from Unsplash and are illustrative.
 
 export const CAFE = {
-  // Set the cafe's WhatsApp number in international format without "+",
-  // e.g. "218912345678". Left empty, Send opens WhatsApp's share sheet instead
-  // of messaging a number, so the demo never writes to a stranger.
-  whatsapp: "",
   timeZone: "Africa/Tripoli",
   opens: 7, // 07:00
   closes: 1, // 01:00, after midnight
@@ -26,7 +22,6 @@ export const PHOTOS = {
   icedlatte: U("photo-1517701550927-30cf4ba1dba5", 4480, 6720, "#40260c", "Nathan Dumlao", "nate_dumlao"),
   orange: U("photo-1600271886742-f049cd451bba", 3865, 5797, "#262626", "ABHISHEK HAJARE", "abhishek_hajare"),
   lemon: U("photo-1513558161293-cdaf765ed2fd", 3264, 4896, "#0c2626", "Melissa Walker Horn", "sugercoatit"),
-  sfinz: U("photo-1568148847348-1c03e5cc84d9", 3689, 5440, "#d9d9d9", "Sarah Shull", "sarahshull"),
   shakshuka: U("photo-1520218576172-c1a2df3fa5fc", 3024, 4032, "#260c0c", "Jenn Kosar", "foodwithaview"),
   breakfast: U("photo-1635432877848-9c86755eb2f9", 3072, 4608, "#0c2626", "Victoria Morgan", "camerasimagination"),
   croissant: U("photo-1599940778173-e276d4acb2bb", 4808, 3265, "#d9c0c0", "Jocelyn Morales", "molnj"),
@@ -109,10 +104,6 @@ export const MENU = [
         name: { ar: "شكشوكة", en: "Shakshouka" },
         note: { ar: "بيض في صلصة طماطم وفلفل حار، تُقدَّم في المقلاة.", en: "Eggs in tomato and hot pepper sauce, served in the pan." },
         size: { ar: "مقلاة مع خبز", en: "Pan, with bread" } },
-      { id: "sfinz", photo: "sfinz", price: 6,
-        name: { ar: "سفنز بالبيض", en: "Sfinz with egg" },
-        note: { ar: "عجينة ليبية مقلية، مع بيضة أو بالعسل.", en: "Libyan fried dough, with an egg or with honey." },
-        size: { ar: "قطعتان", en: "Two pieces" } },
       { id: "croissant", photo: "croissant", price: 6,
         name: { ar: "كرواسون بالزبدة", en: "Butter croissant" },
         note: { ar: "يُخبز كل صباح.", en: "Baked every morning." },

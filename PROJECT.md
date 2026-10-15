@@ -31,7 +31,7 @@ _Last updated: 2026-10-15_
   friendship world (Vite + three.js + Netlify). Lives here **temporarily** until
   its own repository exists (see Apps).
   `apps/saraya-menu/` — **سرايا · Saraya Coffee House**, a bilingual QR digital
-  menu sales demo (static HTML/CSS/JS, no dependencies, Vercel).
+  menu sales demo, browse only (static HTML/CSS/JS, no dependencies, Vercel).
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
   documentation (this file + TASKS.md + DECISIONS.md) being established now.
@@ -161,16 +161,14 @@ _Last updated: 2026-10-15_
 ### Saraya Coffee House — QR digital menu demo (`apps/saraya-menu/`)
 - **What:** a sales demo for Libyan restaurant owners: a mobile-first menu for a
   fictional Tripoli cafe, Arabic (RTL, default at `/`) and English (`/en/`). Five
-  categories, 18 items with LYD prices and Unsplash photos, a tray with
-  steppers, table number (from the QR link `?t=7`) and a kitchen note, and a
-  live message bubble that writes the WhatsApp order as you add items. Send
-  opens `wa.me` with the order filled in. Opening status uses Tripoli time.
+  categories, 17 items with LYD prices and Unsplash photos, set as a printed carte
+  (name, dotted leader, price). Tapping a dish opens it full frame; swipe or arrow
+  keys step through the whole menu. The QR link's table (`?t=7`) shows as a greeting.
+  Opening status uses Tripoli time. No ordering (removed on the owner's direction).
 - **Stack:** plain HTML/CSS/JS. `build.mjs` (Node, no dependencies) renders the
   two pages from `src/menu.js` into `public/`. Fonts from Google Fonts, photos
   hotlinked from Unsplash's CDN (credits on the page).
-- **Config:** the cafe's WhatsApp number is `CAFE.whatsapp` in `src/menu.js`.
-  Empty (the default) opens WhatsApp's share sheet so the demo never messages a
-  stranger. Items, prices and photos are all in that file.
+- **Config:** items, prices, photos and opening hours are all in `src/menu.js`.
 - **Design record:** `apps/saraya-menu/BRIEF.md` (Scroll Craft brief, grammar,
   feeling curve) and `scrollcraft/FINGERPRINTS.md`.
 - **Deployment (Vercel):** import the repo, Root Directory `apps/saraya-menu`.
@@ -260,6 +258,10 @@ _Last updated: 2026-10-15_
 ---
 
 ## Changelog
+
+- **2026-10-15** — **Saraya menu** reworked for looks: removed WhatsApp ordering and the
+  sfinz item (its photo was not sfinz), set the menu as a printed carte, added a full-frame
+  dish view that opens from its row and swipes through the menu.
 
 - **2026-10-15** — Added **Saraya Coffee House** QR menu demo in `apps/saraya-menu/`:
   bilingual static menu with a WhatsApp order that writes itself, built with the

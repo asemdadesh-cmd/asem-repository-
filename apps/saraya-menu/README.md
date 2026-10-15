@@ -4,23 +4,21 @@ A sales demo for restaurant owners: the menu a customer opens by scanning the QR
 code on their table. The cafe, prices and address are fictional and the page says
 so. Photos are from Unsplash, credited in the footer.
 
-- **Arabic first** at `/` (RTL), **English** at `/en/`. The order survives a
-  language switch.
-- **Table from the QR code:** `https://<site>/?t=7` puts "Table 7" on the page and
-  in the order. Print one QR per table with its own number.
-- **The order writes itself:** every tap updates a message bubble, line by line.
-  That bubble is exactly what **Send order on WhatsApp** puts in WhatsApp.
+- **Arabic first** at `/` (RTL), **English** at `/en/`.
+- **A printed carte:** every dish reads name, dotted leader, price, then one factual
+  line and the serving. Each section opens with one house dish in a full frame.
+- **Every dish opens:** tap a row and its photo grows into a full view with the name,
+  price and story. Swipe (or use the arrow keys) to walk the whole menu; closing
+  returns you to the dish you ended on.
+- **Table from the QR code:** `https://<site>/?t=7` greets the guest with "Table 7".
 - Open or closed status follows Tripoli time (07:00 to 01:00).
 - **No dependencies and no framework.** The menu is real HTML that shows without
-  JavaScript, and the tray is one small module.
+  JavaScript.
 
 ## Make it a real cafe's menu
 
 Everything lives in `src/menu.js`:
 
-- `CAFE.whatsapp`: the cafe's number, international format without `+`
-  (`"218912345678"`). Left empty, Send opens WhatsApp's share sheet instead, so the
-  demo never messages a stranger.
 - `CAFE.opens` / `CAFE.closes`: opening hours.
 - `MENU`: categories and items (Arabic and English name, a factual line, the
   serving size, the price). `signature: true` gives an item the full-width frame.
@@ -52,7 +50,7 @@ Fonts and `images.unsplash.com`), security headers and long caching for
 build.mjs      renders both language pages from src/menu.js into public/
 serve.mjs      local preview server
 src/menu.js    cafe settings, categories, items, prices, photos
-src/app.js     tray, order bubble, opening status, category strip, arrival planes
+src/app.js     dish view, opening status, table greeting, category strip, arrival planes
 src/styles.css all styles, mobile first
 BRIEF.md       Scroll Craft design brief: grammar, feeling curve, signature move
 ```

@@ -24,11 +24,13 @@ _Last updated: 2026-10-15_
 - [x] Build **Stash** money tracker (`apps/money-tracker/`) — Vercel-ready,
       tests + build passing
 - [x] Build **Saraya Coffee House** QR menu demo (`apps/saraya-menu/`), static,
-      Arabic and English, WhatsApp ordering; axe clean, phone and desktop checked
+      Arabic and English; axe clean, phone and desktop checked
+- [x] Saraya menu: drop ordering and sfinz, printed-carte rows, full-frame dish view
 
 ## 🔄 In Progress
 - [ ] **Saraya menu**: owner imports at vercel.com/new with Root Directory
-      `apps/saraya-menu`, then checks it on a real phone from a QR code
+      `apps/saraya-menu` (the Vercel connector cannot create projects: 403), then
+      checks it on a real phone from a QR code
 - [ ] **Pink Riot Club** (`apps/pink-riot-club/`, temporary home) — recovered
       and upgraded 2026-10-06 (rigged avatars, moments together, HDRI; e2e
       18/18). Waiting on the owner to link Netlify (Base directory

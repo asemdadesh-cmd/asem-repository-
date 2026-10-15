@@ -8,6 +8,14 @@ _Last updated: 2026-10-15_
 
 ---
 
+### 2026-10-15 — Saraya menu is browse only; the dish view is the signature
+**Decision:** Remove the tray and WhatsApp ordering, and spend the effort on reading:
+a printed-carte row (name, dotted leader, price) and a full-frame dish view that opens
+from its row with a same-document view transition.
+**Why:** The owner asked for the menu's looks to be the whole focus and for ordering to
+go. View transitions are progressive: browsers without them, and reduced-motion
+visitors, get the same dialog with no travel, so nothing depends on them.
+
 ### 2026-10-15 — Saraya menu is pre-rendered static HTML with hotlinked Unsplash photos
 **Decision:** Render the menu into two real HTML pages (`/` Arabic, `/en/` English)
 with a dependency-free `build.mjs`, add the tray in one small ES module, and serve
