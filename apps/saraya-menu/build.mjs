@@ -1,6 +1,6 @@
 // Renders the menu to static HTML, one page per language, into public/.
 // No dependencies: `node build.mjs`. The pages are complete without JavaScript;
-// src/app.js adds the tray, the order bubble and the live opening status.
+// src/app.js adds the item view, the opening status and the arrival's planes.
 import { mkdir, readFile, writeFile, cp, rm } from "node:fs/promises";
 import { CAFE, MENU, PHOTOS } from "./src/menu.js";
 
@@ -10,60 +10,40 @@ const COPY = {
   ar: {
     dir: "rtl",
     title: "سرايا · قائمة المقهى",
-    description: "قائمة سرايا للقهوة: اختر من القائمة واطلب عبر واتساب من طاولتك. مقهى خيالي لعرض توضيحي.",
+    description: "قائمة سرايا للقهوة في المدينة القديمة بطرابلس: قهوة، شاي، فطور وحلويات. مقهى خيالي لعرض توضيحي.",
     skip: "تخطَّ إلى القائمة",
     demo: "مقهى خيالي · عرض توضيحي",
     other: { href: "/en/", label: "English", lang: "en" },
     place: "المدينة القديمة، طرابلس",
+    line: "قهوة على مهل، تحت الأقواس.",
     hoursStatic: "يوميًا من 7:00 صباحًا حتى 1:00 بعد منتصف الليل",
     sections: "أقسام القائمة",
     house: "من سرايا",
-    add: (n) => `أضف ${n}`,
-    less: (n) => `أنقص ${n}`,
-    more: (n) => `زد ${n}`,
-    tray: "طلبك",
-    trayEmpty: "الطلب فارغ. اختر من القائمة وستُكتب رسالتك هنا.",
-    table: "رقم الطاولة",
-    note: "ملاحظة للمطبخ",
-    notePh: "بدون سكر، حليب خالٍ من اللاكتوز...",
-    preview: "الرسالة التي ستُرسل",
-    total: "المجموع",
-    send: "أرسل الطلب عبر واتساب",
-    sendHint: "يُفتح واتساب ورسالتك جاهزة. الدفع عند الطاولة.",
+    view: (n) => `اعرض ${n}`,
     close: "إغلاق",
-    view: "راجع الطلب",
+    prev: "السابق",
+    next: "التالي",
     credits: "الصور من Unsplash وهي للتوضيح فقط",
-    by: "صورة",
     footer: "عرض توضيحي لقائمة رقمية. الأسماء والأسعار والعنوان خيالية.",
     built: "صُمّم بواسطة وسمة",
   },
   en: {
     dir: "ltr",
     title: "Saraya · Cafe menu",
-    description: "Saraya Coffee House menu: choose from the menu and order on WhatsApp from your table. A fictional cafe for a demo.",
+    description: "Saraya Coffee House menu, Old Medina, Tripoli: coffee, tea, breakfast and sweets. A fictional cafe for a demo.",
     skip: "Skip to the menu",
     demo: "Fictional cafe · Demo",
     other: { href: "/", label: "العربية", lang: "ar" },
     place: "Old Medina, Tripoli",
+    line: "Slow coffee, under the arches.",
     hoursStatic: "Daily from 7:00 am to 1:00 am",
     sections: "Menu sections",
     house: "House signature",
-    add: (n) => `Add ${n}`,
-    less: (n) => `One less ${n}`,
-    more: (n) => `One more ${n}`,
-    tray: "Your order",
-    trayEmpty: "Nothing here yet. Pick from the menu and your message writes itself here.",
-    table: "Table number",
-    note: "Note for the kitchen",
-    notePh: "No sugar, lactose-free milk...",
-    preview: "The message that will be sent",
-    total: "Total",
-    send: "Send order on WhatsApp",
-    sendHint: "WhatsApp opens with your message ready. Pay at the table.",
+    view: (n) => `View ${n}`,
     close: "Close",
-    view: "Review order",
+    prev: "Previous",
+    next: "Next",
     credits: "Photos from Unsplash, for illustration only",
-    by: "Photo",
     footer: "A digital menu demo. Names, prices and address are fictional.",
     built: "Built by WASMA",
   },
@@ -96,25 +76,27 @@ const BAND = `<svg class="arrival__band" viewBox="0 0 480 64" preserveAspectRati
   <rect width="480" height="64" fill="url(#ghadames)"/>
 </svg>`;
 
-function item(it, lang, t) {
+// A small Ghadames ornament under each section title: three hanging triangles.
+const ORNAMENT = `<svg class="ornament" viewBox="0 0 54 12" aria-hidden="true" focusable="false"><path d="M0 0h16L8 10zM19 0h16l-8 10zM38 0h16l-8 10z"/></svg>`;
+
+function item(it, lang, t, cat) {
   const p = PHOTOS[it.photo];
   const name = it.name[lang];
   const feature = Boolean(it.signature);
   const img = feature
-    ? `<img src="${src(p, 720, 450)}" srcset="${srcset(p, [480, 720, 960, 1280], 0.625)}" sizes="(min-width: 1024px) 640px, calc(100vw - 32px)" width="720" height="450" alt="" loading="lazy" decoding="async" style="background:${p.color}">`
-    : `<img src="${src(p, 208, 260)}" srcset="${srcset(p, [112, 208, 312], 1.25)}" sizes="104px" width="104" height="130" alt="" loading="lazy" decoding="async" style="background:${p.color}">`;
-  return `<li class="item${feature ? " item--feature" : ""}" data-id="${it.id}">
+    ? `<img src="${src(p, 720, 540)}" srcset="${srcset(p, [480, 720, 960, 1280], 0.75)}" sizes="(min-width: 1024px) 712px, calc(100vw - 32px)" width="720" height="540" alt="" loading="lazy" decoding="async" style="background:${p.color}">`
+    : `<img src="${src(p, 224, 280)}" srcset="${srcset(p, [120, 224, 336], 1.25)}" sizes="(min-width: 1024px) 128px, 104px" width="112" height="140" alt="" loading="lazy" decoding="async" style="background:${p.color}">`;
+  return `<li class="item${feature ? " item--feature" : ""}" data-id="${it.id}" data-cat="${cat}">
   <div class="item__photo">${img}</div>
   <div class="item__body">
     ${feature ? `<p class="item__house">${t.house}</p>` : ""}
-    <h3 class="item__name">${esc(name)}</h3>
+    <div class="item__line">
+      <h3 class="item__name"><button type="button" class="item__open" data-open="${it.id}" aria-haspopup="dialog" aria-label="${esc(t.view(name))}">${esc(name)}</button></h3>
+      <span class="item__dots" aria-hidden="true"></span>
+      <span class="item__price">${price(it.price, lang)}</span>
+    </div>
     <p class="item__note">${esc(it.note[lang])}</p>
-    <p class="item__meta"><span>${esc(it.size[lang])}</span><span class="item__price">${price(it.price, lang)}</span></p>
-  </div>
-  <div class="qty" data-qty="0">
-    <button type="button" class="qty__less" data-act="less" aria-label="${esc(t.less(name))}" hidden><span aria-hidden="true">−</span></button>
-    <output class="qty__n" aria-live="polite" hidden>0</output>
-    <button type="button" class="qty__more" data-act="more" aria-label="${esc(t.add(name))}" data-label-more="${esc(t.more(name))}" data-label-add="${esc(t.add(name))}"><span aria-hidden="true">+</span></button>
+    <p class="item__size">${esc(it.size[lang])}</p>
   </div>
 </li>`;
 }
@@ -164,6 +146,7 @@ function page(lang) {
       </div>
       ${MARK}
       <h1 class="arrival__name"><span lang="ar">سرايا</span> <span class="arrival__latin" lang="en">Saraya Coffee House</span></h1>
+      <p class="arrival__line">${t.line}</p>
       <p class="arrival__place">${t.place}</p>
       <p class="status" data-status><span class="status__dot" aria-hidden="true"></span><span data-status-text>${t.hoursStatic}</span></p>
       <p class="table-chip" data-table-chip hidden></p>
@@ -179,10 +162,12 @@ ${MENU.map(
   (c) => `<section class="section" id="${c.id}" aria-labelledby="h-${c.id}">
   <div class="section__head">
     <h2 id="h-${c.id}">${esc(c.name[lang])}</h2>
+    <p class="section__alt" lang="${lang === "ar" ? "en" : "ar"}">${esc(c.name[lang === "ar" ? "en" : "ar"])}</p>
+    ${ORNAMENT}
     ${c.hours ? `<p class="section__hours">${esc(c.hours[lang])}</p>` : ""}
   </div>
   <ul class="items">
-${c.items.map((it) => item(it, lang, t)).join("\n")}
+${c.items.map((it) => item(it, lang, t, c.id)).join("\n")}
   </ul>
 </section>`
 ).join("\n")}
@@ -197,32 +182,24 @@ ${c.items.map((it) => item(it, lang, t)).join("\n")}
   </footer>
 </main>
 
-<dialog class="tray" data-tray aria-labelledby="tray-title">
-  <div class="tray__head">
-    <h2 id="tray-title">${t.tray}</h2>
-    <button type="button" class="tray__close" data-close aria-label="${t.close}"><span aria-hidden="true">×</span></button>
+<dialog class="detail" data-detail aria-labelledby="detail-name">
+  <div class="detail__media"><img data-detail-img alt="" width="720" height="900"></div>
+  <button type="button" class="detail__close" data-close aria-label="${t.close}"><span aria-hidden="true">×</span></button>
+  <div class="detail__body">
+    <p class="detail__cat" data-detail-cat></p>
+    <div class="detail__line"><h2 id="detail-name" data-detail-name></h2><p class="detail__price" data-detail-price></p></div>
+    <p class="detail__note" data-detail-note></p>
+    <p class="detail__size" data-detail-size></p>
+    <p class="detail__credit" data-detail-credit></p>
   </div>
-  <p class="tray__empty" data-empty>${t.trayEmpty}</p>
-  <ul class="lines" data-lines></ul>
-  <div class="tray__fields">
-    <label class="field field--table"><span>${t.table}</span><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" data-table-input></label>
-    <label class="field"><span>${t.note}</span><textarea rows="2" maxlength="140" placeholder="${esc(t.notePh)}" data-note></textarea></label>
-  </div>
-  <figure class="bubble" data-bubble>
-    <figcaption>${t.preview}</figcaption>
-    <div class="bubble__text" dir="auto" data-bubble-text></div>
-  </figure>
-  <p class="tray__total"><span>${t.total}</span><strong data-total>${price(0, lang)}</strong></p>
-  <a class="send" data-send href="https://wa.me/" target="_blank" rel="noopener" aria-disabled="true">${t.send}</a>
-  <p class="tray__hint">${t.sendHint}</p>
+  <nav class="detail__nav">
+    <button type="button" data-step="-1"><span aria-hidden="true" class="detail__arrow">‹</span><span><small>${t.prev}</small><b data-step-name="-1"></b></span></button>
+    <button type="button" data-step="1"><span><small>${t.next}</small><b data-step-name="1"></b></span><span aria-hidden="true" class="detail__arrow">›</span></button>
+  </nav>
 </dialog>
 </div>
 
-<button type="button" class="traybar" data-traybar hidden>
-  <span class="traybar__count" data-bar-count>0</span>
-  <span class="traybar__line" data-bar-line dir="auto"></span>
-  <span class="traybar__cta">${t.view} · <b data-bar-total>${price(0, lang)}</b></span>
-</button>
+
 
 </body>
 </html>
