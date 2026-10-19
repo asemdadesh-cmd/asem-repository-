@@ -6,7 +6,8 @@ import {
 } from '../ops';
 import { customerStats, summarize } from '../ledger';
 import { balanceOf } from '../ledger';
-import type { Product, SaleInput, Txn } from '../types';
+import type { Product, Txn } from '../types';
+import type { SaleInput } from '../ops';
 
 /** Pick a seeded product by its Arabic name (names are unique in the seed). */
 async function product(name: string): Promise<Product> {
