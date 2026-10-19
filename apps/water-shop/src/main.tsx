@@ -10,7 +10,17 @@ import { installCrashOverlay } from './lib/crash';
 
 installCrashOverlay();
 
-registerSW({ immediate: true });
+registerSW({
+  immediate: true,
+  // Check for a new deploy whenever the app is opened/refocused, so a phone never
+  // keeps running an old cached version for long.
+  onRegisteredSW(_url, reg) {
+    if (!reg) return;
+    const check = () => { if (navigator.onLine) void reg.update().catch(() => {}); };
+    document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && check());
+    setInterval(check, 5 * 60_000);
+  },
+});
 
 // If a newer deploy replaced a script file this page still needs, reload once
 // to pick up the new version instead of leaving a broken screen.

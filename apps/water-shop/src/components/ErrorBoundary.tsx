@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { AlertTriangle, RotateCw } from 'lucide-react';
+import { AlertTriangle, Copy, RotateCw } from 'lucide-react';
+import { BUILD, errorReport, healByReload, logError } from '@/lib/errorLog';
 
 /**
  * Last line of defence: a crash in any screen shows a friendly Arabic message
@@ -15,13 +16,9 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('Screen crashed', error, info.componentStack);
-    // Something outside the app rearranged the page; a reload always recovers.
-    const domMove = error.name === 'NotFoundError' || /removeChild|insertBefore/.test(error.message);
-    if (domMove && !sessionStorage.getItem('wsm-dom-reload')) {
-      sessionStorage.setItem('wsm-dom-reload', '1');
-      setTimeout(() => sessionStorage.removeItem('wsm-dom-reload'), 10_000);
-      location.reload();
-    }
+    logError(error);
+    // A fresh load of the same screen always works, so try that once first.
+    healByReload();
   }
 
   render() {
@@ -39,10 +36,14 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
           <RotateCw className="size-5" /> إعادة التحميل
         </button>
         <a href="/" className="mt-3 font-bold text-brand-700">العودة للرئيسية</a>
-        <details className="mt-6 max-w-full text-start text-xs text-ink-3">
-          <summary>تفاصيل للمطوّر</summary>
-          <pre dir="ltr" className="mt-2 overflow-x-auto whitespace-pre-wrap">{error.message}</pre>
-        </details>
+        <div className="mt-6 w-full rounded-2xl bg-surface-2 p-3 text-start text-xs text-ink-2">
+          <div className="mb-1 font-bold">تفاصيل الخطأ (أرسلها للمطوّر) · <span className="num">{BUILD}</span></div>
+          <pre dir="ltr" className="max-h-48 overflow-auto whitespace-pre-wrap">{error.name}: {error.message}{'\n'}{error.stack?.split('\n').slice(0, 6).join('\n')}</pre>
+          <button type="button" className="mt-2 inline-flex items-center gap-1 font-bold text-brand-700"
+            onClick={() => navigator.clipboard?.writeText(errorReport([{ at: new Date().toISOString(), path: location.pathname, message: `${error.name}: ${error.message}`, stack: error.stack, build: BUILD, ua: navigator.userAgent }]))}>
+            <Copy className="size-4" /> نسخ التفاصيل
+          </button>
+        </div>
       </main>
     );
   }

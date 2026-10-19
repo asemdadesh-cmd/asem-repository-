@@ -16,6 +16,8 @@ import { cloudEnabled, supabase } from '@/lib/supabase';
 import { retryFailed, syncNow, type SyncPhase } from '@/lib/sync';
 import { businessDate, formatDay, formatTime } from '@/lib/time';
 import { cn, haptic } from '@/lib/utils';
+import { BUILD, clearErrors, errorReport, getErrors } from '@/lib/errorLog';
+import { shareText } from '@/lib/share';
 
 const PHASE_LABEL: Record<SyncPhase, string> = {
   'local-only': 'على هذا الجهاز فقط',
@@ -235,13 +237,15 @@ export default function Settings() {
         </div>
       </Card>
 
+      <ErrorLogCard />
+
       <SectionTitle>حول التطبيق</SectionTitle>
       <Card className="p-4">
         <div className="flex items-center gap-3">
           <span className="grid size-12 place-items-center rounded-2xl bg-brand-50 text-brand-700"><Info className="size-6" /></span>
           <div>
             <div className="font-extrabold">إدارة محل المياه</div>
-            <div className="text-sm text-ink-2">الإصدار <span className="num">1.0</span> · التوقيت: توقيت طرابلس</div>
+            <div className="text-sm text-ink-2">الإصدار <span className="num">{BUILD}</span> · التوقيت: توقيت طرابلس</div>
           </div>
         </div>
       </Card>
@@ -250,5 +254,25 @@ export default function Settings() {
       <ConfirmDialog open={confirmOut} onOpenChange={setConfirmOut} title="تسجيل الخروج؟"
         text="ستحتاج إلى اتصال بالإنترنت وكلمة المرور للدخول مرة أخرى." confirmLabel="تسجيل الخروج" onConfirm={doSignOut} />
     </Page>
+  );
+}
+
+/** Last crashes recorded on this phone — copy/share them to a developer. */
+function ErrorLogCard() {
+  const [errors, setErrors] = useState(getErrors);
+  if (!errors.length) return null;
+  const report = errorReport(errors);
+  return (
+    <>
+      <SectionTitle>سجل الأخطاء</SectionTitle>
+      <Card className="space-y-3 p-4">
+        <p className="text-sm text-ink-2">حدثت أخطاء في العرض على هذا الهاتف. أرسل التفاصيل للمطوّر ليصلحها.</p>
+        <pre dir="ltr" className="max-h-56 overflow-auto whitespace-pre-wrap rounded-2xl bg-surface-2 p-3 text-xs text-ink-2">{report}</pre>
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="secondary" onClick={() => { void shareText(report, 'أخطاء إدارة محل المياه'); }}>مشاركة</Button>
+          <Button variant="outline" onClick={() => { clearErrors(); setErrors([]); }}>مسح السجل</Button>
+        </div>
+      </Card>
+    </>
   );
 }

@@ -1,3 +1,5 @@
+import { BUILD, healByReload, logError } from './errorLog';
+
 /**
  * Plain-DOM crash screen, independent of React. If React ever unmounts the
  * whole app (an error outside every boundary), the owner sees an Arabic message,
@@ -7,6 +9,7 @@ function show(message: string) {
   const root = document.getElementById('root');
   // Only take over when the app has actually disappeared.
   if (root && root.childElementCount > 0 && root.innerText.trim().length > 0) return;
+  if (healByReload()) return;
   if (document.getElementById('wsm-crash')) return;
   const box = document.createElement('div');
   box.id = 'wsm-crash';
@@ -24,14 +27,16 @@ function show(message: string) {
   btn.onclick = () => location.reload();
   const pre = document.createElement('pre');
   pre.dir = 'ltr';
-  pre.textContent = `${message}\n${navigator.userAgent}`;
+  pre.textContent = `build ${BUILD}\n${message}\n${navigator.userAgent}`;
   pre.style.cssText = 'max-width:100%;white-space:pre-wrap;font-size:11px;color:#8597a0;margin-top:16px';
   box.append(h, p, btn, pre);
   document.body.appendChild(box);
 }
 
 export function installCrashOverlay() {
-  const check = (msg: string) => setTimeout(() => show(msg), 300);
-  window.addEventListener('error', (e) => check(String(e.error?.stack ?? e.message)));
-  window.addEventListener('unhandledrejection', (e) => check(String((e.reason as Error)?.stack ?? e.reason)));
+  const check = (err: unknown, msg: string) => {
+    if (/ResizeObserver loop/.test(msg)) return; // benign browser noise
+    logError(err); setTimeout(() => show(msg), 300); };
+  window.addEventListener('error', (e) => check(e.error ?? e.message, String(e.error?.stack ?? e.message)));
+  window.addEventListener('unhandledrejection', (e) => check(e.reason, String((e.reason as Error)?.stack ?? e.reason)));
 }
