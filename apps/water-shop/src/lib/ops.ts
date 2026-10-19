@@ -152,6 +152,9 @@ export function reversalEffects(orig: Txn, currentBalanceM: Millimes): Pick<Txn,
   }
 }
 
+const noNegZero = <T extends Record<string, number>>(o: T): T =>
+  Object.fromEntries(Object.entries(o).map(([k, v]) => [k, v + 0])) as T;
+
 export async function reverseTxn(input: { id: string; originalId: string; reason: string }): Promise<Txn> {
   const reason = input.reason.trim();
   if (!reason) throw new OpError('اكتب سبب الإلغاء');
@@ -167,7 +170,7 @@ export async function reverseTxn(input: { id: string; originalId: string; reason
     const txn: Txn = {
       id: input.id, type: 'reversal', createdAt: at, businessDate: businessDate(at),
       customerId: orig.customerId, reversesId: orig.id, reversedType: orig.type, reason,
-      ...reversalEffects(orig, bal), syncStatus: 'pending',
+      ...noNegZero(reversalEffects(orig, bal)), syncStatus: 'pending',
     };
     await db.txns.add(txn);
     await enqueue('txn', txn.id);
