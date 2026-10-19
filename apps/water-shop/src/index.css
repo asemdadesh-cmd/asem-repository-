@@ -1,0 +1,63 @@
+@import '@fontsource-variable/cairo';
+@import 'tailwindcss';
+
+/* Design tokens — teal primary, green = money in, red = debt. */
+@theme {
+  --font-sans: 'Cairo Variable', 'Cairo', system-ui, sans-serif;
+
+  --color-bg: #f4f7f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #eef3f4;
+  --color-ink: #0f1d22;
+  --color-ink-2: #4a5b62;
+  --color-ink-3: #8597a0;
+  --color-line: #e2e9ec;
+
+  --color-brand-50: #e8f6f7;
+  --color-brand-100: #c9eaed;
+  --color-brand-500: #138a9c;
+  --color-brand-600: #0e7182;
+  --color-brand-700: #0e5e6f;
+  --color-brand-900: #083743;
+
+  --color-pos-50: #e9f8ef;
+  --color-pos-600: #14874b;
+  --color-pos-700: #0e6e3c;
+  --color-neg-50: #fdeeee;
+  --color-neg-600: #d03a3a;
+  --color-neg-700: #ab2626;
+  --color-warn-50: #fff6e5;
+  --color-warn-600: #b7700a;
+
+  --radius-card: 1.25rem;
+  --shadow-card: 0 1px 2px rgb(15 29 34 / 0.04), 0 4px 16px -4px rgb(15 29 34 / 0.08);
+  --shadow-float: 0 -2px 24px -6px rgb(15 29 34 / 0.18);
+
+  --animate-in: fade-up 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pop: pop 0.18s ease-out both;
+  --animate-sheet: sheet-up 0.26s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes pop { 0% { transform: scale(0.96); } 60% { transform: scale(1.03); } 100% { transform: scale(1); } }
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+@layer base {
+  html { -webkit-tap-highlight-color: transparent; text-size-adjust: 100%; }
+  body {
+    @apply bg-bg font-sans text-ink antialiased;
+    overscroll-behavior-y: none;
+  }
+  /* Money and numbers: tabular figures keep columns aligned */
+  .num { font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+  :focus-visible { outline: 3px solid var(--color-brand-500); outline-offset: 2px; }
+  button, a { touch-action: manipulation; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.pt-safe { padding-top: env(safe-area-inset-top); }
