@@ -5,9 +5,11 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-10-15_
+_Last updated: 2026-10-19_
 
 ## ✅ Completed
+- [x] Build **Water Shop Manager** (`apps/water-shop/`) — offline PWA, debt ledger,
+      sync engine, Supabase schema/RLS, 13 screens, 34 tests, build green
 - [x] Create the `agency-review` skill (SKILL.md + reference files)
 - [x] Add `reference/checklist.md` (final approval checklist)
 - [x] Add `reference/rewrite-guide.md` (copywriting & conversion patterns)
@@ -27,6 +29,9 @@ _Last updated: 2026-10-15_
       Arabic and English, WhatsApp ordering; axe clean, phone and desktop checked
 
 ## 🔄 In Progress
+- [ ] **Water Shop Manager**: create Supabase project (disable sign-ups), run
+      `apps/water-shop/supabase/migrations/*.sql`, add owner user, import on Vercel
+      (Root Directory `apps/water-shop`, two env vars), install on the owner's phone
 - [ ] **Saraya menu**: owner imports at vercel.com/new with Root Directory
       `apps/saraya-menu`, then checks it on a real phone from a QR code
 - [ ] **Pink Riot Club** (`apps/pink-riot-club/`, temporary home) — recovered
@@ -52,3 +57,9 @@ _Last updated: 2026-10-15_
 - [ ] Add an `examples/` or `sites/` directory for generated website outputs
 - [ ] Create a `website-scaffold` skill for consistent starter structure
 - [ ] Add per-website deployment notes once a real site is built
+
+## 💤 Backlog — Water Shop Manager
+- [ ] Restore from JSON backup (export exists; import intentionally not built yet)
+- [ ] Employee accounts (schema has `profiles.role`; needs UI + role-based policies)
+- [ ] Product purchase costs → real profit reporting
+- [ ] Supabase pgTAP tests for `push_txn` validation

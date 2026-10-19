@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-10-15_
+_Last updated: 2026-10-19_
 
 ---
 
@@ -71,7 +71,8 @@ _Last updated: 2026-10-15_
   ├── apps/
   │   ├── money-tracker/              # Stash money tracker (self-contained Vite app)
   │   ├── pink-riot-club/             # Pink Riot Club 3D world (temporary home, own docs)
-  │   └── saraya-menu/                # Saraya QR digital menu demo (static, no deps)
+  │   ├── saraya-menu/                # Saraya QR digital menu demo (static, no deps)
+  │   └── water-shop/                 # Water Shop Manager PWA (React + Dexie + Supabase)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -180,6 +181,32 @@ _Last updated: 2026-10-15_
 
 ---
 
+### Water Shop Manager — إدارة محل المياه (`apps/water-shop/`)
+- **What:** Offline-first, Arabic RTL, installable PWA for one water-shop owner in
+  Libya. Replaces the paper notebook: fast sales (cash / credit / partial), refills,
+  customer debt ledger with repayments, expenses, daily cash closing with counted
+  cash, reports + CSV, WhatsApp-friendly statements, full catalog & price control.
+- **Stack:** React 19, TS, Vite 8, Tailwind v4 (shadcn-style primitives in
+  `src/components/ui`), Dexie (IndexedDB = primary DB), Supabase Postgres/Auth/RLS
+  (optional cloud backup + sync), react-hook-form + zod, lucide, vite-plugin-pwa,
+  self-hosted Cairo font. Tests: vitest + fake-indexeddb (34 tests).
+- **Structure:** `src/lib/` core — `money.ts` (integer millimes), `time.ts`
+  (Africa/Tripoli business dates), `types.ts`, `db.ts` (Dexie + seeded catalog with
+  fixed ids), `ops.ts` (the ONLY write path: validation + atomic record+outbox),
+  `ledger.ts` (pure derived balances/summaries), `sync.ts` (outbox push/pull),
+  `hooks.ts`, `auth.ts`, `lock.ts` (optional PIN). `src/screens/` — Dashboard,
+  NewSale, Customers, CustomerProfile, Pay, History, TxnDetail, Expense, Day,
+  Reports, More, settings/Catalog, settings/Settings. `supabase/migrations/` schema.
+- **Accounting model:** every financial event is an immutable `Txn` storing its
+  effects `salesM` / `cashM` / `debtM`; all balances and reports are sums.
+  Corrections are `reversal` txns (reason required). Overpayment blocked.
+- **Environment:** `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (optional; without
+  them the app runs local-only). Never the service-role key.
+- **Deploy:** Vercel project with Root Directory `apps/water-shop` (`vercel.json`
+  has SPA rewrites + security headers). Supabase setup steps in the app README.
+- **Status:** built, tests + build green, phone-size browser smoke test passed.
+  Awaiting Supabase project + Vercel import + real-phone test by the owner.
+
 ## Database
 
 - **Repo:** no database. **Stash** stores data client-side in `localStorage`
@@ -260,6 +287,11 @@ _Last updated: 2026-10-15_
 ---
 
 ## Changelog
+
+- **2026-10-19** — Added **Water Shop Manager** (`apps/water-shop/`): offline-first Arabic
+  PWA for a Libyan water shop — sales/refills, credit & partial payments, debt ledger,
+  reversals, daily closing, reports/CSV, catalog & price settings, Supabase schema with
+  RLS + idempotent sync RPCs. Screens built in parallel by sub-agents on a shared core.
 
 - **2026-10-15** — Added **Saraya Coffee House** QR menu demo in `apps/saraya-menu/`:
   bilingual static menu with a WhatsApp order that writes itself, built with the
