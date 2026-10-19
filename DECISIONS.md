@@ -8,6 +8,13 @@ _Last updated: 2026-10-19_
 
 ---
 
+### 2026-10-19 — Water Shop Manager: effects never return values (scrollTo returns a Promise in Chrome 154+)
+**Decision:** Effect bodies always use braces; keep the error log + build stamp permanently.
+**Why:** The real crash was `useEffect(() => window.scrollTo(0, 0))`: Chrome 154 made scroll
+methods return Promises, React treated it as a cleanup and threw on navigation. Earlier fixes
+(transitions off, DOM guard) addressed plausible-but-wrong causes because we couldn't see the
+device error; the on-phone error log found it in one round. Lesson: get the real stack first.
+
 ### 2026-10-19 — Water Shop Manager: patch Node.removeChild/insertBefore for re-parented nodes
 **Decision:** Install a small guard (React issue #11538 workaround) before React mounts.
 **Why:** The owner uses Brave on Android. Its page features wrap app elements, so React's

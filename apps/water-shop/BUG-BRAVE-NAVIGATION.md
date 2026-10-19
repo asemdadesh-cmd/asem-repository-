@@ -1,22 +1,17 @@
-# Known issue: screen error after tapping (Brave on Android)
+# Resolved: screen error after tapping (Chrome 154+ / Brave on Android)
 
-**Symptom (owner's phone, Brave Android):** tapping any button that changes screen
-(بيع جديد, تعبئة مياه, الزبائن…) shows a blank page / «حدث خطأ في عرض هذه الصفحة».
-Reloading the page always shows the screen correctly.
+**Symptom:** every tap that changed screen showed a blank page / «حدث خطأ في عرض هذه الصفحة»;
+a reload always fixed it.
 
-**Could not reproduce** in Chromium/Playwright, including simulated DOM rewriting.
+**Root cause (found from the on-phone error log):** `TypeError: l is not a function` in React's
+effect cleanup. `App.tsx` had `useEffect(() => window.scrollTo(0, 0), [pathname])` — a concise
+arrow that *returns* scrollTo's result. Chrome 154 (and Brave on it) made scroll methods return a
+Promise, so React stored a Promise as the effect's cleanup and crashed calling it on the next
+navigation. Older Chromium (our test browser) returns `undefined`, so it never reproduced.
 
-## What is already in place
-| Layer | File | What it does |
-|---|---|---|
-| Router | `src/App.tsx` | `BrowserRouter useTransitions={false}` (no React transition / Navigation-API fake navigation) |
-| DOM guard | `src/lib/domGuard.ts` | `removeChild`/`insertBefore` tolerate nodes re-parented by the browser (React #11538) |
-| Boundaries | `src/components/ErrorBoundary.tsx` | root + per-route; logs the error and **reloads once** (self-heal) |
-| Crash overlay | `src/lib/crash.ts` | if React unmounts entirely: log, reload once, else plain-DOM error screen |
-| Error log | `src/lib/errorLog.ts` + الإعدادات → سجل الأخطاء | last 10 errors with stack, cause, build stamp, user agent |
-| Version | `__BUILD__` (vite define), shown in المزيد and الإعدادات | confirms the phone runs the latest deploy |
+**Fix:** braces around the effect body (never return a value from an effect unless it's a cleanup).
+Verified by emulating Promise-returning scroll methods in Playwright: crash reproduced at the
+exact minified position from the phone (`yl` 8:95413), gone after the fix; full flows pass.
 
-## How to get the real cause
-1. On the phone open **المزيد** and check the version timestamp matches the latest deploy.
-2. Reproduce once, then open **الإعدادات → سجل الأخطاء → مشاركة** and send the text.
-3. Or: connect the phone via USB, open `brave://inspect` on a desktop, and read the console.
+The safety nets added while hunting it (DOM guard, self-heal reload, error log, build stamp)
+stay in place.

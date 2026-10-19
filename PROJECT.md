@@ -262,9 +262,9 @@ _Last updated: 2026-10-19_
 
 ## Known Issues
 
-- **Water Shop Manager:** browsers that rewrite the page (Brave read-aloud/Speedreader,
-  Google Translate, some extensions) are handled by `domGuard.ts`; if a new one breaks
-  navigation, the error screen shows the error text — start there.
+- **Water Shop Manager:** the post-tap crash in Chrome 154+/Brave is fixed (see
+  `apps/water-shop/BUG-BRAVE-NAVIGATION.md`). For any new device-specific crash, ask the owner
+  for الإعدادات → سجل الأخطاء → مشاركة; map the stack with a sourcemap build of the same commit.
 
 - **Bugs:** None known.
 - **Stash limitations:** data is per-browser (no cloud sync); clearing site
@@ -291,6 +291,11 @@ _Last updated: 2026-10-19_
 ---
 
 ## Changelog
+
+- **2026-10-19** — Water Shop Manager: **real root cause fixed.** The on-phone error log showed
+  `TypeError: l is not a function` in React effect cleanup. `useEffect(() => window.scrollTo(0,0))`
+  returned scrollTo's result, which is a Promise in Chrome 154+/Brave, so every navigation
+  crashed. Effect body now uses braces. Reproduced and verified by emulating Chrome 154.
 
 - **2026-10-19** — Water Shop Manager: owner still saw the post-tap error in Brave after #23.
   Added self-heal (any screen crash reloads that screen once — a fresh load always
