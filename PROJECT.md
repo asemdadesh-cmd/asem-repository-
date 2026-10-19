@@ -288,6 +288,12 @@ _Last updated: 2026-10-19_
 
 ## Changelog
 
+- **2026-10-19** — Water Shop Manager: second blank-page fix. Router navigations no longer
+  run as React transitions (`BrowserRouter useTransitions={false}`), which stops React 19
+  from firing a fake Navigation-API navigation that some Android browsers can't
+  intercept. Added a root error boundary, a plain-DOM crash screen that shows the
+  error text, `translate="no"`, and an entrance animation that never hides content.
+
 - **2026-10-19** — Water Shop Manager: fixed blank white page when tapping buttons on the
   live site. Screens are now bundled together (no per-screen downloads that can go
   missing after a redeploy), an error screen with a reload button replaces any crash,

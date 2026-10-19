@@ -8,6 +8,16 @@ _Last updated: 2026-10-19_
 
 ---
 
+### 2026-10-19 — Water Shop Manager: router navigations without React transitions
+**Decision:** `<BrowserRouter useTransitions={false}>`.
+**Why:** React Router 8 wraps every navigation in `startTransition`. React 19.3 then
+starts a fake same-URL navigation through the browser Navigation API and only
+intercepts it when `canIntercept` is true; on browsers where it can't, a real
+navigation fires mid-transition. That matched the owner's report exactly: each tap
+went blank and a reload fixed it. Plain synchronous navigation costs nothing here
+(local data, no loaders). The crash overlay is there so any remaining device-specific
+failure shows its real error instead of a white page.
+
 ### 2026-10-19 — Water Shop Manager: one bundle instead of per-screen lazy loading
 **Decision:** Import all screens eagerly (one ~215 KB gzipped JS file) and wrap the
 routes in an error boundary; reload once on `vite:preloadError`.

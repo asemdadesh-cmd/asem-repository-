@@ -21,6 +21,12 @@ import More from './screens/More';
 import Catalog from './screens/settings/Catalog';
 import Settings from './screens/settings/Settings';
 
+/** Per-route boundary that resets when the user navigates elsewhere. */
+function RouteBoundary({ children }: { children: React.ReactNode }) {
+  const { pathname } = useLocation();
+  return <ErrorBoundary key={pathname}>{children}</ErrorBoundary>;
+}
+
 function ScrollTop() {
   const { pathname } = useLocation();
   useEffect(() => window.scrollTo(0, 0), [pathname]);
@@ -33,11 +39,15 @@ export default function App() {
     void requestPersistentStorage();
   }, []);
   return (
-    <BrowserRouter>
+    // useTransitions={false}: navigations must not run as React transitions. React 19
+    // then starts a fake browser navigation (Navigation API) that some Android
+    // browsers can't intercept, leaving a blank page after a tap.
+    <BrowserRouter useTransitions={false}>
+      <ErrorBoundary>
       <Toaster />
       <Gate>
         <ScrollTop />
-        <ErrorBoundary>
+        <RouteBoundary>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/sale" element={<NewSale />} />
@@ -54,9 +64,10 @@ export default function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Dashboard />} />
           </Routes>
-        </ErrorBoundary>
+        </RouteBoundary>
         <BottomNav />
       </Gate>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }
