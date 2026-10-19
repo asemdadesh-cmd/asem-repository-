@@ -1,33 +1,31 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router';
 import { BottomNav } from './components/BottomNav';
 import { Gate } from './components/Gate';
 import { Toaster } from './components/ui/toast';
-import { ListSkeleton } from './components/ui/misc';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { startSync } from './lib/sync';
 import { requestPersistentStorage } from './lib/db';
 import Dashboard from './screens/Dashboard';
 import NewSale from './screens/NewSale';
 
-const Customers = lazy(() => import('./screens/Customers'));
-const CustomerProfile = lazy(() => import('./screens/CustomerProfile'));
-const Pay = lazy(() => import('./screens/Pay'));
-const History = lazy(() => import('./screens/History'));
-const TxnDetail = lazy(() => import('./screens/TxnDetail'));
-const Expense = lazy(() => import('./screens/Expense'));
-const Day = lazy(() => import('./screens/Day'));
-const Reports = lazy(() => import('./screens/Reports'));
-const More = lazy(() => import('./screens/More'));
-const Catalog = lazy(() => import('./screens/settings/Catalog'));
-const Settings = lazy(() => import('./screens/settings/Settings'));
+import Customers from './screens/Customers';
+import CustomerProfile from './screens/CustomerProfile';
+import Pay from './screens/Pay';
+import History from './screens/History';
+import TxnDetail from './screens/TxnDetail';
+import Expense from './screens/Expense';
+import Day from './screens/Day';
+import Reports from './screens/Reports';
+import More from './screens/More';
+import Catalog from './screens/settings/Catalog';
+import Settings from './screens/settings/Settings';
 
 function ScrollTop() {
   const { pathname } = useLocation();
   useEffect(() => window.scrollTo(0, 0), [pathname]);
   return null;
 }
-
-const Fallback = () => <div className="mx-auto max-w-lg px-4 pt-24"><ListSkeleton /></div>;
 
 export default function App() {
   useEffect(() => {
@@ -39,7 +37,7 @@ export default function App() {
       <Toaster />
       <Gate>
         <ScrollTop />
-        <Suspense fallback={<Fallback />}>
+        <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/sale" element={<NewSale />} />
@@ -56,7 +54,7 @@ export default function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Dashboard />} />
           </Routes>
-        </Suspense>
+        </ErrorBoundary>
         <BottomNav />
       </Gate>
     </BrowserRouter>
