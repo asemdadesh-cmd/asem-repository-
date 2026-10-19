@@ -288,6 +288,12 @@ _Last updated: 2026-10-19_
 
 ## Changelog
 
+- **2026-10-19** — Water Shop Manager: fixed blank white page when tapping buttons on the
+  live site. Screens are now bundled together (no per-screen downloads that can go
+  missing after a redeploy), an error screen with a reload button replaces any crash,
+  stale-script errors trigger one automatic reload, and `vercel.json` no longer serves
+  `index.html` in place of missing script files.
+
 - **2026-10-19** — Added **Water Shop Manager** (`apps/water-shop/`): offline-first Arabic
   PWA for a Libyan water shop — sales/refills, credit & partial payments, debt ledger,
   reversals, daily closing, reports/CSV, catalog & price settings, Supabase schema with

@@ -8,6 +8,15 @@ _Last updated: 2026-10-19_
 
 ---
 
+### 2026-10-19 — Water Shop Manager: one bundle instead of per-screen lazy loading
+**Decision:** Import all screens eagerly (one ~215 KB gzipped JS file) and wrap the
+routes in an error boundary; reload once on `vite:preloadError`.
+**Why:** Taps on the live Vercel site produced a blank page. Lazy screen chunks can
+fail to load after a redeploy (the auto-updating service worker swaps versions under
+an open page, and the SPA rewrite answered missing `.js` files with HTML). For an
+offline-first app that precaches everything anyway, code-splitting saves nothing and
+adds a failure mode. The boundary guarantees the owner never sees a white screen.
+
 ### 2026-10-19 — Water Shop Manager: local-first ledger with outbox sync
 **Decision:** IndexedDB (Dexie) is the primary database; Supabase is a backup/sync
 target reached through an ordered outbox and idempotent RPCs keyed by client UUIDs.
