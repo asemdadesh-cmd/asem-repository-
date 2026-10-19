@@ -15,6 +15,13 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('Screen crashed', error, info.componentStack);
+    // Something outside the app rearranged the page; a reload always recovers.
+    const domMove = error.name === 'NotFoundError' || /removeChild|insertBefore/.test(error.message);
+    if (domMove && !sessionStorage.getItem('wsm-dom-reload')) {
+      sessionStorage.setItem('wsm-dom-reload', '1');
+      setTimeout(() => sessionStorage.removeItem('wsm-dom-reload'), 10_000);
+      location.reload();
+    }
   }
 
   render() {
