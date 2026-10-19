@@ -22,7 +22,7 @@ export function PageHeader({ title, subtitle, back, action, className }: {
           {subtitle && <div className="truncate text-sm text-ink-2">{subtitle}</div>}
         </div>
         {action}
-        <SyncBadge />
+        <SyncBadge compact={!!back || !!action} />
       </div>
     </header>
   );

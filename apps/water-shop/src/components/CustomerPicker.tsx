@@ -14,8 +14,8 @@ import { toast } from './ui/toast';
  * Searchable customer selection sheet with inline "add new customer"
  * (name only is enough; phone optional). Calls onPick(customerId).
  */
-export function CustomerPicker({ open, onOpenChange, onPick, selectedId, title = 'اختر الزبون' }: {
-  open: boolean; onOpenChange: (o: boolean) => void; onPick: (id: string) => void; selectedId?: string; title?: string;
+export function CustomerPicker({ open, onOpenChange, onPick, selectedId, title = 'اختر الزبون', debtorsFirst }: {
+  open: boolean; onOpenChange: (o: boolean) => void; onPick: (id: string) => void; selectedId?: string; title?: string; debtorsFirst?: boolean;
 }) {
   const customers = useCustomers();
   const txns = useCustomerLinkedTxns();
@@ -28,8 +28,8 @@ export function CustomerPicker({ open, onOpenChange, onPick, selectedId, title =
     const nq = normalizeAr(q);
     return customerBalances(customers, txns)
       .filter(({ customer: c }) => !nq || normalizeAr(c.name).includes(nq) || (c.phone ?? '').includes(nq))
-      .sort((a, b) => (b.lastActivity ?? '').localeCompare(a.lastActivity ?? ''));
-  }, [customers, txns, q]);
+      .sort((a, b) => (debtorsFirst ? b.balanceM - a.balanceM : 0) || (b.lastActivity ?? '').localeCompare(a.lastActivity ?? ''));
+  }, [customers, txns, q, debtorsFirst]);
 
   const exact = list.some(({ customer }) => normalizeAr(customer.name) === normalizeAr(q));
 

@@ -4,9 +4,27 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-15_
+_Last updated: 2026-10-19_
 
 ---
+
+### 2026-10-19 — Water Shop Manager: local-first ledger with outbox sync
+**Decision:** IndexedDB (Dexie) is the primary database; Supabase is a backup/sync
+target reached through an ordered outbox and idempotent RPCs keyed by client UUIDs.
+Money is integer millimes. Every financial record is an immutable `Txn` carrying its
+own `salesM`/`cashM`/`debtM` effects; corrections are reversal rows, and Postgres
+triggers forbid UPDATE/DELETE. One unified `transactions` table (+ `transaction_items`)
+instead of separate sales/payments/expenses tables.
+**Why:** Libyan connectivity is unreliable, so the shop must work fully offline and
+never lose or duplicate a sale. Storing effects makes every balance a plain sum that
+can't drift, and a single append-only ledger is the simplest way to guarantee
+traceable corrections. Writes go through `security definer` RPCs that scope to the
+caller's business, so RLS needs only SELECT policies. Seeded catalog uses fixed ids
+so a second device never duplicates products. A 4-digit PIN is a convenience lock on
+top of the Supabase session, never a replacement.
+**Trade-off:** Last-write-wins for catalog/customer edits across devices (fine for one
+owner); server rejects (e.g. overpayment raced on two phones) stay visible in the
+outbox for manual retry rather than auto-resolving.
 
 ### 2026-10-15 — Saraya menu is pre-rendered static HTML with hotlinked Unsplash photos
 **Decision:** Render the menu into two real HTML pages (`/` Arabic, `/en/` English)

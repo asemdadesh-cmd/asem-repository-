@@ -18,7 +18,7 @@ const META: Record<SyncPhase, { label: string; icon: typeof Cloud; tone: string 
 };
 
 /** Small sync indicator; tap for details + manual retry. */
-export function SyncBadge() {
+export function SyncBadge({ compact }: { compact?: boolean }) {
   const s = useSyncState();
   const [open, setOpen] = useState(false);
   const phase: SyncPhase = s.phase === 'synced' && s.pending ? 'pending' : s.phase;
@@ -29,7 +29,7 @@ export function SyncBadge() {
       <button type="button" onClick={() => setOpen(true)} aria-label={`حالة المزامنة: ${m.label}`}
         className={cn('flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-xs font-bold', m.tone)}>
         <Icon className={cn('size-4', phase === 'syncing' && 'animate-spin')} />
-        {s.pending > 0 && phase !== 'local-only' ? <span className="num">{s.pending}</span> : <span className="hidden min-[380px]:inline">{m.label}</span>}
+        {s.pending > 0 && phase !== 'local-only' ? <span className="num">{s.pending}</span> : <span className={compact ? 'sr-only' : 'hidden min-[380px]:inline'}>{m.label}</span>}
       </button>
       <Sheet open={open} onOpenChange={setOpen} title="حالة الحفظ والمزامنة">
         <div className="space-y-3 pb-2">
