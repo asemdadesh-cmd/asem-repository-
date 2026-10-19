@@ -255,6 +255,13 @@ _Last updated: 2026-10-19_
   "deployed" simply by being present in `.claude/skills/`.
 - **Stash:** Vercel project with Root Directory `apps/money-tracker` (see Apps).
 - **Saraya menu:** Vercel project with Root Directory `apps/saraya-menu` (see Apps).
+- **Water Shop Manager:** Vercel project with Root Directory `apps/water-shop`, production
+  address **https://water-shop-manager-ly.vercel.app** (recreated by the owner with Codex on
+  2026-10-19 after the first project was deleted). Use only this address for real data: the
+  app's data lives in the browser per web address, so another address starts empty. Keep
+  Deployment Protection on "Standard" so the production address is public. The Claude Vercel
+  connector cannot see this project (it lists zero projects), so deploys/domain changes are
+  done by the owner or Codex.
 - **Hosting configuration:** _N/A for the repo._ Websites built with the skill
   are hosted per-project (documented in this file when that happens).
 
@@ -291,6 +298,9 @@ _Last updated: 2026-10-19_
 ---
 
 ## Changelog
+
+- **2026-10-19** — Water Shop Manager redeployed on Vercel as `water-shop-manager-ly` (production
+  address https://water-shop-manager-ly.vercel.app); old project and its addresses deleted.
 
 - **2026-10-19** — Water Shop Manager: **real root cause fixed.** The on-phone error log showed
   `TypeError: l is not a function` in React effect cleanup. `useEffect(() => window.scrollTo(0,0))`
