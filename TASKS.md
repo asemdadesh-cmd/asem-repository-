@@ -29,6 +29,7 @@ _Last updated: 2026-10-19_
       Arabic and English, WhatsApp ordering; axe clean, phone and desktop checked
 
 ## 🔄 In Progress
+- [x] Water Shop Manager deployed on Vercel: https://water-shop-manager-ly.vercel.app
 - [ ] **Water Shop Manager**: create Supabase project (disable sign-ups), run
       `apps/water-shop/supabase/migrations/*.sql`, add owner user, import on Vercel
       (Root Directory `apps/water-shop`, two env vars), install on the owner's phone
