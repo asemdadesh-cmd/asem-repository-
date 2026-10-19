@@ -8,6 +8,14 @@ _Last updated: 2026-10-19_
 
 ---
 
+### 2026-10-19 — Water Shop Manager: patch Node.removeChild/insertBefore for re-parented nodes
+**Decision:** Install a small guard (React issue #11538 workaround) before React mounts.
+**Why:** The owner uses Brave on Android. Its page features wrap app elements, so React's
+DOM bookkeeping goes stale and every navigation failed until reload. Reproduced
+exactly in Playwright by wrapping `<main>`; the guard fixes all 8 mutation scenarios
+tested. Telling the owner to switch browsers or disable features isn't a real fix.
+The earlier `useTransitions={false}` change stays (harmless, removes a fragile path).
+
 ### 2026-10-19 — Water Shop Manager: router navigations without React transitions
 **Decision:** `<BrowserRouter useTransitions={false}>`.
 **Why:** React Router 8 wraps every navigation in `startTransition`. React 19.3 then

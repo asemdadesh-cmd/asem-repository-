@@ -262,6 +262,10 @@ _Last updated: 2026-10-19_
 
 ## Known Issues
 
+- **Water Shop Manager:** browsers that rewrite the page (Brave read-aloud/Speedreader,
+  Google Translate, some extensions) are handled by `domGuard.ts`; if a new one breaks
+  navigation, the error screen shows the error text — start there.
+
 - **Bugs:** None known.
 - **Stash limitations:** data is per-browser (no cloud sync); clearing site
   data deletes it unless backed up. No recurring transactions yet.
@@ -287,6 +291,13 @@ _Last updated: 2026-10-19_
 ---
 
 ## Changelog
+
+- **2026-10-19** — Water Shop Manager: **root cause of the post-tap error found** — Brave on
+  Android (and similar browser features/extensions) wraps the page's `<main>` element;
+  React's next screen swap then threw `removeChild: not a child of this node`.
+  `src/lib/domGuard.ts` makes `removeChild`/`insertBefore` tolerate re-parented nodes;
+  the error screen also auto-reloads once on this error class. Reproduced and verified
+  with 8 DOM-mutation scenarios in Playwright.
 
 - **2026-10-19** — Water Shop Manager: second blank-page fix. Router navigations no longer
   run as React transitions (`BrowserRouter useTransitions={false}`), which stops React 19
