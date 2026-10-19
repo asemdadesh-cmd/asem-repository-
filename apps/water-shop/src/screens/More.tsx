@@ -1,3 +1,4 @@
+import { BUILD } from '@/lib/errorLog';
 import { BarChart3, ChevronLeft, HandCoins, Package, Receipt, Settings as SettingsIcon, Wallet, type LucideIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { Page, PageHeader } from '@/components/ui/page';
@@ -37,7 +38,7 @@ export default function More() {
           </li>
         ))}
       </ul>
-      <p className="mt-8 text-center text-sm text-ink-3">إدارة محل المياه · الإصدار <span className="num">1.0</span></p>
+      <p className="mt-8 text-center text-sm text-ink-3">إدارة محل المياه · الإصدار <span className="num">{BUILD}</span></p>
     </Page>
   );
 }

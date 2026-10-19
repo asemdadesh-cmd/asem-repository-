@@ -292,6 +292,12 @@ _Last updated: 2026-10-19_
 
 ## Changelog
 
+- **2026-10-19** — Water Shop Manager: owner still saw the post-tap error in Brave after #23.
+  Added self-heal (any screen crash reloads that screen once — a fresh load always
+  works), an on-phone error log (الإعدادات → سجل الأخطاء) with stack/cause/build/UA,
+  a build timestamp in المزيد/الإعدادات, and service-worker update checks on focus.
+  Issue brief: `apps/water-shop/BUG-BRAVE-NAVIGATION.md`.
+
 - **2026-10-19** — Water Shop Manager: **root cause of the post-tap error found** — Brave on
   Android (and similar browser features/extensions) wraps the page's `<main>` element;
   React's next screen swap then threw `removeChild: not a child of this node`.
