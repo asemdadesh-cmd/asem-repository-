@@ -4,9 +4,20 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-19_
+_Last updated: 2026-10-24_
 
 ---
+
+### 2026-10-24 — WASMA video: install the video skill per machine, commit only the piece
+**Decision:** Claude Video 2.0 is installed into `~/.claude/skills/` (not vendored into this
+marketplace); only the WASMA project source and its rendered files live in `videos/wasma-intro/`.
+GSAP is served from a local file inside the project.
+**Why:** The skill is 123 MB (61 MB of gallery videos) and has its own upstream; vendoring it would
+bloat every clone. A local GSAP file makes the render work without the jsDelivr CDN (blocked in the
+cloud container) and pins the exact version. Style choice: `swiss-kinetic` because its warm paper,
+ink and single accent object map 1:1 onto WASMA's paper/ink/lime and the logo's lime square.
+The skill's pacing check measures luma, and lime on paper is only ~14 levels apart, so motion is
+paced with ink moves (slices, swaps) rather than by the square alone.
 
 ### 2026-10-19 — Water Shop Manager: effects never return values (scrollTo returns a Promise in Chrome 154+)
 **Decision:** Effect bodies always use braces; keep the error log + build stamp permanently.

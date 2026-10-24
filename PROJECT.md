@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-10-19_
+_Last updated: 2026-10-24_
 
 ---
 
@@ -73,6 +73,8 @@ _Last updated: 2026-10-19_
   │   ├── pink-riot-club/             # Pink Riot Club 3D world (temporary home, own docs)
   │   ├── saraya-menu/                # Saraya QR digital menu demo (static, no deps)
   │   └── water-shop/                 # Water Shop Manager PWA (React + Dexie + Supabase)
+  ├── videos/
+  │   └── wasma-intro/                # WASMA brand sting (Claude Video 2.0 / HyperFrames)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -207,6 +209,22 @@ _Last updated: 2026-10-19_
 - **Status:** built, tests + build green, phone-size browser smoke test passed.
   Awaiting Supabase project + Vercel import + real-phone test by the owner.
 
+### WASMA brand sting — video (`videos/wasma-intro/`)
+- **What:** a 13.25 s 16:9 motion graphic for the WASMA (وسمة) studio website
+  (`asemdadesh-cmd/wasma-next`). Bilingual: «نصنع تجارب تترك وسمة», the five concept worlds,
+  "Work that leaves a mark", logo lockup. The logo's lime square is one continuous object.
+- **Made with:** the Claude Video 2.0 skill (`ItsssssJack/claude-video-2`, MIT), installed per
+  machine at `~/.claude/skills/claude-video-studio` (not vendored here: 123 MB, mostly gallery videos).
+  Style `swiss-kinetic`, re-coloured to the brand tokens from `wasma-next/src/app/globals.css`.
+- **Stack:** one HTML page (`proj/index.html`) with SVG + a paused GSAP 3.14.2 timeline, rendered
+  to MP4 by HyperFrames 0.8.181 (`npx`). GSAP is a local file (`proj/gsap.min.js`) so the render
+  needs no script CDN; fonts (Archivo, Readex Pro) load from Google Fonts at render time.
+- **Deliverables:** `wasma-intro.mp4` (web, 3.6 MB), `wasma-intro-master.mp4` (9.4 MB),
+  `wasma-intro-poster.jpg`. Embed snippet and re-render steps in the folder's README.
+- **Checks:** stills reviewed per shot; `pacing_check.py --end-hold 1.5` PASS on the final.
+
+---
+
 ## Database
 
 - **Repo:** no database. **Stash** stores data client-side in `localStorage`
@@ -291,6 +309,10 @@ _Last updated: 2026-10-19_
 ---
 
 ## Changelog
+
+- **2026-10-24** — Added the **WASMA brand sting** (`videos/wasma-intro/`): installed the Claude
+  Video 2.0 skill, built a 13.25 s bilingual motion graphic in the swiss-kinetic look re-coloured to
+  the WASMA brand, rendered with HyperFrames; web copy, master and poster committed.
 
 - **2026-10-19** — Water Shop Manager: **real root cause fixed.** The on-phone error log showed
   `TypeError: l is not a function` in React effect cleanup. `useEffect(() => window.scrollTo(0,0))`
