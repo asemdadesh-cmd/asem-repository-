@@ -1,0 +1,5 @@
+# renders and review frames are regenerated; only the delivered files are tracked
+out/
+proj/stills/
+proj/media/
+proj/.hyperframes/

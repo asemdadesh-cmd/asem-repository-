@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Readex+Pro:wght@500;700&display=swap" />
+    <!-- GSAP 3.14.2 from npm, served locally so the render needs no script CDN -->
+    <script src="gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #F4F1E8; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #F4F1E8; }
+      #stage, #grain, #specks, #light, #vignette { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+      #grain { mix-blend-mode: multiply; opacity: 0.8; pointer-events: none; }
+      #specks { mix-blend-mode: screen; opacity: 0.45; pointer-events: none; }
+      #light {
+        left: -480px; top: -270px; width: 2880px; height: 1620px; pointer-events: none;
+        background: radial-gradient(ellipse 42% 46% at 34% 30%, rgba(255, 253, 246, 0.55), rgba(255, 253, 246, 0) 70%);
+        mix-blend-mode: soft-light;
+      }
+      #vignette {
+        pointer-events: none; mix-blend-mode: multiply;
+        background:
+          radial-gradient(ellipse 85% 80% at 50% 40%, rgba(0,0,0,0) 55%, rgba(70, 66, 48, 0.15) 100%),
+          linear-gradient(160deg, rgba(0,0,0,0) 55%, rgba(60, 56, 40, 0.06) 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="13.25" data-width="1920" data-height="1080">
+      <svg id="stage" class="clip" data-start="0" data-duration="13.25" data-track-index="0"
+           viewBox="0 0 1920 1080" width="1920" height="1080" xmlns="http://www.w3.org/2000/svg">
+        <defs id="defs"></defs>
+        <g id="world"></g>
+      </svg>
+      <div id="light" class="clip" data-start="0" data-duration="13.25" data-track-index="1"></div>
+      <div id="vignette" class="clip" data-start="0" data-duration="13.25" data-track-index="2"></div>
+      <canvas id="grain" class="clip" data-start="0" data-duration="13.25" data-track-index="3" width="1920" height="1080"></canvas>
+      <canvas id="specks" class="clip" data-start="0" data-duration="13.25" data-track-index="4" width="1920" height="1080"></canvas>
+    </div>
+    <script>
+      // ============================================================
+      // WASMA brand sting, in the swiss-kinetic style. 13.25 s, 120 BPM, does not loop.
+      // The lime square from the WASMA mark is ONE object all the way through:
+      // (times in the code below are pre-shift; shiftChildren near the end pulls everything after 0.9 s
+      //  in by 0.5 s and everything after 10.9 s in by another 0.25 s. Real times:)
+      //   0.0-2.5   grid draws, the square lands top left, «نصنع تجارب» slams up, slices, snaps back
+      //   2.5-4.5   «تترك وسمة» rises in behind it; the square shrinks into its full stop; slice on the beat
+      //   4.5-8.2   the poster shears out; the square opens into a viewfinder showing the five concept worlds
+      //   8.2-10.25 "Work that / leaves a mark"; the square is its full stop
+      //   10.25-13.25 the two strokes of the mark stamp down and the square flies home into the logo
+      // Words: WORDS below. Each word needs metrics in AR / EN (Chromium canvas measureText at 100 px:
+      // [advance, inkLeft, inkRight, ascent, descent]). Colours: LIME (the one accent), INK, PAPER.
+      // ============================================================
+      (function () {
+        const DUR = 13.25;
+        const LIME = '#BFFF38', INK = '#0B0D0C', PAPER = '#F4F1E8', PAPER2 = '#EBE7DB';
+        const AR_FONT = 'Readex Pro', EN_FONT = 'Archivo';
+        const WORDS = {
+          hero: 'نصنع تجارب', line2: 'تترك وسمة',
+          label: ['خمسة عوالم', 'صغيرة'], worlds: ['صحرا', 'نورا', 'نوتة', 'مدار', 'سند'],
+          en: ['Work that', 'leaves a mark'], nameAr: 'وسمة'
+        };
+        const AR = {"نصنع تجارب":[572.1,-1,566.7,74,46],"تترك وسمة":[536.8,-1,536.5,81,26],"خمسة عوالم":[564.7,-1,560,81,46],"صغيرة":[316.2,-1,310.9,84,27],"صحرا":[263.8,-6,258.5,74,26],"نورا":[166.3,-6,160.9,74,26],"نوتة":[187.5,-1,182.1,81,23],"مدار":[194.2,10,189.1,74,26],"سند":[192.5,-2,187,65,0],"وسمة":[277.1,-1,271.9,81,23],"وسمة@500":[269.9,-2,263.8,77,23]};
+        const EN = {"":[0,0,0,0,0],"W":[121.3,0,121,69,0],"Wo":[192.9,0,188.8,69,2],"Wor":[240.9,0,239.9,69,2],"Work":[314.2,0,313.9,73,2],"Work ":[344.6,0,313.9,73,2],"Work t":[394.7,0,390.6,73,2],"Work th":[470.2,0,464.7,73,2],"Work tha":[547.8,0,548.2,73,2],"Work that":[597.9,0,593.8,73,2],"l":[31.5,-6,25,73,0],"le":[109.5,-6,105.5,73,2],"lea":[187.1,-6,187.5,73,2],"leav":[257.7,-6,258.1,73,2],"leave":[334.6,-6,330.6,73,2],"leaves":[405.6,-6,402.6,73,2],"leaves ":[436,-6,402.6,73,2],"leaves a":[513.6,-6,514,73,2],"leaves a ":[544,-6,514,73,2],"leaves a m":[660.6,-6,655,73,2],"leaves a ma":[738.2,-6,738.6,73,2],"leaves a mar":[786.2,-6,785.2,73,2],"leaves a mark":[859.5,-6,859.2,73,2],"H":[98.9,-8,91,69,0],"WASMA@ls":[532.9,0,525.6,70,2]};
+        const NS = 'http://www.w3.org/2000/svg';
+        const defs = document.getElementById('defs');
+        const world = document.getElementById('world');
+
+        function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+        const rnd = mulberry32(2181);
+
+        function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+        function met(tab, s, size) { const m = tab[s], k = size / 100; return { w: m[0] * k, L: m[1] * k, R: m[2] * k, A: m[3] * k, D: m[4] * k }; }
+        const MA = (s, size) => met(AR, s, size), ME = (s, size) => met(EN, s, size);
+        function arText(parent, s, x, y, size, fill, weight) { const t = el('text', { x: x, y: y, 'font-size': size, fill: fill, 'font-family': AR_FONT, 'font-weight': weight || 700 }, parent); t.textContent = s; return t; }
+        function enText(parent, s, x, y, size, fill, extra) { const t = el('text', Object.assign({ x: x, y: y, 'font-size': size, fill: fill, 'font-family': EN_FONT, 'font-weight': 800, 'font-stretch': '125%' }, extra || {}), parent); t.textContent = s; return t; }
+        // Arabic hangs off a right edge: returns the text origin x and the ink's left edge
+        function arRight(s, size, right) { const m = MA(s, size); const x = right - m.R; return { x: x, m: m, left: x - m.L }; }
+        let fid = 0;
+        function blur(target, region) {
+          const id = 'mb' + (fid++);
+          const r = region || { x: '-20%', y: '-20%', w: '140%', h: '140%' };
+          const f = el('filter', { id: id, x: r.x, y: r.y, width: r.w, height: r.h, 'color-interpolation-filters': 'sRGB' }, defs);
+          const g = el('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: '0 0' }, f);
+          target.setAttribute('filter', 'url(#' + id + ')');
+          return g;
+        }
+        function clip(id, x, y, w, h) { const c = el('clipPath', { id: id, clipPathUnits: 'userSpaceOnUse' }, defs); return el('rect', { x: x, y: y, width: w, height: h }, c); }
+
+        // ---------- grid: 6 cols x 4 rows ----------
+        const colL = k => 80 + 300 * k;
+        const rowT = r => 92 + 248 * r;
+        const rowB = r => rowT(r) + 152;
+        const GX0 = 80, GX1 = 1840, GY0 = 92, GY1 = 988;
+
+        const tl = gsap.timeline({ paused: true });
+        el('rect', { x: 0, y: 0, width: 1920, height: 1080, fill: PAPER }, world);
+
+        const gridG = el('g', { opacity: 0.6 }, world);
+        const vlines = [], hlines = [];
+        for (let k = 0; k < 6; k++) for (const x of [colL(k), colL(k) + 260]) vlines.push(el('line', { x1: x, y1: GY0, x2: x, y2: GY0 + 96, stroke: INK, 'stroke-opacity': 0.3, 'stroke-width': 1.5 }, gridG));
+        for (let r = 0; r < 4; r++) for (const y of [rowT(r), rowB(r)]) hlines.push(el('line', { x1: GX1, y1: y, x2: GX1 - 40, y2: y, stroke: INK, 'stroke-opacity': 0.3, 'stroke-width': 1.5 }, gridG));
+        // Arabic-first: the rows draw from the right
+        vlines.slice().reverse().forEach((l, i) => tl.to(l, { attr: { y2: GY1 }, duration: 0.55, ease: 'power3.out' }, 0.0 + i * 0.035));
+        hlines.forEach((l, i) => tl.to(l, { attr: { x2: GX0 }, duration: 0.55, ease: 'power3.out' }, 0.28 + i * 0.045));
+        function pulse(t, peak) { tl.fromTo(gridG, { opacity: peak || 1 }, { opacity: 0.6, duration: 0.45, ease: 'power2.out', immediateRender: false }, t); }
+
+        // ---------- poster 1: «نصنع تجارب» then «تترك وسمة» (bottom rows, off the right margin) ----------
+        const posterWrap = el('g', {}, world);
+        const posterIn = el('g', { id: 'posterIn' }, posterWrap);
+        const fH = Math.round(1760 / ((AR[WORDS.hero][1] + AR[WORDS.hero][2]) / 100));
+        const hP = arRight(WORDS.hero, fH, GX1);
+        const H_base = Math.round(GY1 - hP.m.D);
+        // the line2 leaves room on its left for the square as its full stop
+        const m2u = AR[WORDS.line2], f2 = Math.round(1760 / ((m2u[1] + m2u[2]) / 100 + 0.28));
+        const l2 = arRight(WORDS.line2, f2, GX1);
+        const L2_base = Math.round(GY1 - l2.m.D);
+        const DOT2 = Math.round(0.2 * f2);
+        const stop2 = { cx: l2.left - 0.08 * f2 - DOT2 / 2, cy: L2_base - DOT2 / 2, s: DOT2 };
+
+        const rule = el('rect', { x: GX1, y: H_base + 10, width: 0, height: 14, fill: LIME }, posterIn);
+        clip('heroClip', -400, 560, 2800, GY1 + 4 - 560);
+        const heroMask = el('g', { 'clip-path': 'url(#heroClip)' }, posterIn);
+        const heroRise = el('g', {}, heroMask);
+        const heroBlur = blur(heroRise, { x: '-5%', y: '-40%', w: '110%', h: '180%' });
+        const ghost = el('g', {}, heroRise);
+        arText(ghost, WORDS.hero, hP.x, H_base, fH, LIME);
+        const hTop = H_base - hP.m.A, hH = GY1 - hTop;
+        const c1 = Math.round(hTop + hH * 0.38), c2 = Math.round(hTop + hH * 0.68);
+        const slices = [[-3000, c1], [c1, c2], [c2, 4000]].map((b, i) => {
+          clip('hband' + i, -3000, b[0], 8000, b[1] - b[0]);
+          const g = el('g', { 'clip-path': 'url(#hband' + i + ')' }, heroRise);
+          arText(g, WORDS.hero, hP.x, H_base, fH, INK);
+          return g;
+        });
+        const l2Rise = el('g', {}, heroMask);
+        const l2Blur = blur(l2Rise, { x: '-5%', y: '-40%', w: '110%', h: '180%' });
+        const l2Top = L2_base - l2.m.A, l2H = GY1 - l2Top;
+        const d1 = Math.round(l2Top + l2H * 0.4), d2 = Math.round(l2Top + l2H * 0.7);
+        const l2Slices = [[-3000, d1], [d1, d2], [d2, 4000]].map((b, i) => {
+          clip('lband' + i, -3000, b[0], 8000, b[1] - b[0]);
+          const g = el('g', { 'clip-path': 'url(#lband' + i + ')' }, l2Rise);
+          arText(g, WORDS.line2, l2.x, L2_base, f2, INK);
+          return g;
+        });
+
+        // ---------- the viewfinder: label (right) + concept names (inside the panel, left) ----------
+        const PX = colL(0), PY = GY0, PW = colL(2) + 260 - colL(0), PH = GY1 - GY0;
+        const fLab = 150;
+        const labG = el('g', {}, world);
+        const labRises = WORDS.label.map((w, i) => {
+          const base = rowB(i);
+          clip('lab' + i, -400, base - 260, 2800, 260 + MA(w, fLab).D + 4);
+          const mask = el('g', { 'clip-path': 'url(#lab' + i + ')' }, labG);
+          const rise = el('g', {}, mask);
+          arText(rise, w, arRight(w, fLab, GX1).x, base, fLab, INK);
+          gsap.set(rise, { y: 260 });
+          return rise;
+        });
+        const fW = 300, W_right = PX + PW - 64, W_base = PY + PH - 72;
+        // a one-name window at the bottom of the panel: names swap through it like a conveyor
+        const WIN_T = Math.round(W_base - 0.81 * fW - 24);
+        clip('panelClip', PX, WIN_T, PW, PY + PH - WIN_T);
+        const worldsG = el('g', { 'clip-path': 'url(#panelClip)' }, world);
+        const worldRises = WORDS.worlds.map(w => {
+          const g = el('g', {}, worldsG);
+          const b = blur(g, { x: '-10%', y: '-60%', w: '120%', h: '220%' });
+          arText(g, w, arRight(w, fW, W_right).x, W_base, fW, INK);
+          gsap.set(g, { y: 420 });
+          return { g, b };
+        });
+        // viewfinder corner brackets (ink), drawn once the panel is open
+        const brG = el('g', {}, world);
+        const BI = 40, BL = 72, BT = 10;
+        const corners = [[PX + BI, PY + BI, 1, 1], [PX + PW - BI, PY + BI, -1, 1], [PX + BI, PY + PH - BI, 1, -1], [PX + PW - BI, PY + PH - BI, -1, -1]];
+        const brackets = corners.map(([x, y, sx, sy]) => {
+          const h = el('rect', { x: sx > 0 ? x : x, y: sy > 0 ? y : y - BT, width: 0, height: BT, fill: INK }, brG);
+          const v = el('rect', { x: sx > 0 ? x : x - BT, y: sy > 0 ? y : y, width: BT, height: 0, fill: INK }, brG);
+          return { h, v, x, y, sx, sy };
+        });
+
+        // ---------- poster 2: "Work that / leaves a mark" (off the left margin) ----------
+        const fE = 195;
+        const enWrap = el('g', {}, world);
+        const enIn = el('g', { id: 'enIn' }, enWrap);
+        const e1 = ME(WORDS.en[0], fE), E1_x = GX0 + e1.L, E1_base = rowB(1);
+        clip('e1Clip', -400, E1_base - 330, 2800, 330 + 6);
+        const e1Rise = el('g', {}, el('g', { 'clip-path': 'url(#e1Clip)' }, enIn));
+        const e1Blur = blur(e1Rise, { x: '-5%', y: '-60%', w: '110%', h: '220%' });
+        const e1Ghost = el('g', {}, e1Rise);
+        enText(e1Ghost, WORDS.en[0], E1_x, E1_base, fE, LIME);
+        enText(e1Rise, WORDS.en[0], E1_x, E1_base, fE, INK);
+        const e2m = ME(WORDS.en[1], fE), E2_x = GX0 + e2m.L, E2_base = GY1 - 4;
+        clip('e2Clip', 0, -3000, 1920, 8000);
+        const e2G = el('g', { 'clip-path': 'url(#e2Clip)' }, enIn);
+        const e2Letters = WORDS.en[1].split('').map((ch, i) => {
+          const slide = el('g', {}, e2G);
+          const b = blur(slide, { x: '-60%', y: '-60%', w: '220%', h: '220%' });
+          if (ch !== ' ') enText(slide, ch, E2_x + ME(WORDS.en[1].slice(0, i), fE).w, E2_base, fE, INK);
+          gsap.set(slide, { x: 2000 });
+          return { slide, b };
+        });
+        const DOTE = Math.round(0.22 * fE);
+        const stopE = { cx: E2_x + e2m.R + 0.07 * fE + DOTE / 2, cy: E2_base - DOTE / 2, s: DOTE };
+
+        // ---------- logo lockup: mark + WASMA + وسمة ----------
+        const LH = rowB(2) - rowT(1), LK = LH / 224, LX = GX0, LY = rowT(1);
+        const logoG = el('g', {}, world);
+        const strokes = ['M0 0H95L175 142L118 222Z', 'M177 0H272L348 138L279 224L177 35Z'].map(d => {
+          const g = el('g', {}, logoG);
+          const lift = el('g', {}, g);
+          el('path', { d: d, fill: INK, transform: 'translate(' + LX + ' ' + LY + ') scale(' + LK + ')' }, lift);
+          gsap.set(lift, { opacity: 0 });
+          return lift;
+        });
+        const slot = { cx: LX + (334 + 31) * LK, cy: LY + 31 * LK, s: 62 * LK };
+        const WM_x = LX + 396 * LK + 88, fWM = Math.floor((GX1 - WM_x) / (EN['WASMA@ls'][2] / 100));
+        const WM_base = Math.round(LY + ME('H', fWM).A);
+        clip('wmClip', -400, LY - 4, 2800, WM_base - LY + 8);
+        const wmRise = el('g', {}, el('g', { 'clip-path': 'url(#wmClip)' }, logoG));
+        enText(wmRise, 'WASMA', WM_x, WM_base, fWM, INK, { 'letter-spacing': (0.06 * fWM).toFixed(1) });
+        gsap.set(wmRise, { y: 260 });
+        const fNA = Math.round(fWM * 0.82);
+        const na = MA(WORDS.nameAr + '@500', fNA), NA_base = Math.round(LY + LH - na.D);
+        clip('naClip', -400, NA_base - na.A - 8, 2800, na.A + na.D + 12);
+        const naRise = el('g', {}, el('g', { 'clip-path': 'url(#naClip)' }, logoG));
+        arText(naRise, WORDS.nameAr, WM_x + na.L, NA_base, fNA, INK, 500);
+        gsap.set(naRise, { y: 260 });
+
+        // ---------- THE LIME SQUARE (one object, drawn above everything) ----------
+        const sqG = el('g', {}, world);
+        const sq = el('rect', { x: 0, y: 0, width: 400, height: 400, fill: LIME }, sqG);
+        let SQ = { cx: GX0 + 200, cy: GY0 + 200, w: 400, h: 400 };
+        const attrOf = s => ({ x: s.cx - s.w / 2, y: s.cy - s.h / 2, width: s.w, height: s.h });
+        gsap.set(sq, { attr: attrOf(SQ) });
+        gsap.set(sqG, { opacity: 0 });
+        function sqTo(t, to, dur, ease) {
+          const nx = Object.assign({}, SQ, to); if (to.s) { nx.w = nx.h = to.s; }
+          tl.to(sq, { attr: attrOf(nx), duration: dur, ease: ease || 'power4.inOut' }, t);
+          SQ = nx;
+        }
+        function sqArc(t, to, dur, h) {
+          const from = Object.assign({}, SQ), nx = Object.assign({}, SQ, to); if (to.s) { nx.w = nx.h = to.s; }
+          const pr = { p: 0 };
+          tl.to(pr, { p: 1, duration: dur, ease: 'power3.inOut', onUpdate: () => {
+            const p = pr.p, lerp = (a, b) => a + (b - a) * p;
+            const s = { cx: lerp(from.cx, nx.cx), cy: lerp(from.cy, nx.cy) - Math.sin(Math.PI * p) * h, w: lerp(from.w, nx.w), h: lerp(from.h, nx.h) };
+            gsap.set(sq, { attr: attrOf(s) });
+          } }, t);
+          SQ = nx;
+        }
+        function squash(t, sx, sy, dur) {
+          const o = SQ.cx + ' ' + (SQ.cy + SQ.h / 2);
+          tl.fromTo(sq, { scaleX: sx, scaleY: sy, svgOrigin: o }, { scaleX: 1, scaleY: 1, svgOrigin: o, duration: dur || 0.4, ease: 'elastic.out(1, 0.45)', immediateRender: false }, t);
+        }
+        function kick(t) {
+          const y0 = SQ.cy, a0 = attrOf(SQ), a1 = attrOf(Object.assign({}, SQ, { cy: y0 - Math.max(18, SQ.h * 0.5) }));
+          tl.to(sq, { attr: { y: a1.y }, duration: 0.12, ease: 'power2.out' }, t - 0.12);
+          tl.to(sq, { attr: { y: a0.y }, duration: 0.14, ease: 'power2.in' }, t);
+          squash(t + 0.14, 1.3, 0.75, 0.35);
+          pulse(t, 0.8);
+        }
+
+        // the viewfinder's contents sit on top of the lime panel
+        world.appendChild(worldsG); world.appendChild(brG);
+
+        // ---------- band shear-out of a whole poster (cut on motion) ----------
+        function shearOut(t, wrap, srcId, cuts) {
+          const edges = [-400].concat(cuts, [1500]);
+          const bands = [];
+          for (let i = 0; i < edges.length - 1; i++) {
+            const id = srcId + 'B' + i;
+            clip(id, -4000, edges[i], 10000, edges[i + 1] - edges[i]);
+            const g = el('g', { 'clip-path': 'url(#' + id + ')', opacity: 0 }, null);
+            el('use', { href: '#' + srcId }, g);
+            world.insertBefore(g, wrap.nextSibling);
+            bands.push({ g, bl: blur(g, { x: '-10%', y: '-5%', w: '120%', h: '110%' }) });
+          }
+          tl.set(wrap, { opacity: 0 }, t);
+          bands.forEach((B, i) => {
+            tl.set(B.g, { opacity: 1 }, t);
+            tl.to(B.g, { x: (i % 2 ? 2200 : -2200), duration: 0.3, ease: 'power4.in' }, t + i * 0.05);
+            tl.fromTo(B.bl, { attr: { stdDeviation: '0 0' } }, { attr: { stdDeviation: '70 0' }, duration: 0.3, ease: 'power4.in', immediateRender: false }, t + i * 0.05);
+          });
+        }
+
+        // ================== TIMELINE ==================
+        // 0.2 lime baseline rule draws (right to left) where the hero will land
+        tl.to(rule, { attr: { x: GX0, width: GX1 - GX0 }, duration: 0.7, ease: 'power3.inOut' }, 0.2);
+
+        // 1.0 the square lands, top left
+        tl.fromTo(sqG, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: 'power2.out', immediateRender: false }, 0.95);
+        tl.fromTo(sq, { scale: 0.7, svgOrigin: SQ.cx + ' ' + SQ.cy }, { scale: 1, svgOrigin: SQ.cx + ' ' + SQ.cy, duration: 0.55, ease: 'back.out(1.5)', immediateRender: false }, 0.95);
+        pulse(1.0, 0.85);
+
+        // 1.5 SLAM «نصنع تجارب» with a lime mis-registered ghost
+        gsap.set(heroRise, { y: 520 });
+        gsap.set(ghost, { x: 18, y: 40 });
+        tl.to(heroRise, { y: 0, duration: 0.36, ease: 'expo.out' }, 1.48);
+        tl.fromTo(heroBlur, { attr: { stdDeviation: '0 34' } }, { attr: { stdDeviation: '0 0' }, duration: 0.24, ease: 'power2.out', immediateRender: false }, 1.48);
+        tl.to(ghost, { x: 0, y: 0, duration: 0.42, ease: 'power3.out' }, 1.58);
+        pulse(1.52);
+        // 2.0 slice, 2.5 snap back on the beat
+        tl.to(slices[0], { x: 150, duration: 0.22, ease: 'power4.inOut' }, 1.92);
+        tl.to(slices[1], { x: -190, duration: 0.22, ease: 'power4.inOut' }, 1.95);
+        tl.to(slices[2], { x: 90, duration: 0.22, ease: 'power4.inOut' }, 1.98);
+        tl.to(slices, { x: 0, duration: 0.26, ease: 'expo.out', stagger: 0.03 }, 2.46);
+        tl.to(sq, { scale: 0.92, svgOrigin: SQ.cx + ' ' + SQ.cy, duration: 0.08, ease: 'power2.out' }, 2.48);
+        tl.to(sq, { scale: 1, svgOrigin: SQ.cx + ' ' + SQ.cy, duration: 0.35, ease: 'elastic.out(1, 0.4)' }, 2.56);
+        tl.set(ghost, { opacity: 0 }, 2.8);
+
+        // 3.0 conveyor: the hero rises out, «تترك وسمة» rises in behind it; the rule follows the baseline
+        tl.to(heroRise, { y: -560, duration: 0.3, ease: 'power4.in' }, 2.92);
+        tl.set(heroRise, { opacity: 0 }, 3.24);
+        tl.fromTo(heroBlur, { attr: { stdDeviation: '0 0' } }, { attr: { stdDeviation: '0 40' }, duration: 0.3, ease: 'power4.in', immediateRender: false }, 2.92);
+        gsap.set(l2Rise, { y: 460 });
+        tl.to(l2Rise, { y: 0, duration: 0.4, ease: 'expo.out' }, 3.12);
+        tl.fromTo(l2Blur, { attr: { stdDeviation: '0 34' } }, { attr: { stdDeviation: '0 0' }, duration: 0.26, ease: 'power2.out', immediateRender: false }, 3.12);
+        tl.to(rule, { attr: { y: L2_base + 10, x: l2.left, width: GX1 - l2.left }, duration: 0.46, ease: 'power4.inOut' }, 3.0);
+        pulse(3.5, 0.9);
+        // the square shrinks into the full stop of «وسمة»
+        sqTo(3.06, { cx: stop2.cx, cy: stop2.cy, s: stop2.s }, 0.5, 'power3.inOut');
+        squash(3.56, 1.35, 0.72, 0.45);
+        // 4.0 slice on the beat, 4.5 snap back (the full stop kicks with it)
+        tl.to(l2Slices[0], { x: 120, duration: 0.22, ease: 'power4.inOut' }, 3.92);
+        tl.to(l2Slices[1], { x: -160, duration: 0.22, ease: 'power4.inOut' }, 3.95);
+        tl.to(l2Slices[2], { x: 70, duration: 0.22, ease: 'power4.inOut' }, 3.98);
+        tl.to(l2Slices, { x: 0, duration: 0.26, ease: 'expo.out', stagger: 0.03 }, 4.46);
+        pulse(4.0, 0.85);
+        kick(4.5);
+
+        // 5.0 the poster shears out; the square opens into the viewfinder (cols 1-3, full height)
+        shearOut(5.0, posterWrap, 'posterIn', [c1, rowT(3), 1000]);
+        sqTo(5.0, { cx: PX + PW / 2, cy: PY + PH / 2, w: PW, h: PH }, 0.5, 'power4.inOut');
+        pulse(5.5);
+        brackets.forEach((B, i) => {
+          const t = 5.5 + i * 0.03;
+          tl.to(B.h, { attr: { width: BL, x: B.sx > 0 ? B.x : B.x - BL }, duration: 0.3, ease: 'power3.out' }, t);
+          tl.to(B.v, { attr: { height: BL, y: B.sy > 0 ? B.y : B.y - BL }, duration: 0.3, ease: 'power3.out' }, t);
+        });
+        labRises.forEach((r, i) => tl.to(r, { y: 0, duration: 0.4, ease: 'expo.out' }, 5.5 + i * 0.12));
+        // the five worlds swap through the viewfinder on the beat
+        const swaps = [5.75, 6.25, 6.75, 7.25, 7.75];
+        worldRises.forEach((W, i) => {
+          const tin = swaps[i];
+          tl.to(W.g, { y: 0, duration: 0.34, ease: 'expo.out' }, tin);
+          tl.fromTo(W.b, { attr: { stdDeviation: '0 30' } }, { attr: { stdDeviation: '0 0' }, duration: 0.22, ease: 'power2.out', immediateRender: false }, tin);
+          const tout = i < swaps.length - 1 ? swaps[i + 1] - 0.06 : 8.2;
+          tl.to(W.g, { y: -420, duration: 0.26, ease: 'power4.in' }, tout);
+          if (i > 0) pulse(tin, 0.8);
+        });
+
+        // 8.25 the viewfinder closes into the big square, top right; brackets and label go
+        brackets.forEach(B => {
+          tl.to(B.h, { attr: { width: 0, x: B.x }, duration: 0.18, ease: 'power3.in' }, 8.2);
+          tl.to(B.v, { attr: { height: 0, y: B.y }, duration: 0.18, ease: 'power3.in' }, 8.2);
+        });
+        labRises.forEach((r, i) => tl.to(r, { y: -480, duration: 0.28, ease: 'power4.in' }, 8.22 + i * 0.04));
+        sqTo(8.3, { cx: GX1 - 200, cy: GY0 + 200, w: 400, h: 400 }, 0.46, 'power4.inOut');
+        squash(8.76, 1.12, 0.9, 0.4);
+
+        // 8.75 "Work that" slams up; 9.25 "leaves a mark" slides in letter by letter
+        gsap.set(e1Rise, { y: 330 });
+        gsap.set(e1Ghost, { x: -16, y: 34 });
+        tl.to(e1Rise, { y: 0, duration: 0.36, ease: 'expo.out' }, 8.73);
+        tl.fromTo(e1Blur, { attr: { stdDeviation: '0 30' } }, { attr: { stdDeviation: '0 0' }, duration: 0.24, ease: 'power2.out', immediateRender: false }, 8.73);
+        tl.to(e1Ghost, { x: 0, y: 0, duration: 0.42, ease: 'power3.out' }, 8.83);
+        tl.set(e1Ghost, { opacity: 0 }, 9.5);
+        pulse(8.76);
+        e2Letters.forEach((Lt, i) => {
+          const t = 9.22 + i * 0.03;
+          tl.to(Lt.slide, { x: 0, duration: 0.44, ease: 'expo.out' }, t);
+          tl.fromTo(Lt.b, { attr: { stdDeviation: '46 0' } }, { attr: { stdDeviation: '0 0' }, duration: 0.3, ease: 'power2.out', immediateRender: false }, t);
+        });
+        pulse(9.25, 0.85);
+        // the square drops into the full stop of "mark"
+        sqArc(9.66, { cx: stopE.cx, cy: stopE.cy, s: stopE.s }, 0.5, 60);
+        squash(10.16, 1.35, 0.72, 0.45);
+        kick(10.5);
+
+        // 11.0 type shears out; the square leaps up and waits for its slot
+        shearOut(11.0, enWrap, 'enIn', [E1_base + 20, 760]);
+        pulse(11.0, 0.8);
+        // 11.5 the two strokes of the mark stamp down on 16ths
+        [[strokes[0], 11.5], [strokes[1], 11.625]].forEach(([S, t]) => {
+          tl.set(S, { opacity: 1 }, t - 0.15);
+          tl.fromTo(S, { scale: 1.14, svgOrigin: (LX + 180 * LK) + ' ' + (LY + 112 * LK) }, { scale: 1, svgOrigin: (LX + 180 * LK) + ' ' + (LY + 112 * LK), duration: 0.15, ease: 'power3.in', immediateRender: false }, t - 0.15);
+          tl.to(S, { scale: 0.985, svgOrigin: (LX + 180 * LK) + ' ' + (LY + 112 * LK), duration: 0.05, ease: 'power2.out' }, t);
+          tl.to(S, { scale: 1, svgOrigin: (LX + 180 * LK) + ' ' + (LY + 112 * LK), duration: 0.3, ease: 'elastic.out(1, 0.5)' }, t + 0.05);
+          pulse(t, 0.9);
+        });
+        // 12.0 the square flies home, into its slot in the mark
+        sqArc(11.52, { cx: slot.cx, cy: slot.cy, s: slot.s }, 0.48, 220);
+        squash(12.0, 1.3, 0.75, 0.4);
+        pulse(12.0);
+        // 12.25 the wordmark rises beside it
+        tl.to(wmRise, { y: 0, duration: 0.4, ease: 'expo.out' }, 12.22);
+        tl.to(naRise, { y: 0, duration: 0.4, ease: 'expo.out' }, 12.36);
+        pulse(12.5, 0.8);
+        kick(13.0);
+        pulse(13.5, 0.75);
+
+        // pacing: tighten the open (the square lands while the grid finishes) and the "mark" hold
+        tl.shiftChildren(-0.25, false, 10.9);
+        tl.shiftChildren(-0.5, false, 0.9);
+
+        tl.fromTo('#light', { x: 160, y: -40 }, { x: -160, y: 50, duration: DUR, ease: 'none' }, 0);
+        tl.set({}, {}, DUR);
+
+        // ---------- paper grain + ink specks (static, seeded) ----------
+        (function grain() {
+          const W = 1920, H = 1080;
+          const g = document.getElementById('grain').getContext('2d');
+          const sw = 96, shh = 54, small = document.createElement('canvas'); small.width = sw; small.height = shh;
+          const sc = small.getContext('2d'); const sd = sc.createImageData(sw, shh);
+          for (let i = 0; i < sw * shh; i++) { const v = 255 - rnd() * 9; sd.data[i * 4] = v; sd.data[i * 4 + 1] = v - 1; sd.data[i * 4 + 2] = v - 5; sd.data[i * 4 + 3] = 255; }
+          sc.putImageData(sd, 0, 0);
+          g.imageSmoothingEnabled = true; g.drawImage(small, 0, 0, W, H);
+          const img = g.getImageData(0, 0, W, H); const d = img.data;
+          for (let i = 0; i < W * H; i++) { const n = rnd(); const k = n * n * 30; d[i * 4] -= k; d[i * 4 + 1] -= k; d[i * 4 + 2] -= k * 1.1; }
+          g.putImageData(img, 0, 0);
+          g.lineCap = 'round';
+          for (let i = 0; i < 480; i++) {
+            const x = rnd() * W, y = rnd() * H, a = rnd() * Math.PI, l = 6 + rnd() * 22;
+            g.strokeStyle = 'rgba(110, 104, 80,' + (0.05 + rnd() * 0.08) + ')'; g.lineWidth = 0.6 + rnd() * 0.8;
+            g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a) * l * 0.5 + (rnd() - 0.5) * 6, y + Math.sin(a) * l * 0.5 + (rnd() - 0.5) * 6, x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
+          }
+          const s = document.getElementById('specks').getContext('2d');
+          const si = s.createImageData(W, H); const q = si.data;
+          for (let i = 0; i < W * H; i++) { const n = rnd(); const v = n > 0.985 ? 30 + rnd() * 50 : n * 14; q[i * 4] = v; q[i * 4 + 1] = v; q[i * 4 + 2] = v; q[i * 4 + 3] = 255; }
+          s.putImageData(si, 0, 0);
+        })();
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines['main'] = tl;
+        tl.seek(0);
+      })();
+    </script>
+  </body>
+</html>

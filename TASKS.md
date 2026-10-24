@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-10-19_
+_Last updated: 2026-10-24_
 
 ## ✅ Completed
 - [x] Build **Water Shop Manager** (`apps/water-shop/`) — offline PWA, debt ledger,
@@ -27,6 +27,8 @@ _Last updated: 2026-10-19_
       tests + build passing
 - [x] Build **Saraya Coffee House** QR menu demo (`apps/saraya-menu/`), static,
       Arabic and English, WhatsApp ordering; axe clean, phone and desktop checked
+- [x] **WASMA brand sting** (`videos/wasma-intro/`) — Claude Video 2.0, 13.25 s 16:9,
+      stills reviewed, pacing check PASS; web copy + master + poster
 
 ## 🔄 In Progress
 - [ ] **Water Shop Manager**: create Supabase project (disable sign-ups), run
@@ -40,6 +42,8 @@ _Last updated: 2026-10-19_
       `apps/pink-riot-club`). Detailed list: `apps/pink-riot-club/TASKS.md`.
 - [ ] Move Pink Riot Club to its own repo once the owner creates
       `pink-riot-club` (`git subtree split --prefix=apps/pink-riot-club`)
+- [ ] **WASMA video**: owner reviews it; then add it to `wasma-next` (`public/video/`,
+      embed snippet in `videos/wasma-intro/README.md`)
 - [ ] Verify global install works end-to-end (`/plugin marketplace add` +
       `/plugin install agency-review@nht-skills`)
 
@@ -49,6 +53,7 @@ _Last updated: 2026-10-19_
 - [ ] Stash: cash vs bank tracking (Libya's cash-liquidity reality)
 - [ ] Deploy Stash to Vercel (Root Directory `apps/money-tracker`)
 - [ ] Stash: recurring transactions (rent, salary, subscriptions)
+- [ ] WASMA video: 9:16 cut for Reels/Shorts/Status (re-laid out, not cropped)
 - [ ] Dogfood `council` on one real decision and tune the round word limits
 
 ## 💤 Backlog

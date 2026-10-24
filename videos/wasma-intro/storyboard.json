@@ -1,0 +1,42 @@
+{
+  "title": "WASMA brand sting",
+  "format": "16:9",
+  "seconds": 13.25,
+  "shots": [
+    {
+      "time": "0.0-2.5",
+      "graphic": "Grid draws itself; the lime square lands top left; «نصنع تجارب» slams up off the right margin with a lime ghost, slices into 3 bands, snaps back",
+      "asset": {
+        "kind": "code"
+      }
+    },
+    {
+      "time": "2.5-4.5",
+      "graphic": "Hero rises out, «تترك وسمة» rises in behind it; the square shrinks and lands as its full stop; it slices and snaps back on the beat",
+      "asset": {
+        "kind": "code"
+      }
+    },
+    {
+      "time": "4.5-8.2",
+      "graphic": "Poster shears out along the rows; the square opens into a lime viewfinder panel (cols 1-3); the five concept names swap through it on the beat; «خمسة عوالم صغيرة» on the right",
+      "asset": {
+        "kind": "code"
+      }
+    },
+    {
+      "time": "8.2-10.25",
+      "graphic": "Viewfinder closes to the square; 'Work that' slams up, 'leaves a mark' slides in letter by letter; the square is its full stop",
+      "asset": {
+        "kind": "code"
+      }
+    },
+    {
+      "time": "10.25-13.25",
+      "graphic": "Type shears out; the two ink strokes of the WASMA mark stamp down; the square arcs home into its slot; WASMA / وسمة rise in; hold",
+      "asset": {
+        "kind": "code"
+      }
+    }
+  ]
+}
