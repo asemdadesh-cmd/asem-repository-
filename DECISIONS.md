@@ -4,9 +4,17 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-10-19_
+_Last updated: 2026-11-26_
 
 ---
+
+### 2026-11-26 — Wedding invitation: procedural paper/lace/wax + real photos, not generated artwork
+**Decision:** Draw the envelope's paper grain, lace and wax seal with SVG lighting filters, and
+use the owner's own floral and hall photos (roses cut out with rembg). No AI-generated imagery.
+**Why:** The first version's hand-drawn SVG roses read as AI clip art. Canva's generator was tried.
+The connector returns only a 133×200 thumbnail here (canva.com is blocked by the session proxy),
+and it invents English names and can't produce clean, Arabic-correct envelope parts to animate.
+Procedural textures stay sharp at any screen size, weigh a few KB, and let the flap animate.
 
 ### 2026-10-19 — Water Shop Manager: effects never return values (scrollTo returns a Promise in Chrome 154+)
 **Decision:** Effect bodies always use braces; keep the error log + build stamp permanently.

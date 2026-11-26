@@ -5,7 +5,7 @@
 >
 > Status key: ✅ done · 🔄 in progress · ⬜ planned · 💤 backlog
 
-_Last updated: 2026-10-19_
+_Last updated: 2026-11-26_
 
 ## ✅ Completed
 - [x] Build **Water Shop Manager** (`apps/water-shop/`) — offline PWA, debt ledger,
@@ -27,6 +27,9 @@ _Last updated: 2026-10-19_
       tests + build passing
 - [x] Build **Saraya Coffee House** QR menu demo (`apps/saraya-menu/`), static,
       Arabic and English, WhatsApp ordering; axe clean, phone and desktop checked
+
+- [x] Build the **wedding invitation** (`apps/wedding-invitation/`): envelope animation, hall
+      photos, directions, zaffa, Artifact preview + ZIP, checked on phone emulation
 
 ## 🔄 In Progress
 - [ ] **Water Shop Manager**: create Supabase project (disable sign-ups), run

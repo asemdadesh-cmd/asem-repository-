@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-10-19_
+_Last updated: 2026-11-26_
 
 ---
 
@@ -181,6 +181,22 @@ _Last updated: 2026-10-19_
 
 ---
 
+### Wedding invitation — همام وندى (`apps/wedding-invitation/`)
+- **What:** an interactive, mobile-first Arabic (RTL) wedding invitation for the owner's
+  sister (14 Dec 2026, White Dream Hall, Tripoli). Full-screen lace envelope with a wax-seal
+  monogram opens (seal lifts, flap folds, card drawn out, petals, paper-rustle sound) into a
+  stationery suite: main card, save-the-date + countdown, hall photo polaroids + Google Maps
+  directions, zaffa (YouTube on tap, with a direct link). Replay button, reduced-motion fallback.
+- **Stack:** one static page (`invitation.html`) with inline CSS/JS, no dependencies. Paper
+  grain, lace and wax are SVG (lighting filters); roses are a cutout of the owner's floral photo
+  (rembg, offline step); fonts Aref Ruqaa + Amiri bundled locally.
+- **Delivery:** Claude Artifact preview (https://claude.ai/artifact/MUWfv91cKQWaueX9VHDrX2,
+  private) and `./build.sh` → `dist/wedding-invitation.zip` (unzip and open `index.html`).
+- **Checks:** Playwright on iPhone 13 emulation: open sequence, replay, reduced motion, photos load,
+  directions/YouTube links exact, no horizontal overflow, no console errors.
+
+---
+
 ### Water Shop Manager — إدارة محل المياه (`apps/water-shop/`)
 - **What:** Offline-first, Arabic RTL, installable PWA for one water-shop owner in
   Libya. Replaces the paper notebook: fast sales (cash / credit / partial), refills,
@@ -291,6 +307,9 @@ _Last updated: 2026-10-19_
 ---
 
 ## Changelog
+
+- **2026-11-26** — Added `apps/wedding-invitation/`: interactive Arabic wedding invitation
+  (envelope animation, real hall photos, directions, zaffa), Artifact preview and offline ZIP.
 
 - **2026-10-19** — Water Shop Manager: **real root cause fixed.** The on-phone error log showed
   `TypeError: l is not a function` in React effect cleanup. `useEffect(() => window.scrollTo(0,0))`
