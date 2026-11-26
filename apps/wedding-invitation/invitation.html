@@ -52,7 +52,7 @@ button,a{font:inherit;-webkit-tap-highlight-color:transparent}
   overflow:hidden;perspective:1600px;
   background-color:var(--env);
 }
-.lining{position:absolute;inset:0;background-color:var(--lining);background-image:var(--fine);background-blend-mode:multiply}
+.lining{position:absolute;inset:0;background:linear-gradient(rgba(228,194,191,.5),rgba(228,194,191,.62)),url(assets/hall/01-staircase.jpg) center 35%/cover,var(--lining)}
 .lining::after{content:"";position:absolute;inset:0;background:radial-gradient(70% 60% at 50% 25%,transparent,rgba(90,40,40,.2))}
 
 .preview{
@@ -139,7 +139,7 @@ body.revealed .stage{display:none}
 @keyframes sway{from{transform:rotateY(0) rotateX(20deg)}to{transform:rotateY(55deg) rotateX(-10deg)}}
 
 /* ================= Suite ================= */
-.suite{display:none;overflow:hidden}
+.suite{display:none;overflow-x:clip}
 body.revealed .suite{display:block;animation:rise 1s var(--ease) both}
 @keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
 .wrap{
@@ -228,6 +228,37 @@ body.revealed .suite{display:block;animation:rise 1s var(--ease) both}
 .btn-ghost{background:transparent;color:var(--ink);border:1px solid rgba(70,63,53,.45)}
 .btn-ghost:hover{background:rgba(255,255,255,.5)}
 
+/* venue gallery: photos rise out of an open envelope while scrolling */
+.vgal{position:relative;height:calc(100svh + var(--n,5) * 70svh);margin-block:-1rem}
+.vgal-sticky{position:sticky;top:0;height:100svh;display:grid;grid-template-rows:auto 1fr auto;gap:.4rem;
+  padding-block:calc(env(safe-area-inset-top,0px) + 1.4rem) calc(env(safe-area-inset-bottom,0px) + 1rem)}
+.vgal-head{text-align:center;display:grid;gap:0}
+.vgal-head h2{margin:0;font-family:var(--f-script);font-weight:400;font-size:clamp(2rem,8.5vw,2.5rem);line-height:1.3;color:var(--rose)}
+.vgal-head .venue{margin:0;font-size:1.2rem;font-weight:700;color:var(--ink)}
+.vgal-stage{position:relative;min-height:0}
+.ve{position:absolute;left:0;right:0;margin-inline:auto;bottom:3%;width:min(90%,420px);aspect-ratio:1.5/1}
+.ve-flap,.ve-back,.ve-pocket-wrap{position:absolute;left:0;right:0}
+.ve-flap{bottom:100%;height:60%;z-index:1;clip-path:polygon(0 100%,50% 0,100% 100%);background-color:#d9a9a7;background-image:var(--fine);background-blend-mode:multiply}
+.ve-flap::after{content:"";position:absolute;inset:0;clip-path:polygon(7% 100%,50% 10%,93% 100%);
+  background:linear-gradient(rgba(233,196,193,.35),rgba(233,196,193,.5)),url(assets/hall/05-arch.jpg) center 30%/cover}
+.ve-back{top:0;bottom:0;z-index:2;border-radius:3px;background-color:#d9a9a7;background-image:var(--fine);background-blend-mode:multiply;box-shadow:0 18px 34px rgba(110,60,60,.22)}
+.ve-back::after{content:"";position:absolute;inset:5% 5% 30%;background:linear-gradient(rgba(233,196,193,.35),rgba(233,196,193,.55)),url(assets/hall/05-arch.jpg) center 60%/cover}
+.ve-pocket-wrap{top:0;bottom:0;z-index:20;filter:drop-shadow(0 -2px 3px rgba(90,40,40,.18));pointer-events:none}
+.ve-pocket{position:absolute;inset:0;clip-path:polygon(0 0,50% 54%,100% 0,100% 100%,0 100%);border-radius:3px;
+  background-color:#e3b8b6;background-image:linear-gradient(170deg,rgba(255,255,255,.18),rgba(120,60,60,.06)),var(--fine);background-blend-mode:normal,multiply}
+.ve-pocket::after{content:"";position:absolute;inset:0;background:
+  linear-gradient(to top right,transparent 49.6%,rgba(130,70,70,.13) 50%,transparent 50.5%) 0 100%/50% 46% no-repeat,
+  linear-gradient(to top left,transparent 49.6%,rgba(130,70,70,.13) 50%,transparent 50.5%) 100% 100%/50% 46% no-repeat}
+.ve-seal{position:absolute;left:50%;top:54%;width:17%;transform:translate(-50%,-50%);z-index:21;pointer-events:none}
+.vgal .pol{position:absolute;left:50%;top:0;width:var(--pw,260px);margin-left:calc(var(--pw,260px) / -2);transform-origin:50% 50%;will-change:transform}
+.vgal .pol button,.vgal .pol.lead button{aspect-ratio:1/1}
+.vgal .pol.lead{padding:8px 8px 4px}
+.vgal-foot{display:grid;justify-items:center;gap:.2rem}
+.dots{display:flex;gap:.5rem;margin:0;padding:0;list-style:none}
+.dots li{width:7px;height:7px;border-radius:50%;background:#d8c3bd;transition:background .3s,transform .3s}
+.dots li.on{background:var(--rose);transform:scale(1.25)}
+.vgal-hint{margin:0;font-size:.95rem;color:var(--ink-soft);transition:opacity .4s}
+
 .oval{position:relative;justify-self:center;width:min(100%,350px);aspect-ratio:5/6;border-radius:50%;
   background-color:var(--ivory);background-image:var(--fine);background-blend-mode:multiply;
   box-shadow:0 0 0 7px var(--blush),0 0 0 8px #d7b0ac,0 12px 30px 8px rgba(80,40,40,.15);
@@ -257,6 +288,12 @@ body.revealed .suite{display:block;animation:rise 1s var(--ease) both}
 
 @media (min-width:640px){.card{padding:6rem 3rem 3.8rem}.blush{padding:2.8rem 2rem 2.2rem}}
 @media (prefers-reduced-motion:reduce){
+  .vgal{height:auto;margin:0}
+  .vgal-sticky{position:static;height:auto;padding:0}
+  .vgal-stage{display:grid;grid-template-columns:1fr 1fr;gap:1rem .9rem;padding-top:1rem}
+  .ve,.vgal-foot{display:none}
+  .vgal .pol{position:static;width:auto;margin:0;transform:rotate(var(--rot,0deg))!important}
+  .vgal .pol.lead{grid-column:1/-1}
   .flap,.seal,.preview,.open-wrap,.stage.leave{transition:none!important}
   body.revealed .suite{animation:fade .35s ease both}
   .petals{display:none}
@@ -370,18 +407,38 @@ body.revealed .suite{display:block;animation:rise 1s var(--ease) both}
       </div>
     </aside>
 
-    <section class="blush" aria-labelledby="venueTitle">
-      <span class="frame" aria-hidden="true"></span>
-      <h2 id="venueTitle">مكان الحفل</h2>
-      <p class="venue">صالة وايت دريم</p>
-      <p class="addr">طريق الشوك، بداية طريق مستشفى ابن النفيس، طرابلس</p>
-      <div class="polaroids" id="gallery">
-        <figure class="pol lead"><button type="button" aria-label="تكبير صورة الدرج"><img src="assets/hall/01-staircase.jpg" alt="الدرج المزدوج الواسع في صالة وايت دريم مزيّن بالورود البيضاء" loading="lazy" decoding="async"></button><figcaption>الدرج</figcaption></figure>
+    <section class="vgal" id="vgal" aria-labelledby="venueTitle">
+      <div class="vgal-sticky">
+        <header class="vgal-head">
+          <h2 id="venueTitle">مكان الحفل</h2>
+          <p class="venue">صالة وايت دريم</p>
+        </header>
+        <div class="vgal-stage" id="vgalStage">
+          <div class="ve" id="ve" aria-hidden="true">
+            <div class="ve-flap"></div>
+            <div class="ve-back"></div>
+            <div class="ve-pocket-wrap"><div class="ve-pocket"></div></div>
+            <div class="ve-seal" data-seal></div>
+          </div>
+          <figure class="pol lead"><button type="button" aria-label="تكبير صورة الدرج"><img src="assets/hall/01-staircase.jpg" alt="الدرج المزدوج الواسع في صالة وايت دريم مزيّن بالورود البيضاء" loading="lazy" decoding="async"></button><figcaption>الدرج</figcaption></figure>
         <figure class="pol"><button type="button" aria-label="تكبير صورة الطاولات"><img src="assets/hall/02-tables.jpg" alt="طاولات الضيوف والثريّات في صالة وايت دريم" loading="lazy" decoding="async" style="object-position:40% 50%"></button><figcaption>الطاولات</figcaption></figure>
         <figure class="pol"><button type="button" aria-label="تكبير صورة الكوشة"><img src="assets/hall/03-stage.jpg" alt="الكوشة: أريكة بيضاء تحت قوس مزيّن بالورود الوردية" loading="lazy" decoding="async"></button><figcaption>الكوشة</figcaption></figure>
         <figure class="pol"><button type="button" aria-label="تكبير صورة طاولة الورود"><img src="assets/hall/04-tables-roses.jpg" alt="طاولة طويلة مزيّنة بالورود الوردية والبيضاء" loading="lazy" decoding="async"></button><figcaption>تفاصيل الطاولات</figcaption></figure>
         <figure class="pol"><button type="button" aria-label="تكبير صورة المدخل"><img src="assets/hall/05-arch.jpg" alt="قوس مضاء ومرآة في مدخل الصالة" loading="lazy" decoding="async"></button><figcaption>المدخل</figcaption></figure>
+        </div>
+        <div class="vgal-foot" aria-hidden="true">
+          <ol class="dots" id="vdots"><li class="on"></li><li></li><li></li><li></li><li></li></ol>
+          <p class="vgal-hint" id="vhint">مرّروا للأسفل لتخرج صور الصالة من الظرف</p>
+        </div>
       </div>
+    </section>
+
+    <section class="blush" aria-labelledby="routeTitle">
+      <span class="frame" aria-hidden="true"></span>
+      <h2 id="routeTitle">الطريق إلى الحفل</h2>
+      <p class="venue">صالة وايت دريم</p>
+      <p class="addr">طريق الشوك، بداية طريق مستشفى ابن النفيس، طرابلس</p>
+      <div style="height:1.4rem"></div>
       <a class="btn btn-sage" href="https://www.google.com/maps/dir/?api=1&amp;destination=32.8335677%2C13.2210871&amp;destination_place_id=ChIJ625AtGOTqBMRY_0RH1CKGhU" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
         الاتجاهات على خرائط Google
@@ -528,6 +585,7 @@ body.revealed .suite{display:block;animation:rise 1s var(--ease) both}
     document.body.classList.add("revealed");
     scrollTo(0, 0);
     const h = $("#namesTitle"); h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true });
+    requestAnimationFrame(() => { vLayout(); vUpdate(); });
   }
   function openEnvelope() {
     if (busy) return; busy = true; openBtn.disabled = true;
@@ -566,6 +624,48 @@ body.revealed .suite{display:block;animation:rise 1s var(--ease) both}
     cd.querySelector('[data-u="m"]').textContent = ar(m % 60);
     setTimeout(tick, 30000);
   })();
+
+  /* ---------- venue gallery: polaroids rise out of the envelope as you scroll ---------- */
+  const vg = $("#vgal"), vst = $("#vgalStage"), ve = $("#ve"), vpols = [...vg.querySelectorAll(".pol")], VN = vpols.length;
+  const vdots = [...document.querySelectorAll("#vdots li")], vhint = $("#vhint");
+  const SX = [-.62, .62, -.38, .38, 0], SR = [-11, 10, -6, 7, 0];
+  let VL = null, vq = 0;
+  const lerp = (a, b, t) => a + (b - a) * t, clamp = (v) => Math.max(0, Math.min(1, v));
+  const ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  function vLayout() {
+    if (reduce() || !vst.offsetHeight) { VL = null; vpols.forEach((p) => (p.style.transform = "")); return; }
+    const eTop = ve.offsetTop, eH = ve.offsetHeight;
+    const room = eTop + eH * .3 - 10;                                  // space above the envelope's waist
+    const pw = Math.max(150, Math.min(vst.clientWidth * .68, 300, room / 1.2));
+    vst.style.setProperty("--pw", pw + "px");
+    const H = vpols[0].offsetHeight || pw * 1.2;
+    const inK = Math.min(.8, (eH * .9) / H);                          // waiting photos fit inside the pocket
+    VL = { pw, H, inK, inY: eTop + eH - 6 - H * (1 + inK) / 2, feY: Math.max(0, (room - H) / 2) };
+  }
+  function vUpdate() {
+    vq = 0;
+    if (!VL) return;
+    const r = vg.getBoundingClientRect(), total = vg.offsetHeight - innerHeight;
+    const f = clamp(-r.top / Math.max(1, total)) * VN;
+    const s = vpols.map((_, i) => ease(clamp((f - i) * 1.15)));
+    vpols.forEach((el, i) => {
+      const si = s[i], ni = i < VN - 1 ? s[i + 1] : 0;
+      const ins = { x: (i - 2) * 3, y: VL.inY - i * 1.5, r: (i - 2) * 1.2, k: VL.inK };
+      const fe = { x: 0, y: VL.feY, r: i % 2 ? 2 : -2, k: 1 };
+      const sl = { x: SX[i] * VL.pw * .55, y: VL.feY - VL.H * .04, r: SR[i], k: .56 };
+      const a = ni > 0 ? fe : ins, b = ni > 0 ? sl : fe, t = ni > 0 ? ni : si;
+      const x = lerp(a.x, b.x, t), y = lerp(a.y, b.y, t), rot = lerp(a.r, b.r, t), k = lerp(a.k, b.k, t);
+      el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${rot.toFixed(2)}deg) scale(${k.toFixed(3)})`;
+      el.style.zIndex = si < .45 ? 5 + i : (ni > .5 ? 10 + i : 40 + i);
+    });
+    const cur = Math.min(VN - 1, Math.floor(f));
+    vdots.forEach((d, i) => d.classList.toggle("on", i === cur));
+    vhint.style.opacity = f > .25 ? 0 : 1;
+  }
+  const vReq = () => { if (!vq) vq = requestAnimationFrame(vUpdate); };
+  addEventListener("scroll", vReq, { passive: true });
+  addEventListener("resize", () => { vLayout(); vReq(); });
+  matchMedia("(prefers-reduced-motion: reduce)").addEventListener?.("change", () => { vLayout(); vReq(); });
 
   /* ---------- lightbox ---------- */
   const pols = [...document.querySelectorAll(".pol")];

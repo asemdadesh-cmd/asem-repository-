@@ -8,8 +8,10 @@ Monday 14 December 2026, 8:00 pm Libya time, White Dream Hall, Tripoli.
   flap back, draws the card out in front, and drops rose petals, with a synthesised paper rustle.
   «أعد فتح الظرف» replays it. With reduced motion turned on, it switches to a short fade.
 - **Suite:** main card with real roses (cut out from the floral mood board photo), sage save-the-date
-  with a countdown, blush venue card with the hall photos as polaroids (tap to enlarge),
-  Google Maps directions, and an oval zaffa card.
+  with a countdown, then the venue gallery: an open pink envelope stays pinned while you scroll and
+  the hall photos rise out of it as polaroids, fanning into a stack (tap to enlarge). With reduced
+  motion it is a plain photo grid. Then Google Maps directions and an oval zaffa card.
+- **Linings:** the opening envelope is lined with the staircase photo; the gallery envelope with the arch.
 - **Zaffa:** on a normal http(s) host the YouTube player embeds on tap. Inside `file://` or a sandboxed
   preview it opens YouTube directly. A direct YouTube link is always shown.
 

@@ -185,7 +185,8 @@ _Last updated: 2026-11-26_
 - **What:** an interactive, mobile-first Arabic (RTL) wedding invitation for the owner's
   sister (14 Dec 2026, White Dream Hall, Tripoli). Full-screen lace envelope with a wax-seal
   monogram opens (seal lifts, flap folds, card drawn out, petals, paper-rustle sound) into a
-  stationery suite: main card, save-the-date + countdown, hall photo polaroids + Google Maps
+  stationery suite: main card, save-the-date + countdown, a scroll-driven venue gallery (a pinned
+  open envelope; the hall photos rise out of it as polaroids while scrolling), Google Maps
   directions, zaffa (YouTube on tap, with a direct link). Replay button, reduced-motion fallback.
 - **Stack:** one static page (`invitation.html`) with inline CSS/JS, no dependencies. Paper
   grain, lace and wax are SVG (lighting filters); roses are a cutout of the owner's floral photo
@@ -307,6 +308,9 @@ _Last updated: 2026-11-26_
 ---
 
 ## Changelog
+
+- **2026-11-26** — Wedding invitation: hall photos now live inside the envelopes: staircase as the
+  opening envelope's lining, and a scroll-pinned envelope the photos rise out of one by one.
 
 - **2026-11-26** — Added `apps/wedding-invitation/`: interactive Arabic wedding invitation
   (envelope animation, real hall photos, directions, zaffa), Artifact preview and offline ZIP.
