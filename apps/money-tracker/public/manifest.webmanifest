@@ -1,0 +1,10 @@
+{
+  "name": "Stash — Money Tracker",
+  "short_name": "Stash",
+  "description": "Track spending, set budgets and grow your savings.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f6f2",
+  "theme_color": "#0f5f4f",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

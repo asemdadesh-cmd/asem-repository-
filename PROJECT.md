@@ -7,7 +7,7 @@
 > Companion files: **TASKS.md** (work checklist) and **DECISIONS.md** (why
 > choices were made).
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-11-26_
 
 ---
 
@@ -24,6 +24,14 @@ _Last updated: 2026-09-21_
 - **Target users:** The repository owner (NHT Estates) and any collaborator who
   runs Claude Code in this repo. End beneficiaries are the clients whose
   websites/landing pages get built through the skill.
+- **Apps:** `apps/money-tracker/` — **Stash**, a local-first money tracker web
+  app (Vite + React + TS) deployable to Vercel as its own project. See the
+  "Apps" section below.
+  `apps/pink-riot-club/` — **نادي التخربيق — Pink Riot Club**, a two-player 3D
+  friendship world (Vite + three.js + Netlify). Lives here **temporarily** until
+  its own repository exists (see Apps).
+  `apps/saraya-menu/` — **سرايا · Saraya Coffee House**, a bilingual QR digital
+  menu sales demo (static HTML/CSS/JS, no dependencies, Vercel).
 - **Current status:** ✅ Active. The `agency-review` skill is implemented and
   pushed on branch `claude/agency-review-framework-3a8hk8`. Living
   documentation (this file + TASKS.md + DECISIONS.md) being established now.
@@ -60,6 +68,11 @@ _Last updated: 2026-09-21_
   │               └── reference/
   │                   ├── checklist.md    # final pass/fail approval checklist
   │                   └── rewrite-guide.md # copywriting & conversion patterns
+  ├── apps/
+  │   ├── money-tracker/              # Stash money tracker (self-contained Vite app)
+  │   ├── pink-riot-club/             # Pink Riot Club 3D world (temporary home, own docs)
+  │   ├── saraya-menu/                # Saraya QR digital menu demo (static, no deps)
+  │   └── water-shop/                 # Water Shop Manager PWA (React + Dexie + Supabase)
   ├── PROJECT.md                      # this file — living project docs
   ├── TASKS.md                        # completed / in-progress / planned work
   ├── DECISIONS.md                    # major technical decisions + rationale
@@ -97,10 +110,124 @@ _Last updated: 2026-09-21_
 
 ---
 
+## Apps
+
+### Stash — Money Tracker (`apps/money-tracker/`)
+- **Market:** Libya — LYD default currency, Libya-specific categories and
+  sample data, interest-free (halal) growth framing with a conservative 3%
+  default, Arabic-Indic digit input. UI language: English (Arabic/RTL planned).
+- **What:** Local-first personal finance app — transactions, budgets, savings
+  goals, insights ("next moves") and a compound-growth planner. Goal: help the
+  user spend less and save more.
+- **Stack:** Vite 8 + React 19 + TypeScript 7, plain CSS with design tokens
+  (light/dark), hand-rolled SVG charts, Vitest for unit tests. No backend.
+- **Structure:**
+  ```
+  apps/money-tracker/
+  ├── index.html, vercel.json, vite.config.ts, package.json (+ lockfile)
+  ├── public/            # favicon.svg, manifest.webmanifest, robots.txt
+  └── src/
+      ├── lib/           # types, store (useReducer + localStorage), money, dates,
+      │                  # stats, insights, projection, io (validate/backup/CSV), sample
+      ├── components/    # Icon, Sheet (<dialog>), MoneyInput, MonthSwitch, Charts, forms
+      └── views/         # Overview, Activity, Budgets, Goals, Grow, Settings
+  ```
+- **Data:** `localStorage` key `stash:v1`; money stored as integer minor units.
+  All loaded/imported data passes `parseState()` validation. Multi-tab sync via
+  the `storage` event.
+- **Environment:** none — no env vars, no third-party services.
+- **Deployment (Vercel):** import the repo, set **Root Directory =
+  `apps/money-tracker`**, deploy (Vite auto-detected; `npm run build` → `dist`).
+  `vercel.json` adds CSP + security headers, immutable asset caching, SPA
+  fallback. `npm run preview` serves the same headers locally.
+- **Checks:** `npm test` (18 unit tests), `npm run build` (typecheck + build).
+
+### Pink Riot Club — 3D friendship world (`apps/pink-riot-club/`)
+- **What:** نادي التخربيق — a private two-player 3D browser world (a gift from
+  عاصم to يسو): pool splash battle, football, shared drawing board, photo
+  gallery, eight characters, real two-device multiplayer. Arabic/Darija UI.
+- **Status:** **Temporary home.** The owner asked for its own repository; the
+  Claude GitHub connection cannot create repos (403). Once an empty
+  `pink-riot-club` repo exists, split it out with history:
+  `git subtree split --prefix=apps/pink-riot-club -b pink-riot-club` and push
+  that branch as the new repo's `main`.
+- **Docs:** the app keeps its own `PROJECT.md`, `TASKS.md`, `DECISIONS.md` and
+  `README.md` inside its folder — those are the source of truth for it.
+- **Deployment (Netlify project `pink-riot-club`):** link the repo, set **Base
+  directory = `apps/pink-riot-club`** (build/publish/functions come from its
+  `netlify.toml`). Never link this repo to any other host project.
+- **Private data:** her photos are never committed; they are uploaded to Netlify
+  Blobs through the app's admin-key-protected `/upload.html`.
+
+### Saraya Coffee House — QR digital menu demo (`apps/saraya-menu/`)
+- **What:** a sales demo for Libyan restaurant owners: a mobile-first menu for a
+  fictional Tripoli cafe, Arabic (RTL, default at `/`) and English (`/en/`). Five
+  categories, 18 items with LYD prices and Unsplash photos, a tray with
+  steppers, table number (from the QR link `?t=7`) and a kitchen note, and a
+  live message bubble that writes the WhatsApp order as you add items. Send
+  opens `wa.me` with the order filled in. Opening status uses Tripoli time.
+- **Stack:** plain HTML/CSS/JS. `build.mjs` (Node, no dependencies) renders the
+  two pages from `src/menu.js` into `public/`. Fonts from Google Fonts, photos
+  hotlinked from Unsplash's CDN (credits on the page).
+- **Config:** the cafe's WhatsApp number is `CAFE.whatsapp` in `src/menu.js`.
+  Empty (the default) opens WhatsApp's share sheet so the demo never messages a
+  stranger. Items, prices and photos are all in that file.
+- **Design record:** `apps/saraya-menu/BRIEF.md` (Scroll Craft brief, grammar,
+  feeling curve) and `scrollcraft/FINGERPRINTS.md`.
+- **Deployment (Vercel):** import the repo, Root Directory `apps/saraya-menu`.
+  `vercel.json` sets build `node build.mjs`, output `public`, no install, a
+  strict CSP and security headers.
+- **Checks:** `node build.mjs`, then `node serve.mjs` (http://localhost:4600).
+
+---
+
+### Wedding invitation — همام وندى (`apps/wedding-invitation/`)
+- **What:** an interactive, mobile-first Arabic (RTL) wedding invitation for the owner's
+  sister (14 Dec 2026, White Dream Hall, Tripoli). Full-screen lace envelope with a wax-seal
+  monogram opens (seal lifts, flap folds, card drawn out, petals, paper-rustle sound) into a
+  stationery suite: main card, save-the-date + countdown, a scroll-driven venue gallery (a pinned
+  open envelope; the hall photos rise out of it as polaroids while scrolling), Google Maps
+  directions, zaffa (YouTube on tap, with a direct link). Replay button, reduced-motion fallback.
+- **Stack:** one static page (`invitation.html`) with inline CSS/JS, no dependencies. Paper
+  grain, lace and wax are SVG (lighting filters); roses are a cutout of the owner's floral photo
+  (rembg, offline step); fonts Aref Ruqaa + Amiri bundled locally.
+- **Delivery:** Claude Artifact preview (https://claude.ai/artifact/MUWfv91cKQWaueX9VHDrX2,
+  private) and `./build.sh` → `dist/wedding-invitation.zip` (unzip and open `index.html`).
+- **Checks:** Playwright on iPhone 13 emulation: open sequence, replay, reduced motion, photos load,
+  directions/YouTube links exact, no horizontal overflow, no console errors.
+
+---
+
+### Water Shop Manager — إدارة محل المياه (`apps/water-shop/`)
+- **What:** Offline-first, Arabic RTL, installable PWA for one water-shop owner in
+  Libya. Replaces the paper notebook: fast sales (cash / credit / partial), refills,
+  customer debt ledger with repayments, expenses, daily cash closing with counted
+  cash, reports + CSV, WhatsApp-friendly statements, full catalog & price control.
+- **Stack:** React 19, TS, Vite 8, Tailwind v4 (shadcn-style primitives in
+  `src/components/ui`), Dexie (IndexedDB = primary DB), Supabase Postgres/Auth/RLS
+  (optional cloud backup + sync), react-hook-form + zod, lucide, vite-plugin-pwa,
+  self-hosted Cairo font. Tests: vitest + fake-indexeddb (34 tests).
+- **Structure:** `src/lib/` core — `money.ts` (integer millimes), `time.ts`
+  (Africa/Tripoli business dates), `types.ts`, `db.ts` (Dexie + seeded catalog with
+  fixed ids), `ops.ts` (the ONLY write path: validation + atomic record+outbox),
+  `ledger.ts` (pure derived balances/summaries), `sync.ts` (outbox push/pull),
+  `hooks.ts`, `auth.ts`, `lock.ts` (optional PIN). `src/screens/` — Dashboard,
+  NewSale, Customers, CustomerProfile, Pay, History, TxnDetail, Expense, Day,
+  Reports, More, settings/Catalog, settings/Settings. `supabase/migrations/` schema.
+- **Accounting model:** every financial event is an immutable `Txn` storing its
+  effects `salesM` / `cashM` / `debtM`; all balances and reports are sums.
+  Corrections are `reversal` txns (reason required). Overpayment blocked.
+- **Environment:** `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (optional; without
+  them the app runs local-only). Never the service-role key.
+- **Deploy:** Vercel project with Root Directory `apps/water-shop` (`vercel.json`
+  has SPA rewrites + security headers). Supabase setup steps in the app README.
+- **Status:** built, tests + build green, phone-size browser smoke test passed.
+  Awaiting Supabase project + Vercel import + real-phone test by the owner.
+
 ## Database
 
-- **Not applicable.** The project has no database. (Section retained so it can
-  be filled in if a data-backed website/app is added later.)
+- **Repo:** no database. **Stash** stores data client-side in `localStorage`
+  (see Apps → Stash); there is no server database.
 - Tables / Relationships / Schema / Indexes / Migrations: _none yet._
 
 ---
@@ -125,7 +252,7 @@ _Last updated: 2026-09-21_
 
 ## Environment
 
-- **Required environment variables:** _none._
+- **Required environment variables:** _none_ (including for Stash).
 - **Third-party services:** GitHub (hosting/version control); Claude Code (the
   agent that consumes the skill).
 - **Setup instructions:**
@@ -143,6 +270,8 @@ _Last updated: 2026-09-21_
 - **Deployment steps:** Commit and push to the working branch
   (`git push -u origin claude/agency-review-framework-3a8hk8`). The skill is
   "deployed" simply by being present in `.claude/skills/`.
+- **Stash:** Vercel project with Root Directory `apps/money-tracker` (see Apps).
+- **Saraya menu:** Vercel project with Root Directory `apps/saraya-menu` (see Apps).
 - **Hosting configuration:** _N/A for the repo._ Websites built with the skill
   are hosted per-project (documented in this file when that happens).
 
@@ -150,7 +279,13 @@ _Last updated: 2026-09-21_
 
 ## Known Issues
 
+- **Water Shop Manager:** the post-tap crash in Chrome 154+/Brave is fixed (see
+  `apps/water-shop/BUG-BRAVE-NAVIGATION.md`). For any new device-specific crash, ask the owner
+  for الإعدادات → سجل الأخطاء → مشاركة; map the stack with a sourcemap build of the same commit.
+
 - **Bugs:** None known.
+- **Stash limitations:** data is per-browser (no cloud sync); clearing site
+  data deletes it unless backed up. No recurring transactions yet.
 - **Technical debt:** Documentation currently updated manually; no automated
   enforcement that it stays in sync with changes.
 - **Limitations:** None currently. `claude/agency-review-framework-3a8hk8` is
@@ -173,6 +308,85 @@ _Last updated: 2026-09-21_
 ---
 
 ## Changelog
+
+- **2026-11-26** — Wedding invitation: hall photos now live inside the envelopes: staircase as the
+  opening envelope's lining, and a scroll-pinned envelope the photos rise out of one by one.
+
+- **2026-11-26** — Added `apps/wedding-invitation/`: interactive Arabic wedding invitation
+  (envelope animation, real hall photos, directions, zaffa), Artifact preview and offline ZIP.
+
+- **2026-10-19** — Water Shop Manager: **real root cause fixed.** The on-phone error log showed
+  `TypeError: l is not a function` in React effect cleanup. `useEffect(() => window.scrollTo(0,0))`
+  returned scrollTo's result, which is a Promise in Chrome 154+/Brave, so every navigation
+  crashed. Effect body now uses braces. Reproduced and verified by emulating Chrome 154.
+
+- **2026-10-19** — Water Shop Manager: owner still saw the post-tap error in Brave after #23.
+  Added self-heal (any screen crash reloads that screen once — a fresh load always
+  works), an on-phone error log (الإعدادات → سجل الأخطاء) with stack/cause/build/UA,
+  a build timestamp in المزيد/الإعدادات, and service-worker update checks on focus.
+  Issue brief: `apps/water-shop/BUG-BRAVE-NAVIGATION.md`.
+
+- **2026-10-19** — Water Shop Manager: **root cause of the post-tap error found** — Brave on
+  Android (and similar browser features/extensions) wraps the page's `<main>` element;
+  React's next screen swap then threw `removeChild: not a child of this node`.
+  `src/lib/domGuard.ts` makes `removeChild`/`insertBefore` tolerate re-parented nodes;
+  the error screen also auto-reloads once on this error class. Reproduced and verified
+  with 8 DOM-mutation scenarios in Playwright.
+
+- **2026-10-19** — Water Shop Manager: second blank-page fix. Router navigations no longer
+  run as React transitions (`BrowserRouter useTransitions={false}`), which stops React 19
+  from firing a fake Navigation-API navigation that some Android browsers can't
+  intercept. Added a root error boundary, a plain-DOM crash screen that shows the
+  error text, `translate="no"`, and an entrance animation that never hides content.
+
+- **2026-10-19** — Water Shop Manager: fixed blank white page when tapping buttons on the
+  live site. Screens are now bundled together (no per-screen downloads that can go
+  missing after a redeploy), an error screen with a reload button replaces any crash,
+  stale-script errors trigger one automatic reload, and `vercel.json` no longer serves
+  `index.html` in place of missing script files.
+
+- **2026-10-19** — Added **Water Shop Manager** (`apps/water-shop/`): offline-first Arabic
+  PWA for a Libyan water shop — sales/refills, credit & partial payments, debt ledger,
+  reversals, daily closing, reports/CSV, catalog & price settings, Supabase schema with
+  RLS + idempotent sync RPCs. Screens built in parallel by sub-agents on a shared core.
+
+- **2026-10-15** — Added **Saraya Coffee House** QR menu demo in `apps/saraya-menu/`:
+  bilingual static menu with a WhatsApp order that writes itself, built with the
+  Scroll Craft process (live surface grammar). Vercel Root Directory `apps/saraya-menu`.
+
+- **2026-10-06** — Root `netlify.toml` added: it points Netlify's `pink-riot-club` project at
+  `apps/pink-riot-club`, so the repo's default branch deploys the game and nothing else.
+
+- **2026-10-06** — **Pink Riot Club**: عاصم's avatar now wears a clean midnight-navy dinner suit
+  (satin shawl lapels, white shirt, burgundy tie, pink pocket square, black oxfords), replacing
+  the old jacket-and-jeans look. See `apps/pink-riot-club/DECISIONS.md`.
+
+- **2026-10-06** — **Pink Riot Club** 3D upgrade: rigged avatars with retargeted
+  mocap for the four human characters (outfits painted at build time), consent-
+  first moments together (hug, cheek kisses, high five, dance, holding hands,
+  blown kiss), HDRI lighting with post-processing on capable GPUs, pre-rendered
+  lobby portraits. Two-device e2e 18/18, unit tests 24/24. Details in
+  `apps/pink-riot-club/PROJECT.md`.
+
+- **2026-10-06** — Recovered **Pink Riot Club** into `apps/pink-riot-club/`. The
+  session that built it was cut off by a usage limit before pushing, and its
+  container was reclaimed; the code was rebuilt by replaying that session's
+  recorded file operations (both original commits reproduced exactly, build
+  byte-identical) and imported with `git subtree` so it can move to its own
+  repo unchanged.
+
+- **2026-10-02** — Localised **Stash for Libya**: LYD default currency (LYD first in the
+  list), categories for generator/electricity, mobile & internet, car & fuel,
+  family support, zakat & sadaqah, weddings & Eid; LYD sample data (Tripoli
+  salary, car/wedding/Umrah goals); Grow page reframed for interest-free saving
+  (gold, Islamic products, property) with a 3% default; amount inputs accept
+  Arabic-Indic digits and the "د.ل" sign.
+
+- **2026-10-02** — Added **Stash money tracker** in `apps/money-tracker/` (Vite + React +
+  TS, local-first): overview with savings-rate + insights, transactions, budgets
+  with auto-suggest, savings goals, compound-growth planner, JSON backup/restore,
+  CSV export, dark mode. Self-contained with its own `vercel.json` for one-step
+  Vercel deploys (Root Directory = `apps/money-tracker`).
 
 - **2026-09-21** — Added the **`council` plugin**: a three-lens deliberation skill
   (Skeptic / Builder / Risk) for costly or hard-to-reverse decisions. Runs

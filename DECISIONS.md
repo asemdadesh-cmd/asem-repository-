@@ -4,9 +4,120 @@
 > developer understands the reasoning, not just the outcome. Add a dated entry
 > for each significant choice. Newest at the top.
 
-_Last updated: 2026-09-21_
+_Last updated: 2026-11-26_
 
 ---
+
+### 2026-11-26 — Wedding invitation: procedural paper/lace/wax + real photos, not generated artwork
+**Decision:** Draw the envelope's paper grain, lace and wax seal with SVG lighting filters, and
+use the owner's own floral and hall photos (roses cut out with rembg). No AI-generated imagery.
+**Why:** The first version's hand-drawn SVG roses read as AI clip art. Canva's generator was tried.
+The connector returns only a 133×200 thumbnail here (canva.com is blocked by the session proxy),
+and it invents English names and can't produce clean, Arabic-correct envelope parts to animate.
+Procedural textures stay sharp at any screen size, weigh a few KB, and let the flap animate.
+
+### 2026-10-19 — Water Shop Manager: effects never return values (scrollTo returns a Promise in Chrome 154+)
+**Decision:** Effect bodies always use braces; keep the error log + build stamp permanently.
+**Why:** The real crash was `useEffect(() => window.scrollTo(0, 0))`: Chrome 154 made scroll
+methods return Promises, React treated it as a cleanup and threw on navigation. Earlier fixes
+(transitions off, DOM guard) addressed plausible-but-wrong causes because we couldn't see the
+device error; the on-phone error log found it in one round. Lesson: get the real stack first.
+
+### 2026-10-19 — Water Shop Manager: patch Node.removeChild/insertBefore for re-parented nodes
+**Decision:** Install a small guard (React issue #11538 workaround) before React mounts.
+**Why:** The owner uses Brave on Android. Its page features wrap app elements, so React's
+DOM bookkeeping goes stale and every navigation failed until reload. Reproduced
+exactly in Playwright by wrapping `<main>`; the guard fixes all 8 mutation scenarios
+tested. Telling the owner to switch browsers or disable features isn't a real fix.
+The earlier `useTransitions={false}` change stays (harmless, removes a fragile path).
+
+### 2026-10-19 — Water Shop Manager: router navigations without React transitions
+**Decision:** `<BrowserRouter useTransitions={false}>`.
+**Why:** React Router 8 wraps every navigation in `startTransition`. React 19.3 then
+starts a fake same-URL navigation through the browser Navigation API and only
+intercepts it when `canIntercept` is true; on browsers where it can't, a real
+navigation fires mid-transition. That matched the owner's report exactly: each tap
+went blank and a reload fixed it. Plain synchronous navigation costs nothing here
+(local data, no loaders). The crash overlay is there so any remaining device-specific
+failure shows its real error instead of a white page.
+
+### 2026-10-19 — Water Shop Manager: one bundle instead of per-screen lazy loading
+**Decision:** Import all screens eagerly (one ~215 KB gzipped JS file) and wrap the
+routes in an error boundary; reload once on `vite:preloadError`.
+**Why:** Taps on the live Vercel site produced a blank page. Lazy screen chunks can
+fail to load after a redeploy (the auto-updating service worker swaps versions under
+an open page, and the SPA rewrite answered missing `.js` files with HTML). For an
+offline-first app that precaches everything anyway, code-splitting saves nothing and
+adds a failure mode. The boundary guarantees the owner never sees a white screen.
+
+### 2026-10-19 — Water Shop Manager: local-first ledger with outbox sync
+**Decision:** IndexedDB (Dexie) is the primary database; Supabase is a backup/sync
+target reached through an ordered outbox and idempotent RPCs keyed by client UUIDs.
+Money is integer millimes. Every financial record is an immutable `Txn` carrying its
+own `salesM`/`cashM`/`debtM` effects; corrections are reversal rows, and Postgres
+triggers forbid UPDATE/DELETE. One unified `transactions` table (+ `transaction_items`)
+instead of separate sales/payments/expenses tables.
+**Why:** Libyan connectivity is unreliable, so the shop must work fully offline and
+never lose or duplicate a sale. Storing effects makes every balance a plain sum that
+can't drift, and a single append-only ledger is the simplest way to guarantee
+traceable corrections. Writes go through `security definer` RPCs that scope to the
+caller's business, so RLS needs only SELECT policies. Seeded catalog uses fixed ids
+so a second device never duplicates products. A 4-digit PIN is a convenience lock on
+top of the Supabase session, never a replacement.
+**Trade-off:** Last-write-wins for catalog/customer edits across devices (fine for one
+owner); server rejects (e.g. overpayment raced on two phones) stay visible in the
+outbox for manual retry rather than auto-resolving.
+
+### 2026-10-15 — Saraya menu is pre-rendered static HTML with hotlinked Unsplash photos
+**Decision:** Render the menu into two real HTML pages (`/` Arabic, `/en/` English)
+with a dependency-free `build.mjs`, add the tray in one small ES module, and serve
+photos from Unsplash's image CDN rather than committing them.
+**Why:** A QR menu is opened on mobile data by a customer who wants to read the
+menu now: real HTML shows the full menu before any script runs, and the two pages
+weigh about 37 KB of HTML each with no framework. Unsplash's CDN crops and serves
+AVIF/WebP at exactly the requested width, which beats anything committed here,
+and its guidelines ask for hotlinking. Trade-off: the photos depend on
+images.unsplash.com being reachable; a real client's menu would use their own
+photos committed to the app. The Scroll Craft engine is not used: the live
+surface grammar bans the act devices it exists for.
+
+### 2026-10-06 — Pink Riot Club lives in `apps/pink-riot-club/` until it gets its own repo
+**Decision:** Push the recovered Pink Riot Club project into this repo under
+`apps/pink-riot-club/` (imported with `git subtree`, history preserved) as a
+temporary home, rather than keeping it only in the session container.
+**Why:** The owner wants it in its own repository, but the Claude GitHub
+connection cannot create repositories (403), and the first build was lost
+because it was never pushed anywhere. A self-contained folder (own lockfile,
+`netlify.toml`, docs) touches nothing else here and can be split out with one
+`git subtree split`. Trade-off: until the owner creates the repo, the code is
+public in this tooling repo (photos excluded; the owner had agreed the source
+could be pushed), and Netlify must use Base directory `apps/pink-riot-club`.
+
+### 2026-10-02 — Stash targets Libya: LYD, interest-free framing, English UI first
+**Decision:** Default Stash to the Libyan dinar with Libya-specific categories and
+sample data; replace "investment return" with "expected yearly growth" at a
+conservative 3% default; accept Arabic-Indic digits in amount fields. Keep
+money stored as 1/100 units and display LYD with at most 2 decimals.
+**Why:** The owner is in Libya. Libyan banks operate interest-free (Law No. 1 of
+2013), so a "6% index fund return" was misleading; savers there use gold,
+Islamic products, property or small businesses. LYD's ISO minor unit is 1/1000
+(dirham), but dirhams are not used in daily prices, so 2-decimal display avoids
+noise like "LYD 12.500" without a data migration. Arabic keyboards on phones
+type ٠-٩, which the parser previously dropped. Trade-off: UI stays English for
+now; a full Arabic/RTL translation is planned as its own change.
+
+### 2026-10-02 — Stash: local-first Vite SPA in its own folder
+**Decision:** Build the money tracker as a static Vite + React + TypeScript SPA
+in `apps/money-tracker/`, storing data in `localStorage` (integer minor units),
+with its own lockfile and `vercel.json`. Charts are hand-rolled SVG.
+**Why:** The brief was "deploys to Vercel with no trouble". A static build with
+no backend, no env vars and no auth has nothing to misconfigure; the folder is
+self-contained so Vercel only needs Root Directory set. Local-first also means
+financial data never leaves the device (no privacy/compliance surface). Vite
+over Next.js: no server features needed, smaller and simpler. SVG charts over a
+chart library: three simple charts didn't justify ~100KB+ of JS. Trade-off: no
+multi-device sync and data loss if browser storage is cleared — mitigated with
+JSON backup/restore; cloud sync is in the backlog.
 
 ### 2026-09-21 — Three lenses, not eighteen personas
 **Decision:** Build the `council` plugin around three functional lenses

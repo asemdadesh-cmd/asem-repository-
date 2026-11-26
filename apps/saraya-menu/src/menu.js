@@ -1,0 +1,144 @@
+// Saraya Coffee House: a fictional cafe. Every name, price and the address are
+// sample data for a sales demo. Photos are from Unsplash and are illustrative.
+
+export const CAFE = {
+  // Set the cafe's WhatsApp number in international format without "+",
+  // e.g. "218912345678". Left empty, Send opens WhatsApp's share sheet instead
+  // of messaging a number, so the demo never writes to a stranger.
+  whatsapp: "",
+  timeZone: "Africa/Tripoli",
+  opens: 7, // 07:00
+  closes: 1, // 01:00, after midnight
+  currency: { ar: "د.ل", en: "LYD" },
+};
+
+const U = (path, w, h, color, by, user) => ({ path, w, h, color, by, user });
+
+export const PHOTOS = {
+  courtyard: U("photo-1771681208474-df56bf7a4db5", 2160, 2700, "#404026", "Monaz Nazary", "monazme"),
+  macchiato: U("photo-1625748121823-21f4613fc8fc", 4000, 6000, "#c0a68c", "Karolina Kołodziejczak", "rabbit_in_blue"),
+  espresso: U("photo-1579992357154-faf4bde95b3d", 4258, 6387, "#404026", "Nathan Dumlao", "nate_dumlao"),
+  cappuccino: U("photo-1509042239860-f550ce710b93", 4480, 6720, "#d9d9d9", "Nathan Dumlao", "nate_dumlao"),
+  turkish: U("photo-1661685249316-a06e692e1cb2", 4000, 6000, "#260c0c", "Igor Sporynin", "igorharrier"),
+  spanish: U("photo-1592663527359-cf6642f54cff", 4160, 5771, "#26260c", "tabitha turner", "tabithaturnervisuals"),
+  redtea: U("photo-1715017245420-9638115138a4", 4160, 6240, "#400c0c", "Zeki Okur", "zekiokur"),
+  minttea: U("photo-1591299089616-c9604047b1a6", 3024, 4032, "#8c8c8c", "Jaida Stewart", "jaidaquinn"),
+  icedlatte: U("photo-1517701550927-30cf4ba1dba5", 4480, 6720, "#40260c", "Nathan Dumlao", "nate_dumlao"),
+  orange: U("photo-1600271886742-f049cd451bba", 3865, 5797, "#262626", "ABHISHEK HAJARE", "abhishek_hajare"),
+  lemon: U("photo-1513558161293-cdaf765ed2fd", 3264, 4896, "#0c2626", "Melissa Walker Horn", "sugercoatit"),
+  sfinz: U("photo-1568148847348-1c03e5cc84d9", 3689, 5440, "#d9d9d9", "Sarah Shull", "sarahshull"),
+  shakshuka: U("photo-1520218576172-c1a2df3fa5fc", 3024, 4032, "#260c0c", "Jenn Kosar", "foodwithaview"),
+  breakfast: U("photo-1635432877848-9c86755eb2f9", 3072, 4608, "#0c2626", "Victoria Morgan", "camerasimagination"),
+  croissant: U("photo-1599940778173-e276d4acb2bb", 4808, 3265, "#d9c0c0", "Jocelyn Morales", "molnj"),
+  ghraiba: U("photo-1630782622114-613e6e9c5dc6", 4000, 6000, "#8c8c8c", "Adam Bartoszewicz", "bartoshevicz"),
+  maqrood: U("photo-1608582037152-adefa9decb70", 2448, 2448, "#d97326", "Geri Chapple", "gmchapple"),
+  cheesecake: U("photo-1567171466295-4afa63d45416", 2722, 4083, "#d9d9d9", "Waranya Mooldee", "anyadiary"),
+  tiramisu: U("photo-1782503708390-4e5fff098d57", 3024, 4032, "#8c8c8c", "Vlad Krytikov", "krytikoff"),
+};
+
+// One label schema for every item: name, a factual line, size or serving, price.
+export const MENU = [
+  {
+    id: "coffee",
+    name: { ar: "القهوة", en: "Coffee" },
+    items: [
+      { id: "macchiato", photo: "macchiato", price: 5, signature: true,
+        name: { ar: "مكياطة ليبية", en: "Libyan macchiato" },
+        note: { ar: "إسبريسو مزدوج تحت رغوة حليب كثيفة، في كأس زجاجي.", en: "Double espresso under dense milk foam, served in a glass." },
+        size: { ar: "كأس 120 مل", en: "120 ml glass" } },
+      { id: "espresso", photo: "espresso", price: 4,
+        name: { ar: "إسبريسو", en: "Espresso" },
+        note: { ar: "خلطة سرايا، تحميص متوسط بنكهة الكاكاو.", en: "Saraya house blend, medium roast, cocoa finish." },
+        size: { ar: "شوت مزدوج", en: "Double shot" } },
+      { id: "cappuccino", photo: "cappuccino", price: 8,
+        name: { ar: "كابتشينو", en: "Cappuccino" },
+        note: { ar: "إسبريسو وحليب مبخّر بطبقة رغوة ناعمة.", en: "Espresso and steamed milk with a fine foam cap." },
+        size: { ar: "كوب 180 مل", en: "180 ml cup" } },
+      { id: "turkish", photo: "turkish", price: 5,
+        name: { ar: "قهوة تركية", en: "Turkish coffee" },
+        note: { ar: "مطبوخة في الجزوة، تُقدَّم مع ماء وحبة حلقوم.", en: "Brewed in a cezve, served with water and a piece of lokum." },
+        size: { ar: "فنجان", en: "One cup" } },
+      { id: "spanish", photo: "spanish", price: 10,
+        name: { ar: "سبانش لاتيه مثلّج", en: "Iced Spanish latte" },
+        note: { ar: "إسبريسو وحليب مكثّف محلّى على ثلج.", en: "Espresso and sweetened condensed milk over ice." },
+        size: { ar: "كوب 350 مل", en: "350 ml glass" } },
+    ],
+  },
+  {
+    id: "tea",
+    name: { ar: "الشاي", en: "Tea" },
+    items: [
+      { id: "redtea", photo: "redtea", price: 4, signature: true,
+        name: { ar: "شاهي أحمر بالكاكاوية", en: "Red tea with peanuts" },
+        note: { ar: "شاي ليبي مركّز برغوة عالية وفول سوداني محمّص.", en: "Strong Libyan tea, tall foam, roasted peanuts on top." },
+        size: { ar: "كأس صغير", en: "Small glass" } },
+      { id: "minttea", photo: "minttea", price: 4,
+        name: { ar: "شاهي أخضر بالنعناع", en: "Green tea with mint" },
+        note: { ar: "شاي أخضر ونعناع طازج، يُصبّ من علو.", en: "Green tea and fresh mint, poured from height." },
+        size: { ar: "إبريق لشخص", en: "Pot for one" } },
+    ],
+  },
+  {
+    id: "cold",
+    name: { ar: "مشروبات باردة", en: "Cold drinks" },
+    items: [
+      { id: "icedlatte", photo: "icedlatte", price: 9,
+        name: { ar: "آيس لاتيه", en: "Iced latte" },
+        note: { ar: "إسبريسو مزدوج وحليب بارد على ثلج.", en: "Double espresso and cold milk over ice." },
+        size: { ar: "كوب 350 مل", en: "350 ml glass" } },
+      { id: "orange", photo: "orange", price: 9,
+        name: { ar: "عصير برتقال طازج", en: "Fresh orange juice" },
+        note: { ar: "يُعصر عند الطلب، بدون سكر مضاف.", en: "Pressed to order, no added sugar." },
+        size: { ar: "كوب 300 مل", en: "300 ml glass" } },
+      { id: "lemon", photo: "lemon", price: 8,
+        name: { ar: "ليمون بالنعناع", en: "Lemon and mint" },
+        note: { ar: "ليمون ونعناع مخفوقان مع ثلج مجروش.", en: "Lemon and mint blended with crushed ice." },
+        size: { ar: "كوب 350 مل", en: "350 ml glass" } },
+    ],
+  },
+  {
+    id: "breakfast",
+    name: { ar: "الفطور", en: "Breakfast" },
+    hours: { ar: "حتى 12:00 ظهرًا", en: "Until 12:00 noon" },
+    items: [
+      { id: "breakfast", photo: "breakfast", price: 25, signature: true,
+        name: { ar: "فطور سرايا", en: "Saraya breakfast" },
+        note: { ar: "بيض، جبن، زيتون، طماطم، هريسة، خبز التنور وقهوة تركية.", en: "Eggs, cheese, olives, tomato, harissa, tannour bread and a Turkish coffee." },
+        size: { ar: "لشخص واحد", en: "For one" } },
+      { id: "shakshuka", photo: "shakshuka", price: 15,
+        name: { ar: "شكشوكة", en: "Shakshouka" },
+        note: { ar: "بيض في صلصة طماطم وفلفل حار، تُقدَّم في المقلاة.", en: "Eggs in tomato and hot pepper sauce, served in the pan." },
+        size: { ar: "مقلاة مع خبز", en: "Pan, with bread" } },
+      { id: "sfinz", photo: "sfinz", price: 6,
+        name: { ar: "سفنز بالبيض", en: "Sfinz with egg" },
+        note: { ar: "عجينة ليبية مقلية، مع بيضة أو بالعسل.", en: "Libyan fried dough, with an egg or with honey." },
+        size: { ar: "قطعتان", en: "Two pieces" } },
+      { id: "croissant", photo: "croissant", price: 6,
+        name: { ar: "كرواسون بالزبدة", en: "Butter croissant" },
+        note: { ar: "يُخبز كل صباح.", en: "Baked every morning." },
+        size: { ar: "قطعة", en: "One piece" } },
+    ],
+  },
+  {
+    id: "sweets",
+    name: { ar: "الحلويات", en: "Sweets" },
+    items: [
+      { id: "maqrood", photo: "maqrood", price: 7,
+        name: { ar: "مقروض", en: "Maqrood" },
+        note: { ar: "سميد محشو بالتمر، مقلي ومغطّس بالعسل.", en: "Semolina filled with dates, fried and dipped in honey." },
+        size: { ar: "4 قطع", en: "4 pieces" } },
+      { id: "ghraiba", photo: "ghraiba", price: 6,
+        name: { ar: "غريبة", en: "Ghraiba" },
+        note: { ar: "بسكويت زبدة يذوب في الفم.", en: "Butter shortbread that melts on the tongue." },
+        size: { ar: "5 قطع", en: "5 pieces" } },
+      { id: "cheesecake", photo: "cheesecake", price: 12,
+        name: { ar: "تشيز كيك", en: "Cheesecake" },
+        note: { ar: "مخبوز، بصلصة التوت الأزرق.", en: "Baked, with blueberry compote." },
+        size: { ar: "شريحة", en: "One slice" } },
+      { id: "tiramisu", photo: "tiramisu", price: 13,
+        name: { ar: "تيراميسو", en: "Tiramisu" },
+        note: { ar: "بسكويت مغموس بالإسبريسو وكريمة الماسكاربوني.", en: "Espresso-soaked biscuit and mascarpone cream." },
+        size: { ar: "كأس", en: "One glass" } },
+    ],
+  },
+];
